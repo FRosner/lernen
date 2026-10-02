@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Würfeltürme</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #fff; --text: #1d2330; --muted: #6b7385; --line: #d8dce4;
+    --accent: #3b6fe0; --ok: #1f9d55; --bad: #d64545;
+    --top: #fbe7a1; --left: #e8b94a; --right: #c48d1c; --edge: #5a4310;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14171d; --card: #1e232d; --text: #e7eaf0; --muted: #98a1b3; --line: #343b49;
+      --accent: #6c97f5; --ok: #46c27d; --bad: #f06b6b;
+      --top: #f3d878; --left: #c9992f; --right: #94700f; --edge: #2a1f05;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px 16px; background: var(--bg); color: var(--text);
+    font: 16px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  main { max-width: 560px; margin: 0 auto; }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 16px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+  .settings { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; }
+  label.s { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: .9rem; }
+  select, button, input { font: inherit; color: inherit; }
+  select { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 4px 6px; }
+  button {
+    background: var(--accent); color: #fff; border: 0; border-radius: 8px; padding: 8px 14px; cursor: pointer;
+  }
+  button.secondary { background: transparent; color: var(--text); border: 1px solid var(--line); }
+  button:hover { filter: brightness(1.08); }
+  #figure { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+  .cube-top { fill: var(--top); }
+  .cube-top, .cube-side { stroke: var(--edge); stroke-width: 1.2; stroke-linejoin: round; }
+  #figure { touch-action: none; cursor: grab; user-select: none; }
+  #figure.dragging { cursor: grabbing; }
+  .gridwrap { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  #grid { display: grid; gap: 6px; }
+  #grid input {
+    width: 56px; height: 56px; text-align: center; font-size: 1.4rem; background: var(--bg);
+    border: 2px solid var(--line); border-radius: 8px; -moz-appearance: textfield;
+  }
+  #grid input:focus { outline: none; border-color: var(--accent); }
+  #grid input.ok { border-color: var(--ok); } #grid input.bad { border-color: var(--bad); }
+  #grid input::-webkit-outer-spin-button, #grid input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .hint { color: var(--muted); font-size: .85rem; text-align: center; }
+  .eye { align-self: flex-end; color: var(--accent); font-size: .85rem; }
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
+  #msg { min-height: 1.4em; text-align: center; margin-top: 12px; font-weight: 600; }
+  #msg.ok { color: var(--ok); } #msg.bad { color: var(--bad); }
+  #score { color: var(--muted); font-size: .9rem; text-align: center; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Würfeltürme</h1>
+  <p class="sub">Wie hoch ist jeder Turm? Trage die Anzahl der Würfel pro Feld ein (leere Felder zählen als 0).</p>
+
+  <div class="card settings">
+    <label class="s">Max. Zeilen
+      <select id="rows"><option>2</option><option>3</option><option selected>4</option><option>5</option></select>
+    </label>
+    <label class="s">Max. Spalten
+      <select id="cols"><option>2</option><option>3</option><option selected>4</option><option>5</option></select>
+    </label>
+    <label class="s">Max. Höhe
+      <select id="maxh"><option>2</option><option>3</option><option selected>4</option><option>5</option></select>
+    </label>
+    <button id="new">Neue Aufgabe</button>
+  </div>
+
+  <div class="card">
+    <svg id="figure" role="img" aria-label="Figur aus Würfeln"></svg>
+    <div class="hint">Zum Drehen ziehen – beim Loslassen springt die Figur zurück</div>
+  </div>
+
+  <div class="card gridwrap">
+    <div class="hint">Grundfläche von oben</div>
+    <div id="grid"></div>
+    <div class="eye">👁 Blick auf die Figur: von der Ecke unten rechts ↘</div>
+    <div class="actions">
+      <button id="check">Prüfen</button>
+      <button id="solve" class="secondary">Lösung zeigen</button>
+    </div>
+    <div id="msg"></div>
+    <div id="score"></div>
+  </div>
+</main>
+
+<script>
+const S = 38;              // Pixel pro Würfelkante
+const C = Math.sqrt(3) / 2;
+
+const $ = id => document.getElementById(id);
+let rows, cols, maxH, heights, solved, tries = 0, wins = 0;
+
+// Isometrische Projektion: +x nach rechts unten, +y nach links unten, +z nach oben.
+const proj = (x, y, z) => [(x - y) * C * S, ((x + y) * 0.5 - z) * S];
+
+function heightAt(h, x, y) {
+  return (y >= 0 && y < rows && x >= 0 && x < cols) ? h[y][x] : 0;
+}
+
+// Strahl vom Punkt p Richtung Betrachter (1,1,1); true, wenn ein Würfel im Weg ist.
+function blocked(h, p) {
+  for (let t = 1e-4; t < Math.max(rows, cols, maxH) + 2; t += 0.05) {
+    const x = Math.floor(p[0] + t), y = Math.floor(p[1] + t), z = Math.floor(p[2] + t);
+    if (x >= cols || y >= rows || z >= maxH) return false;
+    if (z >= 0 && heightAt(h, x, y) > z) return true;
+  }
+  return false;
+}
+
+// Menge aller sichtbaren Würfelflächen. Zwei Türme-Anordnungen mit gleicher
+// Signatur sehen im Bild identisch aus.
+function signature(h) {
+  const offs = [0.2, 0.5, 0.8], seen = [];
+  for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) for (let z = 0; z < h[y][x]; z++) {
+    for (const face of ["top", "x", "y"]) {
+      let vis = false;
+      for (const u of offs) for (const v of offs) {
+        const p = face === "top" ? [x + u, y + v, z + 1]
+                : face === "x"   ? [x + 1, y + u, z + v]
+                :                  [x + u, y + 1, z + v];
+        if (!vis && !blocked(h, p)) vis = true;
+      }
+      if (vis) seen.push(`${x},${y},${z},${face}`);
+    }
+  }
+  return seen.sort().join("|");
+}
+
+// Seitenflächen eines Einheitswürfels (ohne Boden) mit Normalen.
+const FACES = [
+  { n: [0, 0, 1],  v: [[0,0,1],[1,0,1],[1,1,1],[0,1,1]] },
+  { n: [1, 0, 0],  v: [[1,0,0],[1,1,0],[1,1,1],[1,0,1]] },
+  { n: [-1, 0, 0], v: [[0,0,0],[0,1,0],[0,1,1],[0,0,1]] },
+  { n: [0, 1, 0],  v: [[0,1,0],[1,1,0],[1,1,1],[0,1,1]] },
+  { n: [0, -1, 0], v: [[0,0,0],[1,0,0],[1,0,1],[0,0,1]] },
+];
+
+let figCubes = [], angle = 0, snapFrame = null;
+
+// Dreht einen Punkt um die Mitte der Grundfläche.
+function rot(x, y, a) {
+  const dx = x - cols / 2, dy = y - rows / 2, c = Math.cos(a), s = Math.sin(a);
+  return [cols / 2 + dx * c - dy * s, rows / 2 + dx * s + dy * c];
+}
+
+function projRot(x, y, z, a) {
+  const [rx, ry] = rot(x, y, a);
+  return proj(rx, ry, z);
+}
+
+function renderFigure(a) {
+  const c = Math.cos(a), s = Math.sin(a);
+  const rn = n => [n[0] * c - n[1] * s, n[0] * s + n[1] * c, n[2]];
+  const depth = ([x, y, z]) => { const [rx, ry] = rot(x + 0.5, y + 0.5, a); return rx + ry + z + 0.5; };
+  const occupied = (x, y, z) => z >= 0 && heightAt(heights, x, y) > z;
+
+  let svg = "";
+  for (const cube of [...figCubes].sort((p, q) => depth(p) - depth(q))) {
+    const [x, y, z] = cube;
+    for (const f of FACES) {
+      const n = rn(f.n);
+      if (n[0] + n[1] + n[2] <= 1e-9) continue;                 // vom Betrachter abgewandt
+      if (occupied(x + f.n[0], y + f.n[1], z + f.n[2])) continue; // von Nachbarwürfel verdeckt
+      const pts = f.v.map(([dx, dy, dz]) => projRot(x + dx, y + dy, z + dz, a).map(k => k.toFixed(1)).join(",")).join(" ");
+      if (f.n[2]) svg += `<polygon class="cube-top" points="${pts}"/>`;
+      else {
+        const t = Math.min(1, Math.max(0, (1 - n[0] + n[1]) / 2));
+        svg += `<polygon class="cube-side" style="fill:color-mix(in srgb, var(--left) ${(t * 100).toFixed(0)}%, var(--right))" points="${pts}"/>`;
+      }
+    }
+  }
+  $("figure").innerHTML = svg;
+}
+
+function drawFigure(h) {
+  figCubes = [];
+  for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) for (let z = 0; z < h[y][x]; z++) figCubes.push([x, y, z]);
+
+  // Ausschnitt über alle Drehwinkel hinweg, damit die Figur beim Drehen nicht springt.
+  const top = Math.max(...h.flat());
+  let minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9;
+  for (let deg = 0; deg < 360; deg += 5) for (const x of [0, cols]) for (const y of [0, rows]) for (const z of [0, top]) {
+    const [px, py] = projRot(x, y, z, deg * Math.PI / 180);
+    minX = Math.min(minX, px); maxX = Math.max(maxX, px);
+    minY = Math.min(minY, py); maxY = Math.max(maxY, py);
+  }
+  const pad = 8, w = maxX - minX + 2 * pad, hh = maxY - minY + 2 * pad;
+  const el = $("figure");
+  el.setAttribute("viewBox", `${minX - pad} ${minY - pad} ${w} ${hh}`);
+  el.setAttribute("width", w);
+  el.setAttribute("height", hh);
+  cancelAnimationFrame(snapFrame);
+  angle = 0;
+  renderFigure(angle);
+}
+
+// Drehen per Ziehen; beim Loslassen zurück in die Ausgangsansicht (kürzester Weg).
+(() => {
+  const el = $("figure");
+  let startX = null, startAngle = 0;
+  el.addEventListener("pointerdown", e => {
+    cancelAnimationFrame(snapFrame);
+    startX = e.clientX; startAngle = angle;
+    el.setPointerCapture(e.pointerId);
+    el.classList.add("dragging");
+  });
+  el.addEventListener("pointermove", e => {
+    if (startX === null) return;
+    angle = startAngle + (e.clientX - startX) * 0.012;
+    renderFigure(angle);
+  });
+  const release = () => {
+    if (startX === null) return;
+    startX = null;
+    el.classList.remove("dragging");
+    const full = 2 * Math.PI;
+    const from = angle - Math.round(angle / full) * full, t0 = performance.now(), dur = 450;
+    const step = now => {
+      const k = Math.min(1, (now - t0) / dur), ease = 1 - Math.pow(1 - k, 3);
+      angle = from * (1 - ease);
+      renderFigure(angle);
+      if (k < 1) snapFrame = requestAnimationFrame(step);
+    };
+    snapFrame = requestAnimationFrame(step);
+  };
+  el.addEventListener("pointerup", release);
+  el.addEventListener("pointercancel", release);
+})();
+
+function buildGrid() {
+  const g = $("grid");
+  g.style.gridTemplateColumns = `repeat(${cols}, auto)`;
+  g.innerHTML = "";
+  for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+    const i = document.createElement("input");
+    i.type = "text"; i.inputMode = "numeric"; i.autocomplete = "off";
+    i.dataset.x = x; i.dataset.y = y;
+    i.setAttribute("aria-label", `Zeile ${y + 1}, Spalte ${x + 1}`);
+    g.appendChild(i);
+  }
+}
+
+const cell = (x, y) => $("grid").children[y * cols + x];
+
+$("grid").addEventListener("input", e => {
+  const i = e.target;
+  i.value = i.value.replace(/\D/g, "").slice(-1);
+  i.classList.remove("ok", "bad");
+  if (i.value) {
+    const next = cell(+i.dataset.x, +i.dataset.y).nextElementSibling;
+    if (next) next.focus();
+  }
+});
+
+$("grid").addEventListener("keydown", e => {
+  const i = e.target, x = +i.dataset.x, y = +i.dataset.y;
+  const move = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key];
+  if (move) {
+    const nx = x + move[0], ny = y + move[1];
+    if (nx >= 0 && nx < cols && ny >= 0 && ny < rows) { e.preventDefault(); cell(nx, ny).focus(); }
+  } else if (e.key === "Enter") check();
+});
+
+function newTask() {
+  const randBetween = (lo, hi) => lo + Math.floor(Math.random() * (hi - lo + 1));
+  rows = randBetween(2, +$("rows").value);
+  cols = randBetween(2, +$("cols").value);
+  maxH = randBetween(2, +$("maxh").value);
+  let h, total;
+  do {
+    h = Array.from({ length: rows }, () =>
+      Array.from({ length: cols }, () => Math.random() < 0.25 ? 0 : 1 + Math.floor(Math.random() * maxH)));
+    total = h.flat().reduce((a, b) => a + b, 0);
+  } while (total < 3 || !h.flat().includes(maxH) && Math.random() < 0.7);
+  heights = h;
+  solved = signature(h);
+  drawFigure(h);
+  buildGrid();
+  setMsg("");
+  cell(0, 0).focus();
+}
+
+function setMsg(text, cls = "") {
+  $("msg").textContent = text;
+  $("msg").className = cls;
+  $("score").textContent = tries ? `${wins} von ${tries} richtig` : "";
+}
+
+function check() {
+  const guess = [];
+  for (let y = 0; y < rows; y++) {
+    guess.push([]);
+    for (let x = 0; x < cols; x++) {
+      guess[y].push(+cell(x, y).value);
+    }
+  }
+  tries++;
+  let wrong = 0;
+  for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) if (guess[y][x] !== heights[y][x]) wrong++;
+  if (wrong === 0) { wins++; setMsg("Richtig! ✓", "ok"); }
+  else if (signature(guess) === solved) {
+    wins++;
+    setMsg("Richtig! ✓ (Dein Ergebnis sieht im Bild identisch aus – verdeckte Würfel lassen sich hier nicht unterscheiden.)", "ok");
+  } else setMsg(`Nicht ganz – ${wrong} ${wrong === 1 ? "Feld ist" : "Felder sind"} falsch.`, "bad");
+}
+
+function showSolution() {
+  for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+    const c = cell(x, y); c.value = heights[y][x]; c.classList.add("ok");
+  }
+  setMsg("Lösung eingeblendet.");
+}
+
+$("new").onclick = newTask;
+$("check").onclick = check;
+$("solve").onclick = showSolution;
+["rows", "cols", "maxh"].forEach(id => $(id).onchange = newTask);
+newTask();
+</script>
+</body>
+</html>
