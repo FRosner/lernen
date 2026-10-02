@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Division – Klasse 2</title>
+    <style>
+      body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; text-align: center; }
+      .aufgabe { font-size: 3rem; margin: 2rem 0; }
+      input { font-size: 2rem; width: 5rem; text-align: center; }
+      button { font-size: 1.5rem; margin: 1rem; padding: 0.5rem 1rem; }
+      .richtig { color: green; }
+      .falsch { color: crimson; }
+    </style>
+  </head>
+  <body>
+    <p style="text-align: left"><a href="../">&larr; Zurück</a></p>
+    <h1>Geteilt rechnen – Klasse 2</h1>
+    <p>Teile ohne Rest. Alle Aufgaben kommen aus dem kleinen Einmaleins.</p>
+    <form id="form" autocomplete="off">
+      <div class="aufgabe"><span id="aufgabe"></span> = <input id="antwort" type="number" inputmode="numeric" required></div>
+      <button type="submit">Prüfen</button>
+    </form>
+    <p id="rueckmeldung" aria-live="polite"></p>
+    <p>Richtig: <span id="punkte">0</span> von <span id="gesamt">0</span></p>
+
+    <script>
+      const zufall = (min, max) => min + Math.floor(Math.random() * (max - min + 1));
+      let ergebnis, punkte = 0, gesamt = 0;
+
+      function neueAufgabe() {
+        const teiler = zufall(1, 10);
+        ergebnis = zufall(1, 10);
+        document.getElementById("aufgabe").textContent = `${teiler * ergebnis} : ${teiler}`;
+        const antwort = document.getElementById("antwort");
+        antwort.value = "";
+        antwort.focus();
+      }
+
+      document.getElementById("form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const rueckmeldung = document.getElementById("rueckmeldung");
+        const antwort = Number(document.getElementById("antwort").value);
+        gesamt++;
+        if (antwort === ergebnis) {
+          punkte++;
+          rueckmeldung.textContent = "Richtig! 🎉";
+          rueckmeldung.className = "richtig";
+        } else {
+          rueckmeldung.textContent = `Leider falsch. Richtig ist ${ergebnis}.`;
+          rueckmeldung.className = "falsch";
+        }
+        document.getElementById("punkte").textContent = punkte;
+        document.getElementById("gesamt").textContent = gesamt;
+        neueAufgabe();
+      });
+
+      neueAufgabe();
+    </script>
+  </body>
+</html>
