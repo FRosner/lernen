@@ -1,0 +1,1459 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LÜK-Kasten – Kleines 1x1</title>
+  <style>
+    :root {
+      --bg: #f8f9fa;
+      --card-bg: #ffffff;
+      --text: #212529;
+      --muted: #6c757d;
+      --line: #dee2e6;
+      --luek-red: #c92a2a;
+      --luek-red-dark: #a61e1e;
+      --luek-red-light: #ff6b6b;
+      --luek-frame: #b02525;
+      --luek-tray: #e9ecef;
+      --slot-bg: #f1f3f5;
+      --slot-border: #ced4da;
+      --tile-bg: #d93838;
+      --tile-shadow: #8f1d1d;
+      --tile-active: #ffe066;
+      --accent: #228be6;
+      --success: #2b8a3e;
+      --warning: #f59f00;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      margin: 0;
+      padding: 16px 12px 40px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      text-align: center;
+      touch-action: manipulation;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 16px;
+    }
+
+    .nav-back {
+      text-align: left;
+      margin-bottom: 8px;
+    }
+
+    .nav-back a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 1.05rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .nav-back a:hover {
+      text-decoration: underline;
+    }
+
+    h1 {
+      margin: 4px 0 6px;
+      font-size: 1.8rem;
+      color: var(--luek-red);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .badge-luek {
+      background: var(--luek-red);
+      color: white;
+      padding: 2px 10px;
+      border-radius: 6px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      font-size: 1.4rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    }
+
+    .sub {
+      color: var(--muted);
+      margin: 0 0 16px;
+      font-size: 1.05rem;
+    }
+
+    /* Toolbar / Controls */
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    button {
+      font: inherit;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      cursor: pointer;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.1s ease, filter 0.15s ease;
+      touch-action: manipulation;
+    }
+
+    button:hover {
+      filter: brightness(1.08);
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    .btn-flip {
+      background: #fd7e14;
+      color: white;
+      font-size: 1.1rem;
+      padding: 12px 20px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--text);
+      border: 1px solid var(--line);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+
+    .btn-icon {
+      padding: 10px 14px;
+    }
+
+    /* Active Task Banner */
+    .task-banner {
+      background: white;
+      border: 2px solid var(--luek-red);
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .task-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      text-align: left;
+    }
+
+    .task-pill {
+      background: var(--luek-red);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 1.05rem;
+    }
+
+    .task-math {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: 0.5px;
+    }
+
+    .task-instruction {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .task-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    /* Main LÜK Box */
+    .luek-box {
+      background: var(--luek-frame);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25), inset 0 2px 4px rgba(255,255,255,0.25);
+      border: 4px solid var(--luek-red-dark);
+      margin-bottom: 24px;
+    }
+
+    .box-section-title {
+      color: white;
+      font-weight: 700;
+      font-size: 1rem;
+      margin: 0 0 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .divider {
+      height: 12px;
+      background: linear-gradient(to bottom, #771414, #440a0a);
+      border-radius: 6px;
+      margin: 16px 0;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+    }
+
+    /* Grid Layout: 4 rows x 6 columns */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      margin: 0 auto;
+      max-width: 720px;
+    }
+
+    /* Deckel Slots (Upper part) */
+    .tile-slot-upper {
+      aspect-ratio: 1;
+      background: rgba(0, 0, 0, 0.18);
+      border-radius: 10px;
+      border: 1px dashed rgba(255, 255, 255, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .slot-num-hint {
+      color: rgba(255, 255, 255, 0.45);
+      font-size: 1.1rem;
+      font-weight: bold;
+      pointer-events: none;
+    }
+
+    /* Answer Slots (Lower part) */
+    .tile-slot-lower {
+      aspect-ratio: 1;
+      background: #e9ecef;
+      border-radius: 10px;
+      border: 2px solid #adb5bd;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.12);
+      transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    }
+
+    .tile-slot-lower:hover {
+      background: #f8f9fa;
+      border-color: #495057;
+    }
+
+    .tile-slot-lower.highlight-target {
+      outline: 3px dashed #fd7e14;
+      background: #fff3bf;
+      animation: pulse 1.2s infinite ease-in-out;
+    }
+
+    .slot-answer {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #212529;
+      pointer-events: none;
+    }
+
+    /* The Tiles (Plättchen) */
+    .tile {
+      width: 100%;
+      height: 100%;
+      border-radius: 9px;
+      background: var(--tile-bg);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      font-weight: 800;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2), inset 0 2px 2px rgba(255,255,255,0.4), inset 0 -2px 2px rgba(0,0,0,0.3);
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+      touch-action: none;
+    }
+
+    .tile:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 10px rgba(0,0,0,0.25);
+    }
+
+    .tile.selected {
+      outline: 4px solid var(--tile-active);
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.35);
+      z-index: 10;
+      animation: bounce 0.6s ease;
+    }
+
+    .tile.placed-tile {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .tile .mini-num {
+      position: absolute;
+      top: 4px;
+      left: 6px;
+      font-size: 0.65rem;
+      font-weight: 600;
+      opacity: 0.8;
+    }
+
+    /* 3D Flip Container for Lower Section */
+    .flip-perspective {
+      perspective: 1200px;
+    }
+
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+
+    .flip-card-inner.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .flip-front, .flip-back {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      width: 100%;
+    }
+
+    .flip-back {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform: rotateY(180deg);
+    }
+
+    /* Flipped Back Pattern Cells */
+    .pattern-cell {
+      aspect-ratio: 1;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #ced4da;
+      box-shadow: 0 3px 5px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .pattern-cell svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .pattern-cell.empty-cell {
+      background: #adb5bd;
+      border: 2px dashed #6c757d;
+      color: #495057;
+      font-size: 0.85rem;
+      font-weight: bold;
+    }
+
+    .pattern-cell.mismatch {
+      outline: 3px solid #ff4136;
+      animation: pulse-warn 1s infinite;
+    }
+
+    /* Pattern Reference Overlay / Display */
+    .result-modal {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 20px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+      display: none;
+    }
+
+    .result-modal.visible {
+      display: block;
+    }
+
+    .result-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin: 0 0 10px;
+    }
+
+    .result-title.success {
+      color: var(--success);
+    }
+
+    .result-title.partial {
+      color: var(--warning);
+    }
+
+    .pattern-compare-wrap {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin: 20px 0;
+    }
+
+    .pattern-card {
+      background: var(--bg);
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+    }
+
+    .pattern-card h3 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+      color: var(--muted);
+    }
+
+    .mini-pattern-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 32px);
+      gap: 3px;
+      justify-content: center;
+    }
+
+    .mini-pattern-grid .mini-cell {
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      overflow: hidden;
+      background: #dee2e6;
+    }
+
+    .mini-pattern-grid .mini-cell svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Task Booklet View */
+    .booklet-toggle {
+      margin-top: 24px;
+    }
+
+    .booklet {
+      background: white;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      padding: 16px;
+      margin-top: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      text-align: left;
+    }
+
+    .booklet-header {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: var(--luek-red);
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .booklet-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 8px;
+    }
+
+    .booklet-item {
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 0.95rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .booklet-item:hover {
+      background: #e7f5ff;
+      border-color: #74c0fc;
+    }
+
+    .booklet-item.active {
+      background: #fff3bf;
+      border-color: #fcc419;
+      font-weight: bold;
+    }
+
+    .booklet-item.done {
+      color: var(--success);
+      border-color: #b2f2bb;
+      background: #ebfbee;
+    }
+
+    /* Confetti Canvas */
+    #confetti-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes pulse-warn {
+      0% { outline-color: #ff4136; }
+      50% { outline-color: #ffe066; }
+      100% { outline-color: #ff4136; }
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(-4px) scale(1.05); }
+      50% { transform: translateY(-8px) scale(1.08); }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      body { padding: 12px 6px; }
+      h1 { font-size: 1.4rem; }
+      .badge-luek { font-size: 1.1rem; }
+      .grid { gap: 4px; }
+      .tile { font-size: 1.1rem; border-radius: 6px; }
+      .slot-answer { font-size: 1.05rem; }
+      .task-math { font-size: 1.4rem; }
+      .luek-box { padding: 10px 8px; border-radius: 14px; }
+      .btn-flip { font-size: 0.95rem; padding: 10px 14px; }
+      .mini-pattern-grid { grid-template-columns: repeat(6, 24px); }
+      .mini-pattern-grid .mini-cell { width: 24px; height: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="confetti-canvas"></canvas>
+
+  <div class="container">
+    <div class="nav-back">
+      <a href="../">&larr; Zurück zur Übersicht</a>
+    </div>
+
+    <header>
+      <h1><span class="badge-luek">LÜK</span> Großes Rechen-Rätsel</h1>
+      <p class="sub">Multiplikation &amp; Division im kleinen 1x1 mit 24 Plättchen</p>
+    </header>
+
+    <!-- Toolbar -->
+    <div class="controls">
+      <button id="btn-flip" class="btn-flip">
+        <span id="flip-icon">🔄</span> <span id="flip-text">Kasten umdrehen &amp; Muster prüfen</span>
+      </button>
+      <button id="btn-sound" class="btn-secondary btn-icon" title="Ton an/aus">
+        <span id="sound-icon">🔊</span>
+      </button>
+      <button id="btn-clear" class="btn-secondary" title="Alle Plättchen zurück in den Deckel legen">
+        🧺 Plättchen aufräumen
+      </button>
+      <button id="btn-new" class="btn-secondary" title="Neues Rätsel mit anderen Aufgaben starten">
+        ✨ Neues Rätsel
+      </button>
+    </div>
+
+    <!-- Active Task Banner -->
+    <div id="task-banner" class="task-banner">
+      <div class="task-content">
+        <span id="active-tile-pill" class="task-pill">Plättchen 1</span>
+        <span id="active-math" class="task-math">6 · 7 = ?</span>
+        <span id="task-help" class="task-instruction">Rechne die Aufgabe im Kopf aus und tippe unten auf das passende Lösungsfeld.</span>
+      </div>
+      <div class="task-actions">
+        <button id="btn-return-tile" class="btn-secondary" style="display: none;">
+          ↩ Zurücklegen
+        </button>
+      </div>
+    </div>
+
+    <!-- LÜK Box -->
+    <div class="luek-box">
+      <!-- Deckel (Upper section) -->
+      <div class="box-section-title">
+        <span>📦 Deckel: Deine 24 Zahlenplättchen</span>
+      </div>
+      <div id="grid-upper" class="grid">
+        <!-- 24 upper slots with tiles 1..24 -->
+      </div>
+
+      <!-- Divider / Hinge -->
+      <div class="divider"></div>
+
+      <!-- Boden (Lower section with 3D flip) -->
+      <div class="box-section-title">
+        <span id="lower-title">🎯 Lösungsrahmen: Finde das passende Ergebnis</span>
+      </div>
+
+      <div class="flip-perspective">
+        <div id="flip-container" class="flip-card-inner">
+          <!-- Front side: Answer slots -->
+          <div class="flip-front">
+            <div id="grid-lower" class="grid">
+              <!-- 24 answer slots -->
+            </div>
+          </div>
+
+          <!-- Back side: Control Pattern -->
+          <div class="flip-back">
+            <div id="grid-pattern" class="grid">
+              <!-- 24 pattern segments -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Result / Evaluation (shown when flipped) -->
+    <div id="result-modal" class="result-modal">
+      <div id="result-title" class="result-title"></div>
+      <p id="result-desc"></p>
+      
+      <div class="pattern-compare-wrap">
+        <div class="pattern-card">
+          <h3>Dein gelegtes Muster</h3>
+          <div id="mini-user-pattern" class="mini-pattern-grid"></div>
+        </div>
+        <div class="pattern-card">
+          <h3>Richtiges Kontrollmuster</h3>
+          <div id="mini-goal-pattern" class="mini-pattern-grid"></div>
+        </div>
+      </div>
+
+      <button id="btn-flip-back" class="btn-flip" style="margin-top: 12px;">
+        ↩ Zurückdrehen &amp; weiterlegen
+      </button>
+    </div>
+
+    <!-- Collapsible Task Booklet -->
+    <div class="booklet-toggle">
+      <button id="btn-toggle-booklet" class="btn-secondary">
+        📖 Alle 24 Aufgaben anzeigen
+      </button>
+    </div>
+
+    <div id="booklet" class="booklet" style="display: none;">
+      <div class="booklet-header">
+        <span>Übungsheft: Alle 24 Aufgaben im Überblick</span>
+        <span id="booklet-progress">0 von 24 gelöst</span>
+      </div>
+      <div id="booklet-grid" class="booklet-grid">
+        <!-- 24 task items -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- Audio Feedback (Web Audio API) ---
+    class SoundFx {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+      toggle() {
+        this.enabled = !this.enabled;
+        return this.enabled;
+      }
+      playClick() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(520, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(320, this.ctx.currentTime + 0.05);
+        gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.05);
+      }
+      playPlace() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(380, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(760, this.ctx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.08);
+      }
+      playFlip() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(260, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(620, this.ctx.currentTime + 0.18);
+        gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.18);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.18);
+      }
+      playVictory() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const notes = [261.6, 329.6, 392.0, 523.25, 659.25, 783.99, 1046.5];
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.value = freq;
+          const start = this.ctx.currentTime + idx * 0.08;
+          gain.gain.setValueAtTime(0.15, start);
+          gain.gain.exponentialRampToValueAtTime(0.001, start + 0.28);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(start);
+          osc.stop(start + 0.28);
+        });
+      }
+    }
+    const sound = new SoundFx();
+
+    // --- 24-Plättchen LÜK Pattern Generator ---
+    // Authentic geometric pattern for 4 rows x 6 columns
+    // We create high-contrast geometric tiles with classic LÜK colors:
+    // Red (#c92a2a), Blue (#1c7ed6), Yellow (#fcc419), Teal (#12b886), White (#ffffff)
+    function generatePatternSvg(row, col) {
+      // Symmetrical 4x6 geometric pattern (horizontal symmetry on col 2/3, vertical symmetry on row 1/2)
+      const r = row < 2 ? row : 3 - row; // 0 or 1
+      const c = col < 3 ? col : 5 - col; // 0, 1, or 2
+
+      // Palette
+      const C_RED = "#c92a2a";
+      const C_BLUE = "#1971c2";
+      const C_YELLOW = "#f59f00";
+      const C_TEAL = "#0ca678";
+      const C_WHITE = "#ffffff";
+      const C_DARK = "#212529";
+
+      // 6 unique quadrant styles (r in {0,1}, c in {0,1,2})
+      // Orientation flips based on which quadrant of the 4x6 grid we are in
+      const flipH = col >= 3;
+      const flipV = row >= 2;
+
+      let shapes = "";
+
+      if (r === 0 && c === 0) {
+        // Outer corners: large diagonal corner block with circle segment
+        shapes = `
+          <rect width="100" height="100" fill="${C_BLUE}"/>
+          <polygon points="0,0 100,0 0,100" fill="${C_RED}"/>
+          <circle cx="0" cy="0" r="45" fill="${C_YELLOW}"/>
+          <circle cx="0" cy="0" r="20" fill="${C_WHITE}"/>
+        `;
+      } else if (r === 0 && c === 1) {
+        // Top row middle-left: Chevron / stripe
+        shapes = `
+          <rect width="100" height="100" fill="${C_RED}"/>
+          <polygon points="0,0 100,100 0,100" fill="${C_YELLOW}"/>
+          <polygon points="40,100 100,40 100,100" fill="${C_TEAL}"/>
+          <circle cx="100" cy="0" r="30" fill="${C_WHITE}"/>
+        `;
+      } else if (r === 0 && c === 2) {
+        // Top row center: Arch / diamond tip
+        shapes = `
+          <rect width="100" height="100" fill="${C_YELLOW}"/>
+          <polygon points="0,100 100,100 100,0" fill="${C_BLUE}"/>
+          <circle cx="100" cy="100" r="55" fill="${C_RED}"/>
+          <circle cx="100" cy="100" r="25" fill="${C_WHITE}"/>
+        `;
+      } else if (r === 1 && c === 0) {
+        // Second row outer edge: Connecting waves/diamonds
+        shapes = `
+          <rect width="100" height="100" fill="${C_TEAL}"/>
+          <polygon points="0,0 100,50 0,100" fill="${C_YELLOW}"/>
+          <polygon points="0,25 50,50 0,75" fill="${C_RED}"/>
+          <circle cx="100" cy="50" r="22" fill="${C_WHITE}"/>
+        `;
+      } else if (r === 1 && c === 1) {
+        // Center-ring: Concentric diamonds
+        shapes = `
+          <rect width="100" height="100" fill="${C_BLUE}"/>
+          <polygon points="50,0 100,50 50,100 0,50" fill="${C_RED}"/>
+          <circle cx="50" cy="50" r="26" fill="${C_YELLOW}"/>
+          <circle cx="50" cy="50" r="12" fill="${C_WHITE}"/>
+        `;
+      } else {
+        // r === 1 && c === 2 (Center core): Large rosette/star center
+        shapes = `
+          <rect width="100" height="100" fill="${C_RED}"/>
+          <polygon points="0,0 100,0 0,100" fill="${C_TEAL}"/>
+          <circle cx="100" cy="100" r="60" fill="${C_YELLOW}"/>
+          <circle cx="100" cy="100" r="35" fill="${C_BLUE}"/>
+          <circle cx="100" cy="100" r="16" fill="${C_WHITE}"/>
+        `;
+      }
+
+      const transform = `translate(${flipH ? 100 : 0}, ${flipV ? 100 : 0}) scale(${flipH ? -1 : 1}, ${flipV ? -1 : 1})`;
+
+      return `
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+          <g transform="${transform}">
+            ${shapes}
+          </g>
+        </svg>
+      `;
+    }
+
+    // --- Task Sets (Small 1x1: Multiplication & Division with 24 distinct unique answers) ---
+    // In small 1x1:
+    // 10 divisions with answers 1..10
+    // 14 multiplications with distinct answers >= 12
+    const TASK_SETS = [
+      {
+        name: "Bunter Mix 1",
+        tasks: [
+          // 14 Multiplikationen (Ergebnisse >= 12)
+          { text: "3 · 4", ans: 12 },
+          { text: "3 · 5", ans: 15 },
+          { text: "2 · 9", ans: 18 },
+          { text: "4 · 5", ans: 20 },
+          { text: "3 · 7", ans: 21 },
+          { text: "4 · 6", ans: 24 },
+          { text: "3 · 9", ans: 27 },
+          { text: "4 · 7", ans: 28 },
+          { text: "4 · 8", ans: 32 },
+          { text: "5 · 7", ans: 35 },
+          { text: "6 · 6", ans: 36 },
+          { text: "6 · 7", ans: 42 },
+          { text: "7 · 7", ans: 49 },
+          { text: "7 · 8", ans: 56 },
+          // 10 Divisionen (Ergebnisse 1..10)
+          { text: "6 : 6", ans: 1 },
+          { text: "16 : 8", ans: 2 },
+          { text: "24 : 8", ans: 3 },
+          { text: "36 : 9", ans: 4 },
+          { text: "45 : 9", ans: 5 },
+          { text: "48 : 8", ans: 6 },
+          { text: "63 : 9", ans: 7 },
+          { text: "64 : 8", ans: 8 },
+          { text: "81 : 9", ans: 9 },
+          { text: "70 : 7", ans: 10 }
+        ]
+      },
+      {
+        name: "Bunter Mix 2",
+        tasks: [
+          // 14 Multiplikationen
+          { text: "7 · 2", ans: 14 },
+          { text: "4 · 4", ans: 16 },
+          { text: "5 · 5", ans: 25 },
+          { text: "5 · 6", ans: 30 },
+          { text: "5 · 8", ans: 40 },
+          { text: "9 · 5", ans: 45 },
+          { text: "6 · 8", ans: 48 },
+          { text: "6 · 9", ans: 54 },
+          { text: "6 · 10", ans: 60 },
+          { text: "9 · 7", ans: 63 },
+          { text: "8 · 8", ans: 64 },
+          { text: "8 · 9", ans: 72 },
+          { text: "9 · 9", ans: 81 },
+          { text: "10 · 10", ans: 100 },
+          // 10 Divisionen
+          { text: "9 : 9", ans: 1 },
+          { text: "14 : 7", ans: 2 },
+          { text: "21 : 7", ans: 3 },
+          { text: "28 : 7", ans: 4 },
+          { text: "35 : 7", ans: 5 },
+          { text: "42 : 7", ans: 6 },
+          { text: "56 : 8", ans: 7 },
+          { text: "72 : 9", ans: 8 },
+          { text: "54 : 6", ans: 9 },
+          { text: "90 : 9", ans: 10 }
+        ]
+      }
+    ];
+
+    // --- State Management ---
+    let currentSetIndex = 0;
+    let tasks = []; // 24 tasks
+    let boardSlots = []; // 24 slots in lower frame with assigned task and answer
+    let tilePlacements = new Array(24).fill(null); // tilePlacements[tileIdx] = slotIdx or null
+    let selectedTileIdx = 0; // 0..23 (Plättchen 1..24)
+    let isFlipped = false;
+
+    // Helper: Shuffle array
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    // Initialize Game
+    function initGame(setIdx = 0) {
+      currentSetIndex = setIdx % TASK_SETS.length;
+      const rawTasks = TASK_SETS[currentSetIndex].tasks;
+      
+      // Shuffle task order so tile 1..24 is varied each game
+      tasks = shuffle(rawTasks);
+
+      // Create 24 slots (4 rows x 6 cols).
+      // Distribute the 24 answers scrambled across the 24 slots!
+      const slotOrder = shuffle([...Array(24).keys()]);
+      boardSlots = new Array(24);
+      tasks.forEach((t, taskIdx) => {
+        const targetSlot = slotOrder[taskIdx];
+        boardSlots[targetSlot] = {
+          slotIdx: targetSlot,
+          taskIdx: taskIdx, // Task that belongs here!
+          answer: t.ans,
+          row: Math.floor(targetSlot / 6),
+          col: targetSlot % 6
+        };
+      });
+
+      tilePlacements = new Array(24).fill(null);
+      selectedTileIdx = 0;
+      isFlipped = false;
+
+      // Close flip if open
+      const flipCont = document.getElementById("flip-container");
+      flipCont.classList.remove("flipped");
+      document.getElementById("result-modal").classList.remove("visible");
+      document.getElementById("flip-icon").textContent = "🔄";
+      document.getElementById("flip-text").textContent = "Kasten umdrehen & Muster prüfen";
+      document.getElementById("lower-title").textContent = "🎯 Lösungsrahmen: Finde das passende Ergebnis";
+
+      renderAll();
+    }
+
+    // --- Rendering ---
+    function renderAll() {
+      renderUpperGrid();
+      renderLowerGrid();
+      renderActiveTask();
+      renderBooklet();
+    }
+
+    // Render Upper Deckel (Tiles 1..24)
+    function renderUpperGrid() {
+      const grid = document.getElementById("grid-upper");
+      grid.innerHTML = "";
+
+      for (let i = 0; i < 24; i++) {
+        const slot = document.createElement("div");
+        slot.className = "tile-slot-upper";
+        slot.dataset.slotIdx = i;
+
+        if (tilePlacements[i] === null) {
+          // Tile is still in deckel
+          const tile = document.createElement("div");
+          tile.className = "tile" + (selectedTileIdx === i ? " selected" : "");
+          tile.textContent = i + 1;
+          tile.dataset.tileIdx = i;
+          
+          tile.addEventListener("click", () => {
+            sound.playClick();
+            selectTile(i);
+          });
+
+          // Enable HTML5 drag
+          tile.draggable = true;
+          tile.addEventListener("dragstart", (e) => {
+            selectTile(i);
+            e.dataTransfer.setData("text/plain", i.toString());
+          });
+
+          slot.appendChild(tile);
+        } else {
+          // Slot is empty outline
+          const hint = document.createElement("span");
+          hint.className = "slot-num-hint";
+          hint.textContent = i + 1;
+          slot.appendChild(hint);
+        }
+
+        grid.appendChild(slot);
+      }
+    }
+
+    // Render Lower Tray (Answers / Placed Tiles)
+    function renderLowerGrid() {
+      const grid = document.createElement("div");
+      grid.id = "grid-lower";
+      grid.className = "grid";
+
+      for (let s = 0; s < 24; s++) {
+        const slotData = boardSlots[s];
+        const slot = document.createElement("div");
+        slot.className = "tile-slot-lower";
+        slot.dataset.slotIdx = s;
+
+        // Check which tile (if any) is placed here
+        const placedTileIdx = tilePlacements.findIndex(p => p === s);
+
+        if (placedTileIdx !== -1) {
+          // There is a placed tile on this slot
+          const tile = document.createElement("div");
+          tile.className = "tile placed-tile" + (selectedTileIdx === placedTileIdx ? " selected" : "");
+          tile.textContent = placedTileIdx + 1;
+
+          tile.addEventListener("click", (e) => {
+            e.stopPropagation();
+            sound.playClick();
+            selectTile(placedTileIdx);
+          });
+
+          slot.appendChild(tile);
+        } else {
+          // Empty slot showing the target answer
+          const ans = document.createElement("span");
+          ans.className = "slot-answer";
+          ans.textContent = slotData.answer;
+          slot.appendChild(ans);
+
+          // Click on empty slot places the currently selected tile!
+          slot.addEventListener("click", () => {
+            if (selectedTileIdx !== null) {
+              placeTile(selectedTileIdx, s);
+            }
+          });
+        }
+
+        // Drag & drop dropzone
+        slot.addEventListener("dragover", (e) => {
+          e.preventDefault();
+        });
+        slot.addEventListener("drop", (e) => {
+          e.preventDefault();
+          const tIdx = parseInt(e.dataTransfer.getData("text/plain"), 10);
+          if (!isNaN(tIdx)) {
+            placeTile(tIdx, s);
+          }
+        });
+
+        grid.appendChild(slot);
+      }
+
+      const container = document.querySelector(".flip-front");
+      container.innerHTML = "";
+      container.appendChild(grid);
+    }
+
+    // Render Pattern on the back
+    function renderPatternGrid() {
+      const grid = document.createElement("div");
+      grid.id = "grid-pattern";
+      grid.className = "grid";
+
+      for (let s = 0; s < 24; s++) {
+        const slotData = boardSlots[s];
+        const cell = document.createElement("div");
+        cell.className = "pattern-cell";
+
+        const placedTileIdx = tilePlacements.findIndex(p => p === s);
+
+        if (placedTileIdx !== -1) {
+          // Tile placed! Its back pattern corresponds to the slot WHERE IT BELONGS
+          // The correct slot for placedTileIdx is where tasks[placedTileIdx].ans === slot.answer
+          const correctSlot = boardSlots.find(bs => bs.taskIdx === placedTileIdx);
+          const svg = generatePatternSvg(correctSlot.row, correctSlot.col);
+          cell.innerHTML = svg;
+
+          // Check if it matches this slot's expected pattern
+          if (placedTileIdx !== slotData.taskIdx) {
+            cell.classList.add("mismatch");
+          }
+        } else {
+          // No tile placed here
+          cell.classList.add("empty-cell");
+          cell.textContent = "—";
+        }
+
+        grid.appendChild(cell);
+      }
+
+      const container = document.querySelector(".flip-back");
+      container.innerHTML = "";
+      container.appendChild(grid);
+    }
+
+    // Render Active Task Banner
+    function renderActiveTask() {
+      const pill = document.getElementById("active-tile-pill");
+      const math = document.getElementById("active-math");
+      const help = document.getElementById("task-help");
+      const btnReturn = document.getElementById("btn-return-tile");
+
+      if (selectedTileIdx === null) {
+        pill.textContent = "Fertig?";
+        math.textContent = "Alle Plättchen gelegt!";
+        help.innerHTML = "Drehe jetzt den Kasten um, um dein Muster zu kontrollieren!";
+        btnReturn.style.display = "none";
+        return;
+      }
+
+      const tIdx = selectedTileIdx;
+      const task = tasks[tIdx];
+      const isPlaced = tilePlacements[tIdx] !== null;
+
+      pill.textContent = `Plättchen ${tIdx + 1}`;
+      math.textContent = `${task.text} = ?`;
+
+      if (isPlaced) {
+        help.innerHTML = "Das Plättchen liegt im Lösungsrahmen. Klicke auf ein anderes Feld zum Verschieben oder auf <i>Zurücklegen</i>.";
+        btnReturn.style.display = "inline-flex";
+      } else {
+        help.innerHTML = "Rechne das Ergebnis im Kopf aus und tippe unten auf das passende Lösungsfeld.";
+        btnReturn.style.display = "none";
+      }
+    }
+
+    // Render Task Booklet
+    function renderBooklet() {
+      const grid = document.getElementById("booklet-grid");
+      const progress = document.getElementById("booklet-progress");
+      grid.innerHTML = "";
+
+      let placedCount = 0;
+
+      tasks.forEach((t, i) => {
+        const isPlaced = tilePlacements[i] !== null;
+        if (isPlaced) placedCount++;
+
+        const item = document.createElement("div");
+        item.className = "booklet-item" + 
+          (isPlaced ? " done" : "") + 
+          (selectedTileIdx === i ? " active" : "");
+        
+        item.innerHTML = `
+          <span><b>${i + 1}.</b> ${t.text}</span>
+          <span>${isPlaced ? "✓ gelegt" : "—"}</span>
+        `;
+
+        item.addEventListener("click", () => {
+          sound.playClick();
+          selectTile(i);
+        });
+
+        grid.appendChild(item);
+      });
+
+      progress.textContent = `${placedCount} von 24 Plättchen gelegt`;
+    }
+
+    // --- Actions ---
+    function selectTile(tileIdx) {
+      if (isFlipped) flipBox(); // Auto flip back if looking at back
+      selectedTileIdx = tileIdx;
+      renderAll();
+    }
+
+    function placeTile(tileIdx, slotIdx) {
+      sound.playPlace();
+
+      // If another tile is already in this slot, return it to upper deckel
+      const existingTile = tilePlacements.findIndex(p => p === slotIdx);
+      if (existingTile !== -1 && existingTile !== tileIdx) {
+        tilePlacements[existingTile] = null;
+      }
+
+      // Place tile
+      tilePlacements[tileIdx] = slotIdx;
+
+      // Select next unplaced tile
+      const nextUnplaced = tilePlacements.findIndex(p => p === null);
+      selectedTileIdx = nextUnplaced !== -1 ? nextUnplaced : null;
+
+      renderAll();
+
+      // If all 24 tiles placed, celebrate prompt
+      if (tilePlacements.every(p => p !== null)) {
+        // Subtle prompt to flip
+        const btnFlip = document.getElementById("btn-flip");
+        btnFlip.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+
+    function returnTile(tileIdx) {
+      sound.playClick();
+      tilePlacements[tileIdx] = null;
+      selectedTileIdx = tileIdx;
+      renderAll();
+    }
+
+    function clearAllTiles() {
+      sound.playClick();
+      tilePlacements.fill(null);
+      selectedTileIdx = 0;
+      if (isFlipped) flipBox();
+      renderAll();
+    }
+
+    // Flip Box & Pattern Checking
+    function flipBox() {
+      sound.playFlip();
+      isFlipped = !isFlipped;
+
+      const flipCont = document.getElementById("flip-container");
+      const btnFlip = document.getElementById("btn-flip");
+      const flipIcon = document.getElementById("flip-icon");
+      const flipText = document.getElementById("flip-text");
+      const lowerTitle = document.getElementById("lower-title");
+      const resultModal = document.getElementById("result-modal");
+
+      if (isFlipped) {
+        renderPatternGrid();
+        flipCont.classList.add("flipped");
+        flipIcon.textContent = "↩";
+        flipText.textContent = "Kasten zurückdrehen";
+        lowerTitle.textContent = "🔍 Kontrollmuster auf der Rückseite";
+
+        evaluateSolution();
+        resultModal.classList.add("visible");
+      } else {
+        flipCont.classList.remove("flipped");
+        flipIcon.textContent = "🔄";
+        flipText.textContent = "Kasten umdrehen & Muster prüfen";
+        lowerTitle.textContent = "🎯 Lösungsrahmen: Finde das passende Ergebnis";
+        resultModal.classList.remove("visible");
+      }
+    }
+
+    // Evaluation & Comparison
+    function evaluateSolution() {
+      let correct = 0;
+      let totalPlaced = 0;
+
+      for (let s = 0; s < 24; s++) {
+        const slotData = boardSlots[s];
+        const placedTile = tilePlacements.findIndex(p => p === s);
+        if (placedTile !== -1) {
+          totalPlaced++;
+          if (placedTile === slotData.taskIdx) {
+            correct++;
+          }
+        }
+      }
+
+      const resTitle = document.getElementById("result-title");
+      const resDesc = document.getElementById("result-desc");
+
+      if (correct === 24) {
+        sound.playVictory();
+        resTitle.textContent = "🎉 Fantastisch! Alle 24 Plättchen liegen goldrichtig!";
+        resTitle.className = "result-title success";
+        resDesc.textContent = "Dein gelegtes Muster stimmt zu 100 % mit dem Lösungsmuster überein. Großartige Rechenleistung!";
+        launchConfetti();
+      } else if (totalPlaced === 24) {
+        resTitle.textContent = `Du hast ${correct} von 24 Plättchen richtig gelegt!`;
+        resTitle.className = "result-title partial";
+        resDesc.textContent = "Schau dir die rot umrandeten Plättchen an: Dort passt das Muster noch nicht ganz. Drehe den Kasten zurück und korrigiere die Aufgaben!";
+      } else {
+        resTitle.textContent = `${correct} von ${totalPlaced} gelegten Plättchen stimmen`;
+        resTitle.className = "result-title partial";
+        resDesc.textContent = `Es fehlen noch ${24 - totalPlaced} Plättchen im Lösungsrahmen. Drehe den Kasten zurück, um alle Aufgaben zu lösen!`;
+      }
+
+      renderMiniPatternGrids();
+    }
+
+    // Mini comparison grids in the result modal
+    function renderMiniPatternGrids() {
+      const userGrid = document.getElementById("mini-user-pattern");
+      const goalGrid = document.getElementById("mini-goal-pattern");
+      userGrid.innerHTML = "";
+      goalGrid.innerHTML = "";
+
+      for (let s = 0; s < 24; s++) {
+        const slotData = boardSlots[s];
+        
+        // Goal cell
+        const gCell = document.createElement("div");
+        gCell.className = "mini-cell";
+        gCell.innerHTML = generatePatternSvg(slotData.row, slotData.col);
+        goalGrid.appendChild(gCell);
+
+        // User cell
+        const uCell = document.createElement("div");
+        uCell.className = "mini-cell";
+        const placedTile = tilePlacements.findIndex(p => p === s);
+        if (placedTile !== -1) {
+          const correctSlot = boardSlots.find(bs => bs.taskIdx === placedTile);
+          uCell.innerHTML = generatePatternSvg(correctSlot.row, correctSlot.col);
+          if (placedTile !== slotData.taskIdx) {
+            uCell.style.outline = "2px solid #ff4136";
+          }
+        }
+        userGrid.appendChild(uCell);
+      }
+    }
+
+    // Confetti Animation
+    function launchConfetti() {
+      const canvas = document.getElementById("confetti-canvas");
+      const ctx = canvas.getContext("2d");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const pieces = [];
+      const colors = ["#c92a2a", "#1971c2", "#f59f00", "#0ca678", "#ffe066", "#e64980"];
+
+      for (let i = 0; i < 120; i++) {
+        pieces.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * -canvas.height,
+          size: Math.random() * 8 + 6,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          vx: Math.random() * 4 - 2,
+          vy: Math.random() * 5 + 3,
+          rot: Math.random() * 360,
+          vrot: Math.random() * 10 - 5
+        });
+      }
+
+      let frame = 0;
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        pieces.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.rot += p.vrot;
+
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rot * Math.PI) / 180);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.7);
+          ctx.restore();
+        });
+
+        frame++;
+        if (frame < 180) {
+          requestAnimationFrame(animate);
+        } else {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+      }
+      animate();
+    }
+
+    // --- Event Listeners ---
+    document.getElementById("btn-flip").addEventListener("click", flipBox);
+    document.getElementById("btn-flip-back").addEventListener("click", flipBox);
+
+    document.getElementById("btn-sound").addEventListener("click", () => {
+      const enabled = sound.toggle();
+      document.getElementById("sound-icon").textContent = enabled ? "🔊" : "🔇";
+    });
+
+    document.getElementById("btn-clear").addEventListener("click", () => {
+      if (confirm("Möchtest du alle Plättchen zurück in den Deckel legen?")) {
+        clearAllTiles();
+      }
+    });
+
+    document.getElementById("btn-new").addEventListener("click", () => {
+      sound.playClick();
+      initGame(currentSetIndex + 1);
+    });
+
+    document.getElementById("btn-return-tile").addEventListener("click", () => {
+      if (selectedTileIdx !== null) {
+        returnTile(selectedTileIdx);
+      }
+    });
+
+    document.getElementById("btn-toggle-booklet").addEventListener("click", () => {
+      const b = document.getElementById("booklet");
+      const btn = document.getElementById("btn-toggle-booklet");
+      if (b.style.display === "none") {
+        b.style.display = "block";
+        btn.textContent = "📖 Aufgabenheft verbergen";
+      } else {
+        b.style.display = "none";
+        btn.textContent = "📖 Alle 24 Aufgaben anzeigen";
+      }
+    });
+
+    // Handle window resize for confetti canvas
+    window.addEventListener("resize", () => {
+      const canvas = document.getElementById("confetti-canvas");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    // Initialize
+    initGame(0);
+  </script>
+</body>
+</html>
