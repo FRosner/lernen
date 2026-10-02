@@ -66,9 +66,10 @@ Sobald die Dateien erstellt oder geändert wurden:
 1. **Tests ausführen**: `python3 -m unittest discover -s tests`
 2. **Seite bauen**: `python3 scripts/build.py`
 3. Eventuelle Fehler im Hintergrund beheben.
-4. **Vorschau bereitstellen**: Dem Nutzer einen anklickbaren Link zur Datei geben, z. B.:
-   * `[Hier klicken, um die Vorschau im Browser zu öffnen](file:///Users/frosner/Documents/lernen/projekte/.../index.html)`
-   * Oder die Übersichtsseite unter `_site/`: `file:///Users/frosner/Documents/lernen/_site/index.html`
+4. **Vorschau direkt in Chrome öffnen** (keine `file://`-Links im Chat anbieten, da Antigravity diese abfängt und intern öffnet):
+   * `open -a "Google Chrome" /Users/frosner/Documents/lernen/projekte/.../index.html`
+   * Oder die Übersichtsseite: `open -a "Google Chrome" /Users/frosner/Documents/lernen/_site/index.html`
+   * Dem Nutzer danach kurz mitteilen: *„Die Vorschau wurde in Chrome geöffnet."*
 
 ### Schritt 4: Rückfrage & Veröffentlichung
 1. Frage den Nutzer freundlich, ob ihm die Umsetzung gefällt:
