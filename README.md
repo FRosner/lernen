@@ -1,50 +1,61 @@
-# lernen
+# Lernen
 
-Sammlung kleiner Lernprojekte als statische HTML-Seiten, veröffentlicht über GitHub Pages.
+Eine Sammlung kleiner, interaktiver Lernspiele und Lernhilfen für Kinder und Schüler. Alle Spiele laufen direkt im Webbrowser – auf dem Smartphone, Tablet oder Computer, ganz ohne Installation.
 
-## Aufbau
+---
 
-```
+## Wie funktioniert das?
+
+Dieses Projekt ist so aufgebaut, dass du neue Lernspiele oder Aufgaben ganz einfach mit Unterstützung deines **KI-Assistenten** erstellen und anpassen kannst:
+
+1. **Wunsch äußern**: Sag dem Assistenten einfach, was du brauchst (z. B. *„Erstelle ein Spiel zum Uhrzeit-Lernen für die 2. Klasse“*).
+2. **Ausprobieren**: Der Assistent erstellt die Seite und gibt dir einen Link, mit dem du das Spiel direkt auf deinem Gerät im Browser testen kannst.
+3. **Anpassen**: Wenn dir etwas noch nicht gefällt (Farben, Aufgaben, Schriftgröße), sag es dem Assistenten.
+4. **Veröffentlichen**: Wenn alles passt, sagst du einfach *„Bitte veröffentlichen“*, und das Spiel ist kurz darauf online verfügbar.
+
+---
+
+## Aufbau der Lernprojekte
+
+Alle Inhalte liegen im Ordner `projekte/`:
+
+```text
 projekte/
-  division/                     ← ein Lernprojekt = ein Ordner
-    title.txt                   ← optional: Name des Projekts (z. B. "Division")
-    klasse-2/                   ← eine Version des Projekts
-      title.txt                 ← optional: Name der Version (z. B. "Klasse 2")
-      index.html                ← die eigentliche Lernseite
-    klasse-2-und-3/index.html
+  division/                     ← Ordner für das Lernprojekt
+    title.txt                   ← Name für die Anzeige (z. B. "Division")
+    klasse-2/                   ← Eine Version oder ein Schwierigkeitsgrad
+      title.txt                 ← Name der Version (z. B. "Klasse 2")
+      index.html                ← Das eigentliche Lernspiel
+    klasse-2-und-3/             ← Weitere Version
+      title.txt
+      index.html
 ```
 
-- Jedes **Projekt** ist ein Ordner in `projekte/`. Der Anzeigename kann über eine optionale `title.txt` im Projektordner festgelegt werden (Fallback: Ordnername).
-- Jede **Version** ist ein Unterordner mit einer `index.html`. Der Anzeigename der Version wird bevorzugt aus einer optionalen `title.txt` im Versionsordner gelesen. Existiert diese nicht, wird der `<title>` aus der HTML-Datei (ggf. bereinigt um den Projektnamen) oder der Ordnername verwendet. Weitere Dateien (Bilder, Sounds …) können daneben liegen und werden mit ausgeliefert.
-- Ordner, die mit `.` oder `_` beginnen, werden ignoriert. Für Ordnernamen am besten nur Kleinbuchstaben, Ziffern und `-` verwenden (keine Leerzeichen oder `+`), damit die Adressen sauber bleiben.
+* **Projektname & Version**: Werden einfach als Text in die jeweilige `title.txt` geschrieben (Umlaute wie Ä, Ö, Ü sind natürlich erlaubt).
+* **Dateien**: Jedes Spiel hat eine `index.html`. Zusätzliche Bilder, Töne oder Symbole können einfach daneben in denselben Ordner gelegt werden.
+* **Übersichten**: Das Inhaltsverzeichnis und die Menüs werden automatisch für dich erstellt.
 
-Die veröffentlichte Seite hat dann diese Adressen:
+---
 
-- `https://<benutzer>.github.io/lernen/` – Übersicht aller Projekte
-- `https://<benutzer>.github.io/lernen/division/` – Übersicht aller Versionen
-- `https://<benutzer>.github.io/lernen/division/klasse-2/` – die Lernseite
+## Wo finde ich die Spiele online?
 
-## Neues Projekt / neue Version anlegen
+Die veröffentlichten Spiele sind über deine GitHub-Pages-Adresse erreichbar:
 
-1. Ordner `projekte/<projekt>/<version>/` anlegen.
-2. Darin eine `index.html` erstellen (z. B. eine bestehende Version kopieren).
-3. Committen und nach `main` pushen – der Rest passiert automatisch.
+* `https://<benutzer>.github.io/lernen/` – Gesamtübersicht aller Lernspiele
+* `https://<benutzer>.github.io/lernen/division/` – Übersicht der Versionen eines Spiels
+* `https://<benutzer>.github.io/lernen/division/klasse-2/` – Das eigentliche Lernspiel
 
-## Lokal bauen und testen
+---
 
-Benötigt nur Python 3 (keine weiteren Abhängigkeiten):
+## Für Entwickler (Technischer Hintergrund)
+
+Das Repository benötigt ausschließlich **Python 3** (ohne zusätzliche Bibliotheken):
 
 ```sh
-python3 -m unittest discover -s tests   # Tests
-python3 scripts/build.py                # baut die Seite nach _site/
-python3 -m http.server -d _site         # Vorschau unter http://localhost:8000
+python3 -m unittest discover -s tests   # Prüft alle Projekte auf Vollständigkeit
+python3 scripts/build.py                # Baut die fertige Webseite nach _site/
+python3 -m http.server -d _site         # Startet eine lokale Vorschau unter http://localhost:8000
 ```
 
-## Einmalige Einstellung in GitHub
-
-Damit der Workflow `.github/workflows/pages.yml` veröffentlichen darf:
-
-1. Im Repository auf **Settings → Pages** gehen.
-2. Unter **Build and deployment → Source** den Eintrag **GitHub Actions** auswählen.
-
-Danach wird bei jedem Push auf `main` automatisch neu veröffentlicht (oder manuell über **Actions → GitHub Pages → Run workflow**). Pull Requests werden nur gebaut und getestet, nicht veröffentlicht.
+* Die Veröffentlichung erfolgt automatisch über GitHub Actions (`.github/workflows/pages.yml`), sobald Änderungen auf dem Haupt-Zweig (`main`) gespeichert werden.
+* Eine genaue Anleitung für KI-Assistenten befindet sich in [`AGENTS.md`](AGENTS.md).
