@@ -53,9 +53,33 @@ class BuildTest(unittest.TestCase):
     def test_repository_projects_build(self):
         projects = build.build(build.ROOT / "projekte", self.site)
         self.assertTrue(projects)
+        project_map = {p.slug: p for p in projects}
+        self.assertEqual(project_map["wuerfeltuerme"].title, "Würfeltürme")
+        self.assertEqual(project_map["wuerfeltuerme"].versions[0].title, "v1")
+        self.assertEqual(project_map["division"].title, "Division")
+        division_versions = {v.slug: v.title for v in project_map["division"].versions}
+        self.assertEqual(division_versions["klasse-2"], "Klasse 2")
+        self.assertEqual(division_versions["klasse-2-und-3"], "Klasse 2 und 3")
         for project in projects:
             for version in project.versions:
                 self.assertTrue((self.site / project.slug / version.slug / "index.html").is_file())
+
+    def test_title_file_precedence(self):
+        write(self.projekte / "custom/title.txt", "Eigener Projektname")
+        write(self.projekte / "custom/v1/title.txt", "Eigene Version 1")
+        write(self.projekte / "custom/v1/index.html", "<title>Ignoriert</title>")
+        write(self.projekte / "custom/v2/index.html", "<title>Eigener Projektname – Automatisch Gekürzt</title>")
+        write(self.projekte / "custom/v3/index.html", "<title>Eigener Projektname</title>")
+        write(self.projekte / "custom/v4/index.html", "<p>Kein Titel</p>")
+
+        projects = build.build(self.projekte, self.site)
+        self.assertEqual(len(projects), 1)
+        self.assertEqual(projects[0].title, "Eigener Projektname")
+        v_map = {v.slug: v.title for v in projects[0].versions}
+        self.assertEqual(v_map["v1"], "Eigene Version 1")
+        self.assertEqual(v_map["v2"], "Automatisch Gekürzt")
+        self.assertEqual(v_map["v3"], "v3")  # identisch mit Projekttitel -> Fallback auf Ordner
+        self.assertEqual(v_map["v4"], "v4")  # kein Titel -> Fallback auf Ordner
 
 
 if __name__ == "__main__":

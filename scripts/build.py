@@ -67,6 +67,15 @@ def read_title(html_file: Path) -> str:
     return " ".join(parser.title.split())
 
 
+def _read_title_file(dir_path: Path) -> str | None:
+    title_file = dir_path / "title.txt"
+    if title_file.is_file():
+        content = title_file.read_text(encoding="utf-8").strip()
+        if content:
+            return content
+    return None
+
+
 def _visible_dirs(path: Path) -> list[Path]:
     return sorted(
         p for p in path.iterdir() if p.is_dir() and not p.name.startswith((".", "_"))
@@ -76,14 +85,27 @@ def _visible_dirs(path: Path) -> list[Path]:
 def discover(projects_dir: Path) -> list[Project]:
     projects = []
     for project_dir in _visible_dirs(projects_dir):
-        project = Project(slug=project_dir.name, title=project_dir.name.replace("-", " ").title())
+        project_title = _read_title_file(project_dir) or project_dir.name.replace("-", " ").title()
+        project = Project(slug=project_dir.name, title=project_title)
         for version_dir in _visible_dirs(project_dir):
             index = version_dir / "index.html"
             if not index.is_file():
                 print(f"Warnung: {index} fehlt, Version wird übersprungen.", file=sys.stderr)
                 continue
-            title = read_title(index) or version_dir.name
-            project.versions.append(Version(slug=version_dir.name, title=title))
+            version_title = _read_title_file(version_dir)
+            if not version_title:
+                html_title = read_title(index)
+                if html_title:
+                    for sep in (" – ", " - ", ": "):
+                        prefix = f"{project_title}{sep}"
+                        if html_title.startswith(prefix):
+                            html_title = html_title[len(prefix):].strip()
+                            break
+                    if html_title.casefold() != project_title.casefold():
+                        version_title = html_title
+            if not version_title:
+                version_title = version_dir.name
+            project.versions.append(Version(slug=version_dir.name, title=version_title))
         if project.versions:
             projects.append(project)
         else:

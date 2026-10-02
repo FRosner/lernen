@@ -6,14 +6,16 @@ Sammlung kleiner Lernprojekte als statische HTML-Seiten, veröffentlicht über G
 
 ```
 projekte/
-  division/                 ← ein Lernprojekt = ein Ordner
-    klasse-2/index.html     ← eine Version des Projekts
+  division/                     ← ein Lernprojekt = ein Ordner
+    title.txt                   ← optional: Name des Projekts (z. B. "Division")
+    klasse-2/                   ← eine Version des Projekts
+      title.txt                 ← optional: Name der Version (z. B. "Klasse 2")
+      index.html                ← die eigentliche Lernseite
     klasse-2-und-3/index.html
 ```
 
-- Jedes **Projekt** ist ein Ordner in `projekte/`.
-- Jede **Version** ist ein Unterordner mit einer `index.html`. Weitere Dateien (Bilder, Sounds …) können daneben liegen und werden mit ausgeliefert.
-- Der Text im `<title>` der HTML-Datei wird als Name der Version in der Übersicht angezeigt.
+- Jedes **Projekt** ist ein Ordner in `projekte/`. Der Anzeigename kann über eine optionale `title.txt` im Projektordner festgelegt werden (Fallback: Ordnername).
+- Jede **Version** ist ein Unterordner mit einer `index.html`. Der Anzeigename der Version wird bevorzugt aus einer optionalen `title.txt` im Versionsordner gelesen. Existiert diese nicht, wird der `<title>` aus der HTML-Datei (ggf. bereinigt um den Projektnamen) oder der Ordnername verwendet. Weitere Dateien (Bilder, Sounds …) können daneben liegen und werden mit ausgeliefert.
 - Ordner, die mit `.` oder `_` beginnen, werden ignoriert. Für Ordnernamen am besten nur Kleinbuchstaben, Ziffern und `-` verwenden (keine Leerzeichen oder `+`), damit die Adressen sauber bleiben.
 
 Die veröffentlichte Seite hat dann diese Adressen:
