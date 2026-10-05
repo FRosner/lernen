@@ -67,7 +67,7 @@ projekte/
     * Scrollen nur in Ausnahmen (z. B. sehr lange Texte, Ergebnislisten, Anleitungen) und dann nur in einem klar abgegrenzten Teilbereich, nie die ganze Seite.
     * Layout bei wenig Platz anpassen (z. B. Spalten nebeneinander im Querformat, untereinander im Hochformat), statt Inhalte abzuschneiden.
     * Touch-Ziele mindestens ca. 48 px groß; Safe-Areas beachten (`env(safe-area-inset-*)`).
-    * Vor der Vorschau prüfen, dass bei 16:10 (z. B. 1280×800), Tablet (z. B. 1024×768 und 768×1024) und Smartphone (z. B. 390×844) nichts überläuft oder abgeschnitten wird.
+    * **Fenstergrößen nicht separat prüfen**: Es werden keine Testläufe oder Screenshots für verschiedene Fenstergrößen gemacht (z. B. 1280×800, 1024×768, 768×1024, 390×844). Beim Programmieren einfach darauf achten, dass das Layout für diese Größen ausgelegt ist (nichts überläuft oder abgeschnitten wird), und direkt mit dem Bauen und der Vorschau weitermachen.
 
 ### Schritt 3: Automatischer Build & lokale Vorschau
 Sobald die Dateien erstellt oder geändert wurden:

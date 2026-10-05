@@ -1,0 +1,1456 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Aufnahmeprüfung Gymnasium – Mathe &amp; Naturwissenschaften</title>
+  <style>
+    :root {
+      --bg1: #e6f0ff;
+      --bg2: #f5ebff;
+      --ink: #1f2540;
+      --muted: #565e84;
+      --primary: #3b4fd8;
+      --primary-dark: #2a3bb0;
+      --accent: #ff8a1f;
+      --accent-dark: #c05600;
+      --good: #1f8a4c;
+      --bad: #c2255c;
+      --panel: #ffffff;
+      --line: #d3daf2;
+      --soft: #eef1ff;
+      --radius: 1.1rem;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      color: var(--ink);
+      background: linear-gradient(135deg, var(--bg1), var(--bg2));
+      overflow: hidden;
+      touch-action: manipulation;
+      -webkit-user-select: none;
+      user-select: none;
+      line-height: 1.3;
+    }
+
+    .screen {
+      height: 100vh;
+      height: 100dvh;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: .6rem;
+      padding:
+        max(.6rem, env(safe-area-inset-top))
+        max(.8rem, env(safe-area-inset-right))
+        max(.6rem, env(safe-area-inset-bottom))
+        max(.8rem, env(safe-area-inset-left));
+      overflow: hidden;
+    }
+
+    .screen[hidden] { display: none; }
+
+    .panel {
+      background: var(--panel);
+      border-radius: var(--radius);
+      border: 2px solid var(--line);
+      box-shadow: 0 3px 0 var(--line);
+    }
+
+    /* ---------- Buttons ---------- */
+    .btn {
+      font: inherit;
+      font-weight: 700;
+      font-size: clamp(1rem, .9rem + .6vmin, 1.25rem);
+      min-height: 48px;
+      padding: .55rem 1.2rem;
+      border: 0;
+      border-radius: 1rem;
+      cursor: pointer;
+      color: var(--ink);
+      background: #fff;
+      box-shadow: inset 0 0 0 2px var(--line), 0 3px 0 var(--line);
+      transition: transform .08s ease;
+    }
+    .btn:active:not(:disabled) { transform: translateY(2px); }
+    .btn:focus-visible, .choice:focus-visible, .key:focus-visible, .back:focus-visible {
+      outline: 4px solid #ffc078;
+      outline-offset: 2px;
+    }
+    .btn.primary {
+      color: #fff;
+      background: var(--primary);
+      box-shadow: 0 4px 0 var(--primary-dark);
+    }
+    .btn.accent {
+      color: #fff;
+      background: var(--accent-dark);
+      box-shadow: 0 4px 0 #8a3f00;
+    }
+    .btn:disabled { opacity: .45; cursor: not-allowed; }
+
+    /* ---------- Topbar ---------- */
+    .topbar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      grid-template-areas: "back timer" "prog prog";
+      align-items: center;
+      gap: .35rem .8rem;
+    }
+    .back {
+      grid-area: back;
+      justify-self: start;
+      color: var(--primary-dark);
+      font-weight: 700;
+      text-decoration: none;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+    }
+    .back:hover { text-decoration: underline; }
+    .timer {
+      grid-area: timer;
+      font-variant-numeric: tabular-nums;
+      font-weight: 800;
+      font-size: clamp(1.05rem, .9rem + .8vmin, 1.4rem);
+      background: #fff;
+      border: 2px solid var(--line);
+      border-radius: 999px;
+      padding: .25rem .8rem;
+      white-space: nowrap;
+    }
+    .progress {
+      grid-area: prog;
+      display: flex;
+      gap: .25rem;
+    }
+    .seg {
+      flex: 1;
+      height: .7rem;
+      border-radius: 999px;
+      background: #cfd6f3;
+    }
+    .seg.done { background: var(--primary); }
+    .seg.skipped { background: var(--accent); }
+    .seg.blank { background: #8b93b8; }
+    .seg.current {
+      transform: scaleY(1.7);
+      box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--ink);
+    }
+
+    @media (min-width: 700px) {
+      .topbar {
+        grid-template-columns: auto 1fr auto;
+        grid-template-areas: "back prog timer";
+        gap: .8rem;
+      }
+    }
+
+    /* ---------- Start / Zwischenseite ---------- */
+    .center {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .intro {
+      width: min(100%, 44rem);
+      max-height: 100%;
+      overflow: auto;
+      padding: clamp(.9rem, 2.5vmin, 2rem);
+      text-align: center;
+    }
+    .intro .big-emoji { font-size: clamp(2.6rem, 9vmin, 5rem); line-height: 1; }
+    .intro h1 {
+      margin: .3rem 0 .2rem;
+      font-size: clamp(1.4rem, 1rem + 2.4vmin, 2.4rem);
+      color: var(--primary-dark);
+    }
+    .intro p { margin: .3rem 0; color: var(--muted); font-size: clamp(1rem, .9rem + .6vmin, 1.2rem); }
+    .intro ul {
+      list-style: none;
+      padding: 0;
+      margin: .8rem 0 1rem;
+      display: grid;
+      gap: .45rem;
+      text-align: left;
+      font-size: clamp(.98rem, .88rem + .55vmin, 1.15rem);
+    }
+    .intro li {
+      background: var(--soft);
+      border-radius: .8rem;
+      padding: .5rem .8rem;
+    }
+
+    /* ---------- Prüfung ---------- */
+    .card {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: minmax(0, 1fr) auto;
+      gap: .6rem;
+    }
+    .qpane {
+      min-height: 0;
+      padding: .7rem .9rem;
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+    }
+    .apane {
+      min-height: 0;
+      padding: .6rem;
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: .4rem .6rem;
+      font-size: .9rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .pill {
+      background: var(--soft);
+      color: var(--primary-dark);
+      border-radius: 999px;
+      padding: .15rem .7rem;
+      font-weight: 700;
+    }
+    .pill.warn { background: #fff0d9; color: var(--accent-dark); }
+    #prompt {
+      margin: 0;
+      font-size: clamp(1.05rem, .75rem + 1.6vmin, 1.6rem);
+      line-height: 1.3;
+    }
+    .visual {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: .5rem;
+      overflow: hidden;
+    }
+    .visual[hidden] { display: none; }
+
+    /* Visuals */
+    .chips { display: flex; flex-wrap: wrap; gap: .45rem; justify-content: center; }
+    .chip {
+      min-width: 2.4em;
+      padding: .3em .5em;
+      border-radius: .7rem;
+      background: var(--soft);
+      border: 3px solid #c5cdf5;
+      font-weight: 800;
+      font-size: clamp(1.25rem, .9rem + 2.2vmin, 2.4rem);
+      text-align: center;
+    }
+    .chip.q { background: #fff4e0; border-color: var(--accent); color: var(--accent-dark); }
+
+    .expr {
+      font-size: clamp(1.7rem, 1rem + 4.5vmin, 3.6rem);
+      font-weight: 800;
+      text-align: center;
+      line-height: 1.2;
+    }
+    .expr .q { color: var(--accent-dark); }
+
+    .story {
+      width: 100%;
+      background: #fff8e6;
+      border: 2px solid #ffe0a3;
+      border-radius: 1rem;
+      padding: .7rem .9rem;
+      font-size: clamp(1.02rem, .75rem + 1.5vmin, 1.55rem);
+      line-height: 1.4;
+      text-align: left;
+    }
+
+    .analogy { display: grid; gap: .5rem; width: 100%; }
+    .pair {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: .5rem;
+      font-size: clamp(1.15rem, .8rem + 2vmin, 2rem);
+      font-weight: 800;
+    }
+    .pair b {
+      background: var(--soft);
+      border-radius: .8rem;
+      padding: .35rem .6rem;
+      text-align: center;
+      overflow-wrap: anywhere;
+    }
+    .pair b.qq { background: #fff4e0; color: var(--accent-dark); border: 3px dashed var(--accent); }
+    .pair span { color: var(--muted); }
+
+    .figrow { display: flex; gap: .4rem; align-items: center; justify-content: center; width: 100%; }
+    .figcell { flex: 1; max-width: 7.5rem; aspect-ratio: 1; }
+    .figcell svg { width: 100%; height: 100%; display: block; }
+    .arrow { color: var(--muted); font-weight: 800; }
+
+    .rect-svg { width: 100%; height: 100%; max-height: 100%; }
+
+    .clues { width: 100%; display: grid; gap: .4rem; }
+    .bubble {
+      background: var(--soft);
+      border-radius: 1rem;
+      padding: .5rem .8rem;
+      font-weight: 700;
+      font-size: clamp(1.05rem, .8rem + 1.4vmin, 1.5rem);
+      text-align: left;
+    }
+
+    .wall { display: flex; flex-direction: column; align-items: center; gap: .3rem; }
+    .wall .row { display: flex; gap: .3rem; }
+    .brick {
+      width: clamp(3.2rem, 13vmin, 5.4rem);
+      height: clamp(2.4rem, 8.5vmin, 3.7rem);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: .6rem;
+      border: 3px solid #c5cdf5;
+      background: var(--soft);
+      font-weight: 800;
+      font-size: clamp(1.15rem, .8rem + 2vmin, 2rem);
+    }
+    .brick.q { background: #fff4e0; border-color: var(--accent); color: var(--accent-dark); }
+    .brick.empty { background: #f4f5fb; border-style: dashed; border-color: #d3daf2; }
+
+    /* Antworten: Zahlenfeld */
+    .answerbox { display: flex; align-items: center; gap: .6rem; }
+    .display {
+      flex: 1;
+      min-height: 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid var(--primary);
+      border-radius: .9rem;
+      background: #f6f8ff;
+      font-size: clamp(1.7rem, 1.2rem + 2.4vmin, 2.6rem);
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+    .display.empty { color: #9aa3cf; }
+    .unit {
+      min-width: 3.2rem;
+      font-weight: 700;
+      font-size: clamp(1rem, .9rem + .6vmin, 1.3rem);
+      color: var(--muted);
+    }
+    .unit:empty { display: none; }
+    .numpad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-auto-rows: clamp(48px, 6.2dvh, 72px);
+      gap: .4rem;
+    }
+    .key {
+      font: inherit;
+      font-weight: 800;
+      font-size: clamp(1.3rem, 1rem + 1.6vmin, 2rem);
+      border: 0;
+      border-radius: .8rem;
+      background: var(--soft);
+      color: var(--ink);
+      box-shadow: 0 3px 0 #c5cdf5;
+      cursor: pointer;
+    }
+    .key:active { transform: translateY(2px); box-shadow: 0 1px 0 #c5cdf5; }
+    .key.util { background: #fde8d0; box-shadow: 0 3px 0 #f2c28c; }
+
+    /* Antworten: Auswahl */
+    .choices {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-auto-rows: clamp(56px, 9dvh, 110px);
+      gap: .5rem;
+    }
+    .choices.one-col { grid-template-columns: minmax(0, 1fr); grid-auto-rows: clamp(48px, 7.2dvh, 80px); }
+    .choices.fig { grid-auto-rows: clamp(84px, 15dvh, 150px); }
+    .choice {
+      font: inherit;
+      font-weight: 700;
+      font-size: clamp(1.02rem, .85rem + 1vmin, 1.4rem);
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      padding: .3rem .6rem;
+      text-align: left;
+      color: var(--ink);
+      background: #fff;
+      border: 3px solid var(--line);
+      border-radius: 1rem;
+      cursor: pointer;
+      box-shadow: 0 3px 0 var(--line);
+    }
+    .choice .letter {
+      flex: none;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--soft);
+      color: var(--primary-dark);
+      font-weight: 800;
+      font-size: .95rem;
+    }
+    .choice .label { overflow-wrap: anywhere; }
+    .choice .figwrap { flex: 1; min-width: 0; height: 100%; display: flex; align-items: center; justify-content: center; }
+    .choice .figwrap svg { height: 100%; max-width: 100%; aspect-ratio: 1; }
+    .choice[aria-checked="true"] {
+      border-color: var(--primary);
+      background: #e9edff;
+      box-shadow: 0 3px 0 var(--primary);
+    }
+    .choice[aria-checked="true"] .letter { background: var(--primary); color: #fff; }
+
+    .actions { display: flex; gap: .6rem; }
+    .actions .btn { flex: 1; }
+    .actions .btn.primary { flex: 1.6; }
+
+    /* Breites Querformat: zwei Spalten */
+    @media (min-width: 760px) and (min-aspect-ratio: 11/10) {
+      .card {
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+        grid-template-rows: minmax(0, 1fr);
+        gap: .8rem;
+      }
+      .qpane { padding: 1rem 1.2rem; }
+      .apane { padding: .9rem; justify-content: center; }
+      .numpad {
+        flex: 1;
+        min-height: 0;
+        max-height: 26rem;
+        grid-template-rows: repeat(4, minmax(48px, 1fr));
+        grid-auto-rows: auto;
+      }
+      .choices { flex: 1; min-height: 0; max-height: 26rem; grid-template-rows: repeat(2, minmax(0, 1fr)); grid-auto-rows: auto; }
+      .choices.one-col { grid-template-rows: repeat(4, minmax(0, 1fr)); }
+      .choices.fig { grid-template-rows: repeat(2, minmax(0, 1fr)); }
+    }
+
+    /* Sehr niedrige Querformat-Ansicht (z. B. Handy quer) */
+    @media (max-height: 520px) and (orientation: landscape) {
+      .numpad { grid-template-columns: repeat(6, 1fr); grid-template-rows: repeat(2, minmax(44px, 1fr)); max-height: none; flex: 0 0 auto; height: 6.2rem; }
+      .choices { max-height: none; }
+      .meta { font-size: .8rem; }
+    }
+
+    /* ---------- Ergebnis ---------- */
+    .result-wrap {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: .6rem;
+    }
+    .hero {
+      padding: .8rem 1rem;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: .25rem;
+    }
+    .hero .emoji {
+      font-size: clamp(3rem, 11vmin, 6rem);
+      line-height: 1;
+      animation: pop .7s cubic-bezier(.3, 1.6, .5, 1) both;
+    }
+    .hero .kicker { color: var(--muted); font-weight: 700; font-size: .95rem; }
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(1.6rem, 1rem + 3.5vmin, 3rem);
+      color: var(--primary-dark);
+      line-height: 1.1;
+    }
+    .hero .rankno {
+      background: var(--accent-dark);
+      color: #fff;
+      border-radius: 999px;
+      padding: .1rem .8rem;
+      font-weight: 800;
+      font-size: .95rem;
+    }
+    .hero .desc { margin: .2rem 0; color: var(--muted); font-size: clamp(.98rem, .85rem + .7vmin, 1.2rem); max-width: 34rem; }
+    .score { font-weight: 800; font-size: clamp(1.2rem, 1rem + 1.2vmin, 1.7rem); }
+    .bar { width: min(100%, 24rem); height: .9rem; border-radius: 999px; background: #dfe4f8; overflow: hidden; }
+    .bar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--primary)); border-radius: inherit; }
+    .hero .small { color: var(--muted); font-size: .9rem; }
+    .hero .btns { display: flex; gap: .5rem; flex-wrap: wrap; justify-content: center; margin-top: .4rem; }
+
+    .details { padding: .7rem .9rem; overflow-y: auto; min-height: 0; -webkit-user-select: text; user-select: text; }
+    .details h2 { margin: .2rem 0 .5rem; font-size: 1.15rem; color: var(--primary-dark); }
+    .ladder { list-style: none; padding: 0; margin: 0 0 1rem; display: grid; gap: .3rem; }
+    .ladder li {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      padding: .3rem .6rem;
+      border-radius: .7rem;
+      background: #f4f6ff;
+      font-weight: 600;
+    }
+    .ladder li .no { width: 1.6rem; text-align: right; color: var(--muted); font-weight: 800; }
+    .ladder li.me { background: #fff0d9; box-shadow: inset 0 0 0 3px var(--accent); font-weight: 800; }
+    .ladder li .you { margin-left: auto; color: var(--accent-dark); font-weight: 800; }
+    .review { list-style: none; padding: 0; margin: 0; display: grid; gap: .5rem; }
+    .review li { border-radius: .8rem; padding: .5rem .7rem; background: #f4f6ff; border-left: 6px solid #8b93b8; }
+    .review li.ok { border-left-color: var(--good); }
+    .review li.no { border-left-color: var(--bad); }
+    .review .rt { font-weight: 800; }
+    .review .rq { color: var(--muted); font-size: .95rem; overflow-wrap: anywhere; }
+    .review .ra { font-size: .95rem; margin-top: .15rem; }
+    .review .re { font-size: .9rem; color: var(--muted); margin-top: .15rem; }
+
+    @media (min-width: 760px) and (min-aspect-ratio: 11/10) {
+      .result-wrap { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); gap: .8rem; }
+      .hero { padding: 1.2rem; gap: .5rem; }
+    }
+    @media (max-height: 700px) and (max-aspect-ratio: 11/10) {
+      .hero .desc { display: none; }
+    }
+
+    @keyframes pop { from { transform: scale(.2) rotate(-12deg); opacity: 0; } to { transform: none; opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) {
+      .hero .emoji { animation: none; }
+      .btn { transition: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Startseite -->
+  <section class="screen" id="screenStart">
+    <div class="topbar" style="grid-template-areas:'back back'">
+      <a class="back" href="../">&larr; Zurück zur Übersicht</a>
+    </div>
+    <div class="center">
+      <div class="intro panel">
+        <div class="big-emoji" aria-hidden="true">🎓</div>
+        <h1>Aufnahmeprüfung</h1>
+        <p>Mathe- &amp; Natur&shy;wissen&shy;schafts-Gymnasium – Probe-Test</p>
+        <ul>
+          <li>📝 <strong>12 Aufgaben</strong> – Rechnen, Rätsel, Logik und Wissen</li>
+          <li>⏱️ Etwa <strong>15 Minuten</strong>. Die Uhr läuft nur mit und zählt nicht für die Punkte.</li>
+          <li>⤼ Du kannst Aufgaben <strong>überspringen</strong> – sie kommen am Ende nochmal.</li>
+          <li>✏️ Stift und Papier zum Rechnen sind erlaubt, einen Taschenrechner brauchst du nicht.</li>
+          <li>🏆 Am Ende bekommst du deine Punkte und einen <strong>Rang</strong> von „Toastbrot“ bis „Genie“.</li>
+        </ul>
+        <button class="btn primary" id="startBtn" type="button">Prüfung starten</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Prüfung -->
+  <section class="screen" id="screenTest" hidden>
+    <div class="topbar">
+      <a class="back" href="../">&larr; Übersicht</a>
+      <div class="progress" id="progress" aria-hidden="true"></div>
+      <div class="timer" role="timer" aria-label="Verstrichene Zeit">⏱ <span id="timeText">00:00</span></div>
+    </div>
+    <main class="card">
+      <section class="qpane panel" aria-live="polite">
+        <div class="meta">
+          <span class="pill" id="cat"></span>
+          <span id="count"></span>
+          <span class="pill warn" id="roundPill" hidden>Nochmal versuchen</span>
+        </div>
+        <h2 id="prompt"></h2>
+        <div class="visual" id="visual"></div>
+      </section>
+      <section class="apane panel" id="apane"></section>
+    </main>
+    <div class="actions">
+      <button class="btn" id="skipBtn" type="button">Überspringen</button>
+      <button class="btn primary" id="nextBtn" type="button" disabled>Weiter</button>
+    </div>
+  </section>
+
+  <!-- Zwischenseite: übersprungene Aufgaben -->
+  <section class="screen" id="screenInterlude" hidden>
+    <div class="topbar" style="grid-template-areas:'timer timer';grid-template-columns:1fr">
+      <div class="timer" style="justify-self:end">⏱ <span id="timeText2">00:00</span></div>
+    </div>
+    <div class="center">
+      <div class="intro panel">
+        <div class="big-emoji" aria-hidden="true">🔁</div>
+        <h1>Fast geschafft!</h1>
+        <p id="interludeText"></p>
+        <p>Diesmal kannst du jede Aufgabe lösen oder ohne Antwort weitergehen.</p>
+        <p></p>
+        <button class="btn primary" id="interludeBtn" type="button">Los geht’s</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Ergebnis -->
+  <section class="screen" id="screenResult" hidden>
+    <div class="topbar" style="grid-template-areas:'back back'">
+      <a class="back" href="../">&larr; Zurück zur Übersicht</a>
+    </div>
+    <div class="result-wrap">
+      <div class="hero panel">
+        <div class="emoji" id="rEmoji" aria-hidden="true"></div>
+        <div class="kicker">Dein Rang</div>
+        <h1 id="rName"></h1>
+        <span class="rankno" id="rNo"></span>
+        <p class="desc" id="rDesc"></p>
+        <div class="score" id="rScore"></div>
+        <div class="bar" aria-hidden="true"><i id="rBar" style="width:0"></i></div>
+        <div class="small" id="rTime"></div>
+        <div class="btns">
+          <button class="btn primary" id="againBtn" type="button">Nochmal mit neuen Aufgaben</button>
+        </div>
+      </div>
+      <div class="details panel">
+        <h2>Alle Ränge</h2>
+        <ol class="ladder" id="ladder" reversed></ol>
+        <h2>Deine Auswertung</h2>
+        <ul class="review" id="review"></ul>
+      </div>
+    </div>
+  </section>
+
+  <script>
+  (function () {
+    'use strict';
+
+    /* =====================================================
+       Hilfsfunktionen
+       ===================================================== */
+    const rnd = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+    const pick = (arr) => arr[rnd(0, arr.length - 1)];
+    function shuffle(arr) {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = rnd(0, i);
+        const t = a[i]; a[i] = a[j]; a[j] = t;
+      }
+      return a;
+    }
+    const pad = (n) => String(n).padStart(2, '0');
+    const NAMES = ['Anna', 'Ben', 'Carla', 'David', 'Emma', 'Felix', 'Mia', 'Paul', 'Lena', 'Tim', 'Sophie', 'Jonas', 'Nora', 'Leon'];
+
+    /* Baut eine Auswahlaufgabe. correct/wrongs: Text oder {text, v, svg, label} */
+    function choiceTask(base, correct, wrongs, opts) {
+      opts = opts || {};
+      const norm = (o) => (typeof o === 'object' ? o : { text: String(o) });
+      const c = norm(correct);
+      let list = [c].concat(wrongs.map(norm));
+      list = opts.sort ? list.slice().sort((a, b) => a.v - b.v) : shuffle(list);
+      const correctIndex = list.indexOf(c);
+      const options = list.concat((opts.tail || []).map(norm));
+      return Object.assign({ kind: 'choice', options: options, correctIndex: correctIndex }, base);
+    }
+    /* Falsche Antworten ohne Duplikate auswählen */
+    function uniqueWrongs(correct, candidates, n) {
+      const seen = new Set([correct]);
+      const out = [];
+      for (const c of candidates) {
+        if (!seen.has(c) && out.length < n) { seen.add(c); out.push(c); }
+      }
+      let extra = 1;
+      while (out.length < n) {
+        const c = correct + extra * (extra % 2 ? 1 : -1) * 2;
+        extra++;
+        if (!seen.has(c) && c >= 0) { seen.add(c); out.push(c); }
+      }
+      return out;
+    }
+    const numOpt = (n, unit) => ({ text: n + (unit ? ' ' + unit : ''), v: n });
+
+    /* =====================================================
+       Aufgaben-Generatoren (immer gleiche Struktur, andere Werte)
+       ===================================================== */
+
+    /* 1. Zahlenreihe */
+    function genSequence() {
+      const type = pick(['plus', 'minus', 'alt', 'double', 'grow']);
+      let seq = [], shown = 5, explain = '';
+      if (type === 'plus') {
+        const s = rnd(2, 25), d = rnd(2, 9);
+        for (let i = 0; i < 6; i++) seq.push(s + d * i);
+        explain = 'Die Zahlen werden immer um ' + d + ' größer: ' + seq[4] + ' + ' + d + ' = ' + seq[5] + '.';
+      } else if (type === 'minus') {
+        const s = rnd(45, 90), d = rnd(3, 8);
+        for (let i = 0; i < 6; i++) seq.push(s - d * i);
+        explain = 'Die Zahlen werden immer um ' + d + ' kleiner: ' + seq[4] + ' − ' + d + ' = ' + seq[5] + '.';
+      } else if (type === 'alt') {
+        const s = rnd(1, 15), a = rnd(2, 6);
+        let b = rnd(1, 5);
+        if (b === a) b = a + 1;
+        let v = s;
+        seq.push(v);
+        for (let i = 0; i < 6; i++) { v += (i % 2 === 0 ? a : b); seq.push(v); }
+        shown = 6;
+        explain = 'Abwechselnd wird ' + a + ' und ' + b + ' addiert. Als Nächstes ist +' + b + ' dran: ' + seq[5] + ' + ' + b + ' = ' + seq[6] + '.';
+      } else if (type === 'double') {
+        const s = rnd(1, 5);
+        for (let i = 0; i < 6; i++) seq.push(s * Math.pow(2, i));
+        explain = 'Jede Zahl wird verdoppelt: ' + seq[4] + ' · 2 = ' + seq[5] + '.';
+      } else {
+        const s = rnd(1, 10);
+        let v = s;
+        seq.push(v);
+        for (let i = 1; i <= 5; i++) { v += i; seq.push(v); }
+        explain = 'Die Sprünge werden immer um 1 größer: +1, +2, +3, +4, +5. ' + seq[4] + ' + 5 = ' + seq[5] + '.';
+      }
+      const answer = seq[shown];
+      const shownSeq = seq.slice(0, shown);
+      const chips = shownSeq.map((n) => '<span class="chip">' + n + '</span>').join('') + '<span class="chip q">?</span>';
+      return {
+        kind: 'input', prompt: 'Welche Zahl kommt als Nächstes?',
+        visual: '<div class="chips">' + chips + '</div>',
+        answer: answer, unit: '',
+        q: shownSeq.join(', ') + ', ?', explain: explain
+      };
+    }
+
+    /* 2. Rechnen: Punkt vor Strich und Klammern */
+    function genArithmetic() {
+      const forms = [
+        () => { const a = rnd(2, 30), b = rnd(2, 9), c = rnd(2, 9);
+          return { e: a + ' + ' + b + ' · ' + c, v: a + b * c,
+            x: 'Punkt vor Strich: erst ' + b + ' · ' + c + ' = ' + (b * c) + ', dann ' + a + ' + ' + (b * c) + ' = ' + (a + b * c) + '.' }; },
+        () => { const a = rnd(3, 9), b = rnd(3, 9), c = rnd(1, Math.min(20, a * b - 1));
+          return { e: a + ' · ' + b + ' − ' + c, v: a * b - c,
+            x: 'Erst ' + a + ' · ' + b + ' = ' + (a * b) + ', dann ' + (a * b) + ' − ' + c + ' = ' + (a * b - c) + '.' }; },
+        () => { const a = rnd(2, 15), b = rnd(2, 15), c = rnd(2, 6);
+          return { e: '(' + a + ' + ' + b + ') · ' + c, v: (a + b) * c,
+            x: 'Klammer zuerst: ' + a + ' + ' + b + ' = ' + (a + b) + ', dann ' + (a + b) + ' · ' + c + ' = ' + ((a + b) * c) + '.' }; },
+        () => { const b = rnd(2, 6), c = rnd(2, 6), a = b * c + rnd(1, 30);
+          return { e: a + ' − ' + b + ' · ' + c, v: a - b * c,
+            x: 'Punkt vor Strich: erst ' + b + ' · ' + c + ' = ' + (b * c) + ', dann ' + a + ' − ' + (b * c) + ' = ' + (a - b * c) + '.' }; },
+        () => { const a = rnd(2, 9), b = rnd(2, 9), c = rnd(5, 40);
+          return { e: c + ' + ' + (a * b) + ' : ' + b, v: c + a,
+            x: 'Punkt vor Strich: erst ' + (a * b) + ' : ' + b + ' = ' + a + ', dann ' + c + ' + ' + a + ' = ' + (c + a) + '.' }; }
+      ];
+      const f = pick(forms)();
+      return {
+        kind: 'input', prompt: 'Rechne aus. Denk an „Punkt vor Strich“ und an die Klammern!',
+        visual: '<div class="expr">' + f.e + ' = <span class="q">?</span></div>',
+        answer: f.v, unit: '', q: f.e + ' = ?', explain: f.x
+      };
+    }
+
+    /* 3. Textaufgabe */
+    function genWordProblem() {
+      const name = pick(NAMES);
+      const kinds = [
+        () => { const n = rnd(3, 7), p = rnd(2, 6), cost = n * p, pay = cost < 20 ? 20 : 50;
+          return { t: name + ' kauft ' + n + ' Hefte. Ein Heft kostet ' + p + ' €. ' + name + ' bezahlt mit einem ' + pay + '-€-Schein. Wie viel Euro bekommt ' + name + ' zurück?',
+            a: pay - cost, u: '€', x: n + ' · ' + p + ' = ' + cost + ' € kosten die Hefte. ' + pay + ' − ' + cost + ' = ' + (pay - cost) + ' €.' }; },
+        () => { const a = rnd(20, 40), b = rnd(5, 15), c = rnd(3, 12);
+          return { t: 'Im Bus sitzen ' + a + ' Kinder. An der Haltestelle steigen ' + b + ' Kinder aus und ' + c + ' Kinder ein. Wie viele Kinder sitzen danach im Bus?',
+            a: a - b + c, u: 'Kinder', x: a + ' − ' + b + ' + ' + c + ' = ' + (a - b + c) + '.' }; },
+        () => { const k = rnd(3, 6), m = rnd(6, 12), g = rnd(5, k * m - 10);
+          return { t: 'In einem Karton liegen ' + k + ' Packungen mit je ' + m + ' Stiften. ' + name + ' verschenkt ' + g + ' Stifte. Wie viele Stifte bleiben übrig?',
+            a: k * m - g, u: 'Stifte', x: k + ' · ' + m + ' = ' + (k * m) + ' Stifte insgesamt. ' + (k * m) + ' − ' + g + ' = ' + (k * m - g) + '.' }; },
+        () => { const x = rnd(3, 8), w = rnd(4, 9), y = rnd(5, x * w - 5);
+          return { t: name + ' spart jede Woche ' + x + ' €. Nach ' + w + ' Wochen kauft ' + name + ' ein Buch für ' + y + ' €. Wie viel Geld bleibt übrig?',
+            a: x * w - y, u: '€', x: x + ' · ' + w + ' = ' + (x * w) + ' € gespart. ' + (x * w) + ' − ' + y + ' = ' + (x * w - y) + ' €.' }; },
+        () => { const g = rnd(4, 6), k = rnd(3, 6), s = rnd(2, 4), n = g * k;
+          return { t: n + ' Kinder werden in Gruppen zu je ' + g + ' Kindern eingeteilt. Jede Gruppe bekommt ' + s + ' Stifte. Wie viele Stifte werden insgesamt gebraucht?',
+            a: k * s, u: 'Stifte', x: n + ' : ' + g + ' = ' + k + ' Gruppen. ' + k + ' · ' + s + ' = ' + (k * s) + ' Stifte.' }; }
+      ];
+      const r = pick(kinds)();
+      return {
+        kind: 'input', prompt: 'Lies die Aufgabe genau und rechne.',
+        visual: '<div class="story">' + r.t + '</div>',
+        answer: r.a, unit: r.u, q: r.t, explain: r.x
+      };
+    }
+
+    /* 4. Analogie */
+    const ANALOGIES = [
+      ['Hand', 'Handschuh', 'Fuß', 'Schuh', ['Zeh', 'Bein', 'Boden'], 'Ein Handschuh gehört an die Hand, ein Schuh an den Fuß.'],
+      ['Vogel', 'Nest', 'Biene', 'Bienenstock', ['Blume', 'Flügel', 'Summen'], 'Der Vogel wohnt im Nest, die Biene im Bienenstock.'],
+      ['Auge', 'Sehen', 'Ohr', 'Hören', ['Lärm', 'Kopf', 'Riechen'], 'Mit dem Auge sieht man, mit dem Ohr hört man.'],
+      ['Heiß', 'Kalt', 'Tag', 'Nacht', ['Sonne', 'Uhr', 'Mittag'], 'Gegenteile: heiß – kalt, Tag – Nacht.'],
+      ['Frosch', 'Kaulquappe', 'Schmetterling', 'Raupe', ['Blatt', 'Biene', 'Flügel'], 'Aus der Kaulquappe wird ein Frosch, aus der Raupe ein Schmetterling.'],
+      ['Pferd', 'Fohlen', 'Kuh', 'Kalb', ['Lamm', 'Küken', 'Welpe'], 'Das Junge vom Pferd ist das Fohlen, das Junge der Kuh das Kalb.'],
+      ['Thermometer', 'Temperatur', 'Waage', 'Gewicht', ['Länge', 'Zeit', 'Wärme'], 'Ein Thermometer misst die Temperatur, eine Waage das Gewicht.'],
+      ['Lineal', 'Länge', 'Uhr', 'Zeit', ['Gewicht', 'Temperatur', 'Zahl'], 'Ein Lineal misst die Länge, eine Uhr die Zeit.'],
+      ['Fisch', 'Wasser', 'Vogel', 'Luft', ['Nest', 'Baum', 'Feder'], 'Der Fisch lebt im Wasser, der Vogel fliegt in der Luft.'],
+      ['Messer', 'Schneiden', 'Stift', 'Schreiben', ['Essen', 'Lesen', 'Kleben'], 'Mit einem Messer schneidet man, mit einem Stift schreibt man.'],
+      ['Baum', 'Wald', 'Schaf', 'Herde', ['Wiese', 'Wolle', 'Stall'], 'Viele Bäume sind ein Wald, viele Schafe eine Herde.'],
+      ['Mond', 'Erde', 'Erde', 'Sonne', ['Mars', 'Wolke', 'Nacht'], 'Der Mond umkreist die Erde, die Erde umkreist die Sonne.'],
+      ['Samen', 'Pflanze', 'Ei', 'Küken', ['Schale', 'Nest', 'Hahn'], 'Aus einem Samen wächst eine Pflanze, aus einem Ei schlüpft ein Küken.']
+    ];
+    function genAnalogy() {
+      if (Math.random() < 0.3) {
+        const k = rnd(2, 5), a = rnd(2, 9);
+        let c = rnd(2, 9);
+        if (c === a) c++;
+        const b = a * k, ans = c * k;
+        const wr = uniqueWrongs(ans, [c + (b - a), c + k, ans + k, ans - k, ans + 2], 3);
+        return choiceTask({
+          cat: null, prompt: 'Welche Zahl passt? Finde die Regel.',
+          visual: '<div class="analogy"><div class="pair"><b>' + a + '</b><span>→</span><b>' + b + '</b></div><div class="pair"><b>' + c + '</b><span>→</span><b class="qq">?</b></div></div>',
+          q: a + ' → ' + b + ' und ' + c + ' → ?',
+          explain: 'Die Regel ist „mal ' + k + '“: ' + a + ' · ' + k + ' = ' + b + ', also ' + c + ' · ' + k + ' = ' + ans + '.'
+        }, numOpt(ans), wr.map((n) => numOpt(n)), { sort: true });
+      }
+      const e = pick(ANALOGIES);
+      return choiceTask({
+        prompt: 'Welches Wort passt? Das untere Paar gehört genauso zusammen wie das obere.',
+        visual: '<div class="analogy"><div class="pair"><b>' + e[0] + '</b><span>→</span><b>' + e[1] + '</b></div><div class="pair"><b>' + e[2] + '</b><span>→</span><b class="qq">?</b></div></div>',
+        q: e[0] + ' → ' + e[1] + ' und ' + e[2] + ' → ?',
+        explain: e[5]
+      }, e[3], e[4]);
+    }
+
+    /* 5. Figurenfolge */
+    const CORNERS = [[27, 27], [73, 27], [73, 73], [27, 73]];
+    const COLOR_PAIRS = [['#e03131', '#1c7ed6'], ['#f08c00', '#1c7ed6'], ['#7048e8', '#f08c00']];
+    function figSVG(pos, color, isQuestion) {
+      if (isQuestion) {
+        return '<svg viewBox="0 0 100 100" role="img" aria-label="Gesuchtes Bild"><rect x="6" y="6" width="88" height="88" rx="14" fill="#fff8e6" stroke="#ff8a1f" stroke-width="5" stroke-dasharray="9 7"/><text x="50" y="68" text-anchor="middle" font-size="52" font-weight="800" fill="#c05600" font-family="system-ui,sans-serif">?</text></svg>';
+      }
+      const c = CORNERS[pos];
+      return '<svg viewBox="0 0 100 100" role="img" aria-hidden="true"><rect x="6" y="6" width="88" height="88" rx="14" fill="#fff" stroke="#3d4570" stroke-width="5"/><circle cx="' + c[0] + '" cy="' + c[1] + '" r="15" fill="' + color + '" stroke="#1f2540" stroke-width="2.5"/></svg>';
+    }
+    function genFigures() {
+      const pair = pick(COLOR_PAIRS);
+      const step = pick([1, 1, 3, 2]);
+      const alt = Math.random() < 0.65;
+      const p0 = rnd(0, 3);
+      const at = (i) => ({ pos: (p0 + step * i) % 4, col: alt ? (i % 2 ? pair[1] : pair[0]) : pair[0] });
+      const ans = at(4);
+      const key = (f) => f.pos + '|' + f.col;
+      const used = new Set([key(ans)]);
+      const wrongs = [];
+      const add = (f) => { if (!used.has(key(f))) { used.add(key(f)); wrongs.push(f); } };
+      add({ pos: ans.pos, col: ans.col === pair[0] ? pair[1] : pair[0] });
+      add({ pos: at(3).pos, col: ans.col });
+      const rest = shuffle([0, 1, 2, 3].flatMap((p) => pair.map((c) => ({ pos: p, col: c }))));
+      for (const f of rest) { if (wrongs.length < 3) add(f); }
+      const toOpt = (f) => ({ svg: figSVG(f.pos, f.col), text: '', fkey: key(f) });
+      const cells = [0, 1, 2, 3].map((i) => { const f = at(i); return '<div class="figcell">' + figSVG(f.pos, f.col) + '</div>'; });
+      cells.push('<div class="figcell">' + figSVG(0, '', true) + '</div>');
+      const dirText = step === 1 ? 'Der Punkt wandert immer eine Ecke im Uhrzeigersinn weiter.'
+        : step === 3 ? 'Der Punkt wandert immer eine Ecke gegen den Uhrzeigersinn weiter.'
+        : 'Der Punkt springt immer in die gegenüberliegende Ecke.';
+      return choiceTask({
+        prompt: 'Welches Bild kommt als Nächstes?',
+        visual: '<div class="figrow">' + cells.join('') + '</div>',
+        optClass: 'fig', q: 'Figurenfolge mit wanderndem Punkt',
+        explain: dirText + (alt ? ' Die Farbe wechselt jedes Mal.' : ' Die Farbe bleibt gleich.')
+      }, toOpt(ans), wrongs.map(toOpt));
+    }
+
+    /* 6. Welche Zahl / welches Wort passt nicht? */
+    const WORD_GROUPS = {
+      'Obst': ['Apfel', 'Birne', 'Banane', 'Kirsche', 'Traube', 'Pflaume'],
+      'Tiere': ['Hund', 'Katze', 'Pferd', 'Hase', 'Kuh', 'Maus'],
+      'Planeten': ['Mars', 'Venus', 'Erde', 'Jupiter', 'Saturn', 'Merkur'],
+      'Fahrzeuge': ['Auto', 'Zug', 'Bus', 'Fahrrad', 'Schiff', 'Flugzeug'],
+      'Möbel': ['Tisch', 'Stuhl', 'Bett', 'Schrank', 'Sofa', 'Regal'],
+      'Körperteile': ['Arm', 'Bein', 'Kopf', 'Nase', 'Ohr', 'Hand'],
+      'Farben': ['Rot', 'Blau', 'Grün', 'Gelb', 'Lila', 'Rosa'],
+      'Schulsachen': ['Lineal', 'Bleistift', 'Heft', 'Füller', 'Radiergummi', 'Schere']
+    };
+    const GROUP_SINGULAR = { 'Obst': 'Obst', 'Tiere': 'Tiere', 'Planeten': 'Planeten', 'Fahrzeuge': 'Fahrzeuge', 'Möbel': 'Möbel', 'Körperteile': 'Körperteile', 'Farben': 'Farben', 'Schulsachen': 'Schulsachen' };
+    function genOddOne() {
+      const type = pick(['mult', 'words', 'parity', 'words', 'mult']);
+      const base = { prompt: 'Welche Zahl passt nicht zu den anderen?', q: '' };
+      if (type === 'mult') {
+        const n = pick([3, 4, 5, 6, 7, 8, 9]);
+        const kmax = Math.floor(80 / n);
+        let ks = [];
+        for (let k = 2; k <= kmax; k++) ks.push(k);
+        const par = rnd(0, 1);
+        if (n % 2 === 1) ks = ks.filter((k) => k % 2 === par);
+        ks = shuffle(ks).slice(0, 3);
+        const mult = ks.map((k) => n * k);
+        const cand = [];
+        for (let v = 10; v <= 80; v++) {
+          if (v % n !== 0 && (n % 2 === 0 || v % 2 === mult[0] % 2)) cand.push(v);
+        }
+        const odd = pick(cand);
+        base.q = shuffle(mult.concat([odd])).join(', ') + ' – welche passt nicht?';
+        base.explain = 'Die Zahlen ' + mult.slice().sort((a, b) => a - b).join(', ') + ' stehen alle in der ' + n + 'er-Reihe (im Einmaleins). ' + odd + ' nicht.';
+        base.prompt = 'Welche Zahl passt nicht zu den anderen? (Tipp: Einmaleins!)';
+        return choiceTask(base, numOpt(odd), mult.map((n2) => numOpt(n2)));
+      }
+      if (type === 'parity') {
+        const wantOdd = Math.random() < 0.5; // wantOdd: drei gerade, eine ungerade
+        const mk = (par) => { let v; do { v = rnd(10, 99); } while (v % 2 !== par); return v; };
+        const same = new Set();
+        while (same.size < 3) same.add(mk(wantOdd ? 0 : 1));
+        const oddOne = mk(wantOdd ? 1 : 0);
+        base.q = shuffle(Array.from(same).concat([oddOne])).join(', ') + ' – welche passt nicht?';
+        base.explain = 'Drei Zahlen sind ' + (wantOdd ? 'gerade' : 'ungerade') + ', nur ' + oddOne + ' ist ' + (wantOdd ? 'ungerade' : 'gerade') + '.';
+        return choiceTask(base, numOpt(oddOne), Array.from(same).map((n2) => numOpt(n2)));
+      }
+      const groups = Object.keys(WORD_GROUPS);
+      const gA = pick(groups);
+      const gB = pick(groups.filter((g) => g !== gA));
+      const three = shuffle(WORD_GROUPS[gA]).slice(0, 3);
+      const oddW = pick(WORD_GROUPS[gB]);
+      base.prompt = 'Welches Wort passt nicht zu den anderen?';
+      base.q = shuffle(three.concat([oddW])).join(', ') + ' – welches passt nicht?';
+      base.explain = three.join(', ') + ' gehören zu „' + GROUP_SINGULAR[gA] + '“. ' + oddW + ' gehört zu „' + GROUP_SINGULAR[gB] + '“.';
+      return choiceTask(base, oddW, three);
+    }
+
+    /* 7. Rechteck */
+    function rectSVG(a, b, la, lb) {
+      const w = 60 + a * 13, h = 30 + b * 11, x = 24, y = 36;
+      const qa = la === '?', qb = lb === '?';
+      return '<svg class="rect-svg" viewBox="0 0 320 200" role="img" aria-label="Rechteck mit Seitenlängen" font-family="system-ui,sans-serif" font-weight="800" font-size="19">' +
+        '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="4" fill="#e9edff" stroke="#3b4fd8" stroke-width="5"/>' +
+        '<text x="' + (x + w / 2) + '" y="' + (y - 10) + '" text-anchor="middle" fill="' + (qa ? '#c05600' : '#1f2540') + '">' + la + (qa ? '' : ' cm') + '</text>' +
+        '<text x="' + (x + w + 10) + '" y="' + (y + h / 2 + 7) + '" fill="' + (qb ? '#c05600' : '#1f2540') + '">' + lb + (qb ? '' : ' cm') + '</text>' +
+        '</svg>';
+    }
+    function genRectangle() {
+      const a = rnd(4, 12);
+      let b = rnd(2, 9);
+      if (b === a) b++;
+      const mode = pick(['umfang', 'flaeche', 'seite']);
+      if (mode === 'umfang') {
+        return { kind: 'input', prompt: 'Wie groß ist der Umfang des Rechtecks? (Einmal ganz um das Rechteck herum.)',
+          visual: rectSVG(a, b, a, b), answer: 2 * (a + b), unit: 'cm',
+          q: 'Rechteck ' + a + ' cm × ' + b + ' cm: Umfang?',
+          explain: 'Umfang = alle vier Seiten: ' + a + ' + ' + b + ' + ' + a + ' + ' + b + ' = ' + (2 * (a + b)) + ' cm.' };
+      }
+      if (mode === 'flaeche') {
+        return { kind: 'input', prompt: 'Wie groß ist die Fläche des Rechtecks? (Länge mal Breite.)',
+          visual: rectSVG(a, b, a, b), answer: a * b, unit: 'cm²',
+          q: 'Rechteck ' + a + ' cm × ' + b + ' cm: Fläche?',
+          explain: 'Fläche = Länge · Breite: ' + a + ' · ' + b + ' = ' + (a * b) + ' cm².' };
+      }
+      const u = 2 * (a + b);
+      return { kind: 'input', prompt: 'Der Umfang des Rechtecks beträgt ' + u + ' cm. Wie lang ist die obere Seite?',
+        visual: rectSVG(a, b, '?', b), answer: a, unit: 'cm',
+        q: 'Umfang ' + u + ' cm, eine Seite ' + b + ' cm: andere Seite?',
+        explain: u + ' : 2 = ' + (u / 2) + ' (eine lange + eine kurze Seite). ' + (u / 2) + ' − ' + b + ' = ' + a + ' cm.' };
+    }
+
+    /* 8. Zahlenrätsel */
+    function genRiddle() {
+      const x = rnd(3, 12), m = rnd(2, 5), c = rnd(1, 15);
+      const forms = [
+        () => ({ t: 'Ich denke mir eine Zahl. Ich multipliziere sie mit ' + m + ' und addiere ' + c + '. Das Ergebnis ist ' + (x * m + c) + '.',
+          x: 'Rückwärts rechnen: ' + (x * m + c) + ' − ' + c + ' = ' + (x * m) + ', dann ' + (x * m) + ' : ' + m + ' = ' + x + '.' }),
+        () => { const cc = rnd(1, Math.min(15, x * m - 1));
+          return { t: 'Ich denke mir eine Zahl. Ich multipliziere sie mit ' + m + ' und ziehe ' + cc + ' ab. Das Ergebnis ist ' + (x * m - cc) + '.',
+            x: 'Rückwärts rechnen: ' + (x * m - cc) + ' + ' + cc + ' = ' + (x * m) + ', dann ' + (x * m) + ' : ' + m + ' = ' + x + '.' }; },
+        () => ({ t: 'Ich denke mir eine Zahl. Ich addiere ' + c + ' und multipliziere das Ergebnis mit ' + m + '. Es kommt ' + ((x + c) * m) + ' heraus.',
+          x: 'Rückwärts rechnen: ' + ((x + c) * m) + ' : ' + m + ' = ' + (x + c) + ', dann ' + (x + c) + ' − ' + c + ' = ' + x + '.' }),
+        () => ({ t: 'Ich denke mir eine Zahl. Die Hälfte davon plus ' + c + ' ergibt ' + (x + c) + '.',
+          x: 'Rückwärts rechnen: ' + (x + c) + ' − ' + c + ' = ' + x + ' ist die Hälfte. Die Zahl ist also ' + x + ' · 2 = ' + (2 * x) + '.', ans: 2 * x })
+      ];
+      const f = pick(forms)();
+      return { kind: 'input', prompt: 'Welche Zahl habe ich mir gedacht?',
+        visual: '<div class="story">🤔 ' + f.t + '</div>',
+        answer: f.ans !== undefined ? f.ans : x, unit: '', q: f.t, explain: f.x };
+    }
+
+    /* 9. Logik: Reihenfolge */
+    const ATTRS = [
+      { comp: 'größer', opp: 'kleiner', sup: 'am größten', sub: 'am kleinsten' },
+      { comp: 'älter', opp: 'jünger', sup: 'am ältesten', sub: 'am jüngsten' },
+      { comp: 'schneller', opp: 'langsamer', sup: 'am schnellsten', sub: 'am langsamsten' },
+      { comp: 'schwerer', opp: 'leichter', sup: 'am schwersten', sub: 'am leichtesten' }
+    ];
+    function genLogic() {
+      const nm = shuffle(NAMES).slice(0, 3);
+      const top = nm[0], mid = nm[1], low = nm[2];
+      const at = pick(ATTRS);
+      const s1 = Math.random() < 0.5 ? top + ' ist ' + at.comp + ' als ' + mid + '.' : mid + ' ist ' + at.opp + ' als ' + top + '.';
+      const s2 = Math.random() < 0.5 ? mid + ' ist ' + at.comp + ' als ' + low + '.' : low + ' ist ' + at.opp + ' als ' + mid + '.';
+      const clues = shuffle([s1, s2]);
+      const qk = pick(['sup', 'sub', 'mid']);
+      let question, answer, wrongs;
+      if (qk === 'sup') { question = 'Wer ist ' + at.sup + '?'; answer = top; wrongs = [mid, low]; }
+      else if (qk === 'sub') { question = 'Wer ist ' + at.sub + '?'; answer = low; wrongs = [top, mid]; }
+      else { question = 'Wer ist weder ' + at.sup + ' noch ' + at.sub + '?'; answer = mid; wrongs = [top, low]; }
+      return choiceTask({
+        prompt: 'Lies die Hinweise. ' + question,
+        visual: '<div class="clues">' + clues.map((c) => '<div class="bubble">💬 ' + c + '</div>').join('') + '</div>',
+        q: clues.join(' ') + ' ' + question,
+        explain: 'Die Reihenfolge (' + at.sup + ' zuerst) ist: ' + top + ', ' + mid + ', ' + low + '.'
+      }, answer, wrongs, { tail: ['Das kann man nicht wissen'] });
+    }
+
+    /* 10. Zahlenmauer */
+    function genWall() {
+      const a = rnd(2, 15), b = rnd(2, 15), c = rnd(2, 15);
+      const m1 = a + b, m2 = b + c, t = m1 + m2;
+      const hide = pick(['a', 'b', 'c', 'a', 'c']);
+      const cell = (txt, cls) => '<div class="brick ' + (cls || '') + '">' + txt + '</div>';
+      const show = { a: false, b: false, c: false };
+      let ans, explain;
+      if (hide === 'a') { show.b = true; show.c = true; ans = a;
+        explain = b + ' + ' + c + ' = ' + m2 + '. Dann ' + t + ' − ' + m2 + ' = ' + m1 + ' (links oben). ' + m1 + ' − ' + b + ' = ' + a + '.'; }
+      else if (hide === 'c') { show.a = true; show.b = true; ans = c;
+        explain = a + ' + ' + b + ' = ' + m1 + '. Dann ' + t + ' − ' + m1 + ' = ' + m2 + ' (rechts oben). ' + m2 + ' − ' + b + ' = ' + c + '.'; }
+      else { show.a = true; show.c = true; ans = b;
+        explain = 'Die Mitte zählt doppelt: ' + t + ' − ' + a + ' − ' + c + ' = ' + (2 * b) + ', und ' + (2 * b) + ' : 2 = ' + b + '.'; }
+      const bottom = [['a', a], ['b', b], ['c', c]].map((p) => p[0] === hide ? cell('?', 'q') : (show[p[0]] ? cell(p[1]) : cell('', 'empty'))).join('');
+      const html = '<div class="wall"><div class="row">' + cell(t) + '</div><div class="row">' + cell('', 'empty') + cell('', 'empty') + '</div><div class="row">' + bottom + '</div></div>';
+      return { kind: 'input', prompt: 'Zahlenmauer: Zwei Steine nebeneinander ergeben zusammen den Stein darüber. Welche Zahl gehört auf den Stein mit dem ?',
+        visual: html, answer: ans, unit: '', q: 'Zahlenmauer mit oberstem Stein ' + t, explain: explain };
+    }
+
+    /* 11. Naturwissenschaften & Wissen */
+    const SCIENCE = [
+      ['Bei wie viel Grad Celsius gefriert Wasser?', ['0 °C', ['10 °C', '100 °C', '−10 °C']], 'Wasser gefriert bei 0 °C zu Eis.'],
+      ['Bei wie viel Grad Celsius kocht Wasser?', ['100 °C', ['50 °C', '200 °C', '0 °C']], 'Wasser kocht bei 100 °C.'],
+      ['Welches Gas brauchen wir zum Atmen?', ['Sauerstoff', ['Helium', 'Wasserstoff', 'Kohlenstoffdioxid']], 'Wir atmen Sauerstoff ein.'],
+      ['Welcher Planet ist der Sonne am nächsten?', ['Merkur', ['Venus', 'Erde', 'Mars']], 'Merkur ist der innerste Planet.'],
+      ['Wie viele Beine hat eine Spinne?', ['8', ['6', '10', '4']], 'Spinnen haben acht Beine.'],
+      ['Wie viele Beine hat ein Insekt?', ['6', ['4', '8', '10']], 'Insekten haben sechs Beine.'],
+      ['Was brauchen Pflanzen unbedingt zum Wachsen?', ['Licht und Wasser', ['Nur Dunkelheit', 'Zucker und Salz', 'Nur Sand']], 'Pflanzen brauchen Licht und Wasser.'],
+      ['Wie nennt man Tiere, die nur Pflanzen fressen?', ['Pflanzenfresser', ['Fleischfresser', 'Allesfresser', 'Raubtiere']], 'Das sind Pflanzenfresser, zum Beispiel Kühe.'],
+      ['Welche Kraft zieht alles zur Erde hin?', ['Schwerkraft', ['Wind', 'Echo', 'Schatten']], 'Die Schwerkraft zieht Gegenstände nach unten.'],
+      ['Von einem Magneten wird … angezogen.', ['Eisen', ['Holz', 'Glas', 'Gummi']], 'Magneten ziehen Eisen an.'],
+      ['Wie viele Planeten hat unser Sonnensystem?', ['8', ['6', '10', '12']], 'Es gibt acht Planeten.'],
+      ['Woraus besteht Eis?', ['Wasser', ['Glas', 'Salz', 'Luft']], 'Eis ist gefrorenes Wasser.'],
+      ['Welches Tier ist ein Säugetier?', ['Delfin', ['Hai', 'Forelle', 'Frosch']], 'Delfine säugen ihre Jungen mit Milch.'],
+      ['Wie lange braucht die Erde für eine Drehung um sich selbst?', ['1 Tag', ['1 Woche', '1 Monat', '1 Stunde']], 'Eine Drehung dauert einen Tag – das ist der Wechsel von Tag und Nacht.'],
+      ['Wie lange braucht die Erde für einen Umlauf um die Sonne?', ['1 Jahr', ['1 Tag', '1 Monat', '10 Jahre']], 'Ein Umlauf um die Sonne dauert ein Jahr.'],
+      ['Was passiert mit Wasser, wenn es sehr heiß wird?', ['Es verdampft', ['Es wird zu Eis', 'Es wird zu Sand', 'Es wird schwerer']], 'Heißes Wasser verdampft zu Wasserdampf.'],
+      ['Welches Organ pumpt das Blut durch den Körper?', ['Herz', ['Lunge', 'Magen', 'Leber']], 'Das Herz ist die Pumpe des Körpers.'],
+      ['Was ist der Mond?', ['Ein Trabant der Erde', ['Ein Stern', 'Ein Planet', 'Eine zweite Sonne']], 'Der Mond kreist um die Erde.'],
+      ['Welche Farbe entsteht, wenn man Blau und Gelb mischt?', ['Grün', ['Orange', 'Lila', 'Braun']], 'Blau und Gelb ergeben Grün.'],
+      ['Wie viele Ecken hat ein Würfel?', ['8', ['6', '12', '4']], 'Ein Würfel hat 8 Ecken, 12 Kanten und 6 Flächen.'],
+      ['Wie viele Kanten hat ein Würfel?', ['12', ['8', '6', '10']], 'Ein Würfel hat 12 Kanten.'],
+      ['Welcher Planet ist der größte?', ['Jupiter', ['Erde', 'Mars', 'Venus']], 'Jupiter ist der größte Planet.']
+    ];
+    function genScience() {
+      const s = pick(SCIENCE);
+      const correct = s[1][0], wrongs = s[1][1];
+      const numeric = (t) => /^\d+$/.test(t);
+      if (numeric(correct) && wrongs.every(numeric)) {
+        return choiceTask({ prompt: s[0], q: s[0], explain: s[2] },
+          numOpt(Number(correct)), wrongs.map((w) => numOpt(Number(w))), { sort: true });
+      }
+      return choiceTask({ prompt: s[0], q: s[0], explain: s[2] }, correct, wrongs);
+    }
+
+    /* 12. Zeit */
+    const fmtClock = (min) => pad(Math.floor(min / 60)) + ':' + pad(min % 60) + ' Uhr';
+    function genTime() {
+      if (Math.random() < 0.5) {
+        const sh = rnd(7, 16), sm = pick([0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]);
+        const d = pick([25, 30, 35, 40, 45, 50, 55, 65, 70, 75, 80, 85, 95]);
+        const start = sh * 60 + sm, end = start + d;
+        const tpl = pick([
+          (t, m) => 'Der Zug fährt um ' + t + ' ab und braucht ' + m + ' Minuten. Wann kommt der Zug an?',
+          (t, m) => 'Der Bus fährt um ' + t + ' ab und braucht ' + m + ' Minuten. Wann kommt der Bus an?',
+          (t, m) => 'Die Wanderung beginnt um ' + t + ' und dauert ' + m + ' Minuten. Wann ist die Wanderung zu Ende?',
+          (t, m) => 'Der Unterricht beginnt um ' + t + ' und dauert ' + m + ' Minuten. Wann ist der Unterricht aus?'
+        ]);
+        const text = tpl(fmtClock(start), d);
+        const wr = uniqueWrongs(end, [end + 10, end - 10, end + 60, end - 60, end + 20], 3);
+        const opt = (m) => ({ text: fmtClock(m), v: m });
+        return choiceTask({ prompt: 'Rechne mit Stunden und Minuten (1 Stunde = 60 Minuten).',
+          visual: '<div class="story">🕒 ' + text + '</div>', q: text,
+          explain: 'Von ' + fmtClock(start) + ' plus ' + d + ' Minuten ergibt ' + fmtClock(end) + '.' },
+        opt(end), wr.map(opt), { sort: true });
+      }
+      const sh = rnd(8, 16), sm = pick([0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]);
+      const d = pick([35, 40, 45, 50, 55, 65, 70, 75, 85, 90, 105, 110, 125]);
+      const start = sh * 60 + sm, end = start + d;
+      const ev = pick(['Der Film', 'Das Konzert', 'Das Fußballspiel', 'Der Ausflug']);
+      const text = ev + ' beginnt um ' + fmtClock(start) + ' und endet um ' + fmtClock(end) + '. Wie viele Minuten dauert das?';
+      return { kind: 'input', prompt: 'Wie viele Minuten sind das? (1 Stunde = 60 Minuten)',
+        visual: '<div class="story">🕒 ' + text + '</div>', answer: d, unit: 'Minuten', q: text,
+        explain: 'Von ' + fmtClock(start) + ' bis ' + fmtClock(end) + ' sind es ' + d + ' Minuten.' };
+    }
+
+    const GENERATORS = [
+      { cat: 'Zahlenreihe', emoji: '🔢', fn: genSequence },
+      { cat: 'Rechnen', emoji: '➕', fn: genArithmetic },
+      { cat: 'Textaufgabe', emoji: '📖', fn: genWordProblem },
+      { cat: 'Wortverwandtschaft', emoji: '🔤', fn: genAnalogy },
+      { cat: 'Figurenfolge', emoji: '🔷', fn: genFigures },
+      { cat: 'Was passt nicht?', emoji: '🧐', fn: genOddOne },
+      { cat: 'Geometrie', emoji: '📐', fn: genRectangle },
+      { cat: 'Zahlenrätsel', emoji: '🤔', fn: genRiddle },
+      { cat: 'Logik', emoji: '🧩', fn: genLogic },
+      { cat: 'Zahlenmauer', emoji: '🧱', fn: genWall },
+      { cat: 'Natur & Wissen', emoji: '🔬', fn: genScience },
+      { cat: 'Zeit', emoji: '🕒', fn: genTime }
+    ];
+
+    function generateTest() {
+      return GENERATORS.map((g, i) => {
+        const t = g.fn();
+        t.cat = g.cat;
+        t.emoji = g.emoji;
+        t.id = i;
+        return t;
+      });
+    }
+
+    /* =====================================================
+       Ränge
+       ===================================================== */
+    const RANKS = [
+      { emoji: '🍞', name: 'Toastbrot', desc: 'Noch ganz weich und warm im Kopf – aber Toast ist ja auch lecker! Versuch es einfach nochmal.' },
+      { emoji: '🦥', name: 'Faultier im Tiefschlaf', desc: 'Zzz … du hast ganz gemütlich nachgedacht. Ausgeschlafen klappt es bestimmt besser!' },
+      { emoji: '🍪', name: 'Keks-Detektiv', desc: 'Du hast ein paar Krümel der Lösung gefunden. Bleib dran, die Spur wird heißer!' },
+      { emoji: '🐻', name: 'Gummibärchen-Zähler', desc: 'Zählen kannst du schon prima. Jetzt noch ein paar Tricks dazu!' },
+      { emoji: '🏃', name: 'Pausenhof-Pfiffikus', desc: 'Solide Leistung! Du hast schon richtig gute Ideen.' },
+      { emoji: '🐢', name: 'Turbo-Schildkröte', desc: 'Langsam, aber sicher – und mit Raketenantrieb am Panzer. Stark!' },
+      { emoji: '🦊', name: 'Knobel-Fuchs', desc: 'Schlau wie ein Fuchs! Die meisten Rätsel haben bei dir keine Chance.' },
+      { emoji: '🦉', name: 'Formel-Eule', desc: 'Weise Eule! Bei Zahlen und Rätseln blickst du richtig gut durch.' },
+      { emoji: '🔬', name: 'Mini-Einstein', desc: 'Fast perfekt! Es fehlen nur noch die wuscheligen Haare.' },
+      { emoji: '🧠', name: 'Genie', desc: 'Alles richtig! Das Gymnasium rollt schon den roten Teppich für dich aus.' }
+    ];
+    function rankFor(correct, total) {
+      if (correct <= 0) return 0;
+      if (correct >= total) return RANKS.length - 1;
+      return 1 + Math.floor((correct - 1) * (RANKS.length - 2) / (total - 1));
+    }
+
+    function isCorrect(task, value) {
+      if (value === null || value === undefined || value === '') return false;
+      return task.kind === 'input' ? Number(value) === task.answer : value === task.correctIndex;
+    }
+
+    /* Für automatische Tests ohne Browser */
+    if (typeof module !== 'undefined' && module.exports) {
+      module.exports = { generateTest: generateTest, rankFor: rankFor, RANKS: RANKS, isCorrect: isCorrect };
+    }
+    if (typeof document === 'undefined') return;
+
+    /* =====================================================
+       Oberfläche
+       ===================================================== */
+    const $ = (id) => document.getElementById(id);
+    const screens = { start: $('screenStart'), test: $('screenTest'), interlude: $('screenInterlude'), result: $('screenResult') };
+    let state = null;
+    let timerId = null;
+    let current = 'start';
+
+    function showScreen(name) {
+      current = name;
+      Object.keys(screens).forEach((k) => { screens[k].hidden = k !== name; });
+      if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+    }
+    function fmtTime(sec) {
+      return pad(Math.floor(sec / 60)) + ':' + pad(sec % 60);
+    }
+    function tick() {
+      if (!state) return;
+      const t = fmtTime(Math.floor((Date.now() - state.startedAt) / 1000));
+      $('timeText').textContent = t;
+      $('timeText2').textContent = t;
+    }
+    function optionLabel(o, i) {
+      return o.label || (o.svg ? 'Bild ' + 'ABCD'[i] : o.text);
+    }
+
+    function startTest() {
+      const tasks = generateTest();
+      state = {
+        tasks: tasks,
+        status: tasks.map(() => 'todo'),
+        answers: tasks.map(() => null),
+        queue: tasks.map((t, i) => i),
+        qi: 0,
+        pass: 1,
+        value: null,
+        startedAt: Date.now(),
+        endedAt: null
+      };
+      clearInterval(timerId);
+      tick();
+      timerId = setInterval(tick, 500);
+      showScreen('test');
+      renderTask();
+    }
+
+    function renderProgress(activeIdx) {
+      const box = $('progress');
+      box.textContent = '';
+      state.tasks.forEach((t, i) => {
+        const s = document.createElement('div');
+        let cls = 'seg ' + (state.status[i] === 'done' ? 'done' : state.status[i] === 'skipped' ? 'skipped' : state.status[i] === 'blank' ? 'blank' : '');
+        if (i === activeIdx) cls += ' current';
+        s.className = cls;
+        box.appendChild(s);
+      });
+    }
+
+    function isFinalStep() {
+      const last = state.qi === state.queue.length - 1;
+      if (!last) return false;
+      if (state.pass === 2) return true;
+      return !state.status.some((s) => s === 'skipped');
+    }
+
+    function updateNext() {
+      const has = state.value !== null && state.value !== '';
+      $('nextBtn').disabled = !has;
+    }
+
+    function renderTask() {
+      const idx = state.queue[state.qi];
+      const t = state.tasks[idx];
+      state.value = t.kind === 'input' ? '' : null;
+      $('cat').textContent = t.emoji + ' ' + t.cat;
+      $('count').textContent = state.pass === 1
+        ? 'Aufgabe ' + (idx + 1) + ' von ' + state.tasks.length
+        : 'Aufgabe ' + (idx + 1) + ' (nochmal)';
+      $('roundPill').hidden = state.pass === 1;
+      $('prompt').textContent = t.prompt;
+      const vis = $('visual');
+      vis.innerHTML = t.visual || '';
+      vis.hidden = !t.visual;
+      $('skipBtn').textContent = state.pass === 1 ? 'Überspringen' : 'Ohne Antwort weiter';
+      $('nextBtn').textContent = isFinalStep() ? 'Abgeben' : 'Weiter';
+      renderProgress(idx);
+      const pane = $('apane');
+      pane.textContent = '';
+      if (t.kind === 'input') buildNumpad(pane, t); else buildChoices(pane, t);
+      updateNext();
+      if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+    }
+
+    function buildNumpad(pane, t) {
+      const box = document.createElement('div');
+      box.className = 'answerbox';
+      const disp = document.createElement('div');
+      disp.className = 'display empty';
+      disp.id = 'display';
+      disp.setAttribute('aria-live', 'polite');
+      disp.textContent = '?';
+      const unit = document.createElement('div');
+      unit.className = 'unit';
+      unit.textContent = t.unit || '';
+      box.appendChild(disp);
+      box.appendChild(unit);
+      const pad3 = document.createElement('div');
+      pad3.className = 'numpad';
+      ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'back', '0', 'clear'].forEach((k) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'key' + (k === 'back' || k === 'clear' ? ' util' : '');
+        b.textContent = k === 'back' ? '⌫' : k === 'clear' ? 'C' : k;
+        b.setAttribute('aria-label', k === 'back' ? 'Letzte Ziffer löschen' : k === 'clear' ? 'Alles löschen' : 'Ziffer ' + k);
+        b.addEventListener('click', () => press(k));
+        pad3.appendChild(b);
+      });
+      pane.appendChild(box);
+      pane.appendChild(pad3);
+    }
+
+    function press(k) {
+      const idx = state.queue[state.qi];
+      if (state.tasks[idx].kind !== 'input') return;
+      let v = state.value;
+      if (k === 'back') v = v.slice(0, -1);
+      else if (k === 'clear') v = '';
+      else if (v.length < 4) v = (v === '0' ? '' : v) + k;
+      state.value = v;
+      const d = $('display');
+      d.textContent = v === '' ? '?' : v;
+      d.classList.toggle('empty', v === '');
+      updateNext();
+    }
+
+    function buildChoices(pane, t) {
+      const grp = document.createElement('div');
+      const long = t.options.some((o) => !o.svg && o.text.length > 20);
+      grp.className = 'choices' + (t.optClass ? ' ' + t.optClass : '') + (long ? ' one-col' : '');
+      grp.setAttribute('role', 'radiogroup');
+      grp.setAttribute('aria-label', 'Antwortmöglichkeiten');
+      t.options.forEach((o, i) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'choice';
+        b.setAttribute('role', 'radio');
+        b.setAttribute('aria-checked', 'false');
+        b.setAttribute('aria-label', optionLabel(o, i));
+        const l = document.createElement('span');
+        l.className = 'letter';
+        l.textContent = 'ABCD'[i];
+        b.appendChild(l);
+        if (o.svg) {
+          const w = document.createElement('span');
+          w.className = 'figwrap';
+          w.innerHTML = o.svg;
+          b.appendChild(w);
+        } else {
+          const tx = document.createElement('span');
+          tx.className = 'label';
+          tx.textContent = o.text;
+          b.appendChild(tx);
+        }
+        b.addEventListener('click', () => select(i));
+        grp.appendChild(b);
+      });
+      pane.appendChild(grp);
+    }
+
+    function select(i) {
+      state.value = i;
+      document.querySelectorAll('#apane .choice').forEach((b, j) => b.setAttribute('aria-checked', j === i ? 'true' : 'false'));
+      updateNext();
+    }
+
+    function commit(kind) {
+      const idx = state.queue[state.qi];
+      state.status[idx] = kind;
+      state.answers[idx] = kind === 'done' ? state.value : null;
+      state.qi++;
+      if (state.qi < state.queue.length) { renderTask(); return; }
+      if (state.pass === 1) {
+        const skipped = state.status.map((s, i) => s === 'skipped' ? i : -1).filter((i) => i >= 0);
+        if (skipped.length) {
+          state.pass = 2;
+          state.queue = skipped;
+          state.qi = 0;
+          $('interludeText').textContent = skipped.length === 1
+            ? 'Du hast 1 Aufgabe übersprungen. Sie kommt jetzt noch einmal.'
+            : 'Du hast ' + skipped.length + ' Aufgaben übersprungen. Sie kommen jetzt noch einmal.';
+          renderProgress(-1);
+          showScreen('interlude');
+          return;
+        }
+      }
+      finish();
+    }
+
+    function finish() {
+      clearInterval(timerId);
+      state.endedAt = Date.now();
+      tick();
+      const total = state.tasks.length;
+      const flags = state.tasks.map((t, i) => isCorrect(t, state.answers[i]));
+      const correct = flags.filter(Boolean).length;
+      const pct = Math.round(correct / total * 100);
+      const r = rankFor(correct, total);
+      const rank = RANKS[r];
+      $('rEmoji').textContent = rank.emoji;
+      $('rName').textContent = rank.name;
+      $('rNo').textContent = 'Rang ' + (r + 1) + ' von ' + RANKS.length;
+      $('rDesc').textContent = rank.desc;
+      $('rScore').textContent = correct + ' von ' + total + ' Punkten (' + pct + ' %)';
+      $('rBar').style.width = pct + '%';
+      $('rTime').textContent = 'Deine Zeit: ' + fmtTime(Math.floor((state.endedAt - state.startedAt) / 1000)) + ' – die Zeit zählt nicht für die Punkte.';
+
+      const ladder = $('ladder');
+      ladder.textContent = '';
+      for (let i = RANKS.length - 1; i >= 0; i--) {
+        const li = document.createElement('li');
+        if (i === r) li.className = 'me';
+        const no = document.createElement('span');
+        no.className = 'no';
+        no.textContent = String(i + 1);
+        const nm = document.createElement('span');
+        nm.textContent = RANKS[i].emoji + ' ' + RANKS[i].name;
+        li.appendChild(no);
+        li.appendChild(nm);
+        if (i === r) {
+          const you = document.createElement('span');
+          you.className = 'you';
+          you.textContent = '← du';
+          li.appendChild(you);
+        }
+        ladder.appendChild(li);
+      }
+
+      const review = $('review');
+      review.textContent = '';
+      state.tasks.forEach((t, i) => {
+        const li = document.createElement('li');
+        const given = state.answers[i];
+        const ok = flags[i];
+        li.className = ok ? 'ok' : (given === null || given === '' ? '' : 'no');
+        const title = document.createElement('div');
+        title.className = 'rt';
+        title.textContent = (ok ? '✔ ' : (given === null || given === '' ? '– ' : '✖ ')) + (i + 1) + '. ' + t.emoji + ' ' + t.cat;
+        const q = document.createElement('div');
+        q.className = 'rq';
+        q.textContent = t.q;
+        const a = document.createElement('div');
+        a.className = 'ra';
+        const correctText = t.kind === 'input'
+          ? t.answer + (t.unit ? ' ' + t.unit : '')
+          : optionLabel(t.options[t.correctIndex], t.correctIndex);
+        let givenText;
+        if (given === null || given === '') givenText = 'keine Antwort';
+        else if (t.kind === 'input') givenText = given + (t.unit ? ' ' + t.unit : '');
+        else givenText = optionLabel(t.options[given], given);
+        a.textContent = ok ? 'Richtig: ' + correctText : 'Deine Antwort: ' + givenText + ' · Richtig wäre: ' + correctText;
+        li.appendChild(title);
+        li.appendChild(q);
+        li.appendChild(a);
+        if (!ok) {
+          const e = document.createElement('div');
+          e.className = 're';
+          e.textContent = '💡 ' + t.explain;
+          li.appendChild(e);
+        }
+        review.appendChild(li);
+      });
+      state.result = { correct: correct, total: total, pct: pct, rank: r + 1, flags: flags };
+      showScreen('result');
+      $('screenResult').querySelector('.details').scrollTop = 0;
+    }
+
+    $('startBtn').addEventListener('click', startTest);
+    $('againBtn').addEventListener('click', startTest);
+    $('interludeBtn').addEventListener('click', () => { showScreen('test'); renderTask(); });
+    $('skipBtn').addEventListener('click', () => commit(state.pass === 1 ? 'skipped' : 'blank'));
+    $('nextBtn').addEventListener('click', () => { if (!$('nextBtn').disabled) commit('done'); });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      if (current === 'start' && e.key === 'Enter') { e.preventDefault(); startTest(); return; }
+      if (current === 'interlude' && e.key === 'Enter') { e.preventDefault(); $('interludeBtn').click(); return; }
+      if (current !== 'test') return;
+      const t = state.tasks[state.queue[state.qi]];
+      if (e.key === 'Enter') { e.preventDefault(); $('nextBtn').click(); return; }
+      if (t.kind === 'input') {
+        if (/^[0-9]$/.test(e.key)) press(e.key);
+        else if (e.key === 'Backspace') { e.preventDefault(); press('back'); }
+        else if (e.key === 'Delete' || e.key === 'Escape') press('clear');
+      } else {
+        let i = '1234'.indexOf(e.key);
+        if (i < 0) i = 'abcd'.indexOf(e.key.toLowerCase());
+        if (e.key.length === 1 && i >= 0 && i < t.options.length) select(i);
+      }
+    });
+
+    /* Zugriff für Tests im Browser */
+    window.__pruefung = { startTest: startTest, getState: () => state, press: press, select: select, commit: commit, renderTask: renderTask, finish: finish, showScreen: showScreen, generateTest: generateTest, rankFor: rankFor, RANKS: RANKS, isCorrect: isCorrect };
+  })();
+  </script>
+</body>
+</html>
