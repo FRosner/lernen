@@ -60,6 +60,14 @@ projekte/
   * Mobilfreundlich und für Touch-Bedienung geeignet (Tablets/Smartphones).
   * Keine externen Abhängigkeiten oder CDNs, damit alles auch offline und schnell lädt.
   * Freundliche, kindgerechte und barrierefreie Gestaltung (große Buttons, gute Kontraste, klare Schriften).
+  * **Responsives Layout (Pflicht)**:
+    * Optimiert für **16:10 (Desktop/Laptop-Bildschirm)**, **Tablet** (Quer- und Hochformat) und **Smartphone** (v. a. Hochformat).
+    * `<meta name="viewport" content="width=device-width, initial-scale=1">` verwenden.
+    * **Kein Scrollen im Normalfall**: Der gesamte Spielinhalt muss auf einen Bildschirm passen. Dafür `height: 100dvh` / `min-height: 100dvh` mit `overflow: hidden` auf dem Spielbereich, Flexbox/Grid, relative Einheiten (`vw`, `vh`, `dvh`, `rem`, `clamp()`) und Container-/Media-Queries (inkl. `orientation`) nutzen. Keine festen Pixelgrößen für das Gesamtlayout.
+    * Scrollen nur in Ausnahmen (z. B. sehr lange Texte, Ergebnislisten, Anleitungen) und dann nur in einem klar abgegrenzten Teilbereich, nie die ganze Seite.
+    * Layout bei wenig Platz anpassen (z. B. Spalten nebeneinander im Querformat, untereinander im Hochformat), statt Inhalte abzuschneiden.
+    * Touch-Ziele mindestens ca. 48 px groß; Safe-Areas beachten (`env(safe-area-inset-*)`).
+    * Vor der Vorschau prüfen, dass bei 16:10 (z. B. 1280×800), Tablet (z. B. 1024×768 und 768×1024) und Smartphone (z. B. 390×844) nichts überläuft oder abgeschnitten wird.
 
 ### Schritt 3: Automatischer Build & lokale Vorschau
 Sobald die Dateien erstellt oder geändert wurden:
