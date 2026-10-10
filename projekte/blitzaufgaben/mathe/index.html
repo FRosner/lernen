@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Blitzaufgaben – Mathe</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div class="app-container">
+      
+      <!-- START-BILDSCHIRM -->
+      <section id="screen-start" class="screen">
+        <header class="app-header">
+          <a href="../" class="nav-back">&larr; Zurück</a>
+          <button id="sound-toggle" class="btn-icon" type="button" aria-label="Ton an/aus">🔊</button>
+        </header>
+
+        <main class="start-content">
+          <div class="hero-badge">⚡ 1 Minute ⚡</div>
+          <h1 class="spiel-titel">Blitzaufgaben: Mathe</h1>
+          <p class="spiel-untertitel">Wie viele Aufgaben schaffst du in 60 Sekunden?</p>
+
+          <div class="auswahl-sektion">
+            <h2 class="auswahl-ueberschrift">Aufgabentyp wählen:</h2>
+            <div id="typen-container" class="typen-liste">
+              <!-- Wird dynamisch aus game.js befüllt -->
+            </div>
+          </div>
+
+          <div class="start-rekord-box">
+            <span class="pokal-icon">🏆</span>
+            <span id="start-highscore">Wird geladen...</span>
+          </div>
+
+          <button id="btn-start" class="btn-primaer" type="button">
+            ▶ Runde starten (60 s)
+          </button>
+        </main>
+      </section>
+
+      <!-- SPIEL-BILDSCHIRM (60 SEKUNDEN) -->
+      <section id="screen-game" class="screen" hidden>
+        <header class="game-header">
+          <div class="status-element punkte-box">
+            <span class="status-label">Punkte</span>
+            <span id="punkte-text" class="status-wert">0</span>
+          </div>
+
+          <div class="timer-container">
+            <div class="timer-anzeige">
+              <span class="uhr-icon">⏱️</span>
+              <span id="timer-text" class="timer-sekunden">60 s</span>
+            </div>
+            <div class="timer-balken-huelle">
+              <div id="timer-bar" class="timer-balken"></div>
+            </div>
+          </div>
+
+          <button class="btn-icon header-sound" type="button" onclick="document.getElementById('sound-toggle').click()">🔊</button>
+        </header>
+
+        <main class="game-content">
+          <div class="aufgabe-karte">
+            <div id="feedback-effekt" class="feedback-ebene" aria-hidden="true"></div>
+            <div class="rechen-zeile">
+              <span id="aufgabe-term" class="aufgabe-term">6 · 7 =</span>
+              <div id="antwort-display" class="antwort-display platzhalter">?</div>
+            </div>
+          </div>
+
+          <!-- Touch-Ziffernblock & Tastatur-Alternative -->
+          <div class="tasten-block">
+            <div class="ziffern-grid">
+              <button type="button" class="taste" data-key="1">1</button>
+              <button type="button" class="taste" data-key="2">2</button>
+              <button type="button" class="taste" data-key="3">3</button>
+
+              <button type="button" class="taste" data-key="4">4</button>
+              <button type="button" class="taste" data-key="5">5</button>
+              <button type="button" class="taste" data-key="6">6</button>
+
+              <button type="button" class="taste" data-key="7">7</button>
+              <button type="button" class="taste" data-key="8">8</button>
+              <button type="button" class="taste" data-key="9">9</button>
+
+              <button type="button" class="taste taste-loeschen" data-key="backspace" aria-label="Letzte Ziffer löschen">⌫</button>
+              <button type="button" class="taste" data-key="0">0</button>
+              <button type="button" class="taste taste-ok" data-key="enter" aria-label="Antwort bestätigen">✓</button>
+            </div>
+
+            <div class="zusatz-leiste">
+              <button type="button" class="btn-skip" data-key="skip">Aufgabe überspringen ⏭</button>
+            </div>
+          </div>
+        </main>
+      </section>
+
+      <!-- ERGEBNIS-BILDSCHIRM -->
+      <section id="screen-end" class="screen" hidden>
+        <main class="end-content">
+          <div class="pokal-gross">⏱️</div>
+          <h2 class="end-titel">Die Minute ist um!</h2>
+
+          <div class="ergebnis-karte">
+            <div class="punkte-kreis">
+              <span id="end-punkte" class="grosse-punktzahl">0</span>
+              <span class="punkte-einheit">richtig</span>
+            </div>
+            <p id="end-versuche" class="end-statistik">0 Aufgaben versucht</p>
+            <div id="end-highscore-badge" class="rekord-badge" hidden>🎉 Neuer Rekord! 🎉</div>
+            <p id="end-highscore-text" class="end-hinweis"></p>
+          </div>
+
+          <div class="end-aktionen">
+            <button id="btn-neustart" class="btn-primaer" type="button">
+              🔄 Gleich nochmal!
+            </button>
+            <button id="btn-zurueck-menue" class="btn-sekundaer" type="button">
+              ⚙️ Anderen Aufgabentyp wählen
+            </button>
+          </div>
+        </main>
+      </section>
+
+    </div>
+
+    <script src="audio.js"></script>
+    <script src="game.js"></script>
+  </body>
+</html>
