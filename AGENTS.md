@@ -55,10 +55,12 @@ projekte/
       index.html                  # Die eigentliche interaktive Webseite
 ```
 
-* **Design & Umsetzung der `index.html`**:
-  * Vollständig eigenständig (HTML, CSS und JavaScript in einer Datei oder als lokale Dateien daneben).
+* **Dateistruktur & Umsetzung**:
+  * **Einstiegspunkt**: Jedes Spiel hat eine `index.html` als Startseite.
+  * **Mehrere Dateien erlaubt & erwünscht**: CSS, JavaScript, Bilder, Töne oder weitere HTML-Seiten können problemlos in separate Dateien und Unterordner daneben ausgelagert werden (z. B. `style.css`, `game.js`, `assets/`).
+  * **Relative Pfade**: Immer relative Pfade nutzen (z. B. `href="style.css"` oder `src="assets/bild.svg"`), damit alles sowohl lokal im Browser als auch auf GitHub Pages im Unterverzeichnis funktioniert.
+  * Vollständig eigenständig: Keine externen Bibliotheken oder CDNs (alles lokal im Projektordner), damit die Spiele auch ohne Internetverbindung und schnell laden.
   * Mobilfreundlich und für Touch-Bedienung geeignet (Tablets/Smartphones).
-  * Keine externen Abhängigkeiten oder CDNs, damit alles auch offline und schnell lädt.
   * Freundliche, kindgerechte und barrierefreie Gestaltung (große Buttons, gute Kontraste, klare Schriften).
   * **Responsives Layout (Pflicht)**:
     * Optimiert für **16:10 (Desktop/Laptop-Bildschirm)**, **Tablet** (Quer- und Hochformat) und **Smartphone** (v. a. Hochformat).

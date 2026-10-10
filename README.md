@@ -32,7 +32,7 @@ projekte/
 ```
 
 * **Projektname & Version**: Werden einfach als Text in die jeweilige `title.txt` geschrieben (Umlaute wie Ä, Ö, Ü sind natürlich erlaubt).
-* **Dateien**: Jedes Spiel hat eine `index.html`. Zusätzliche Bilder, Töne oder Symbole können einfach daneben in denselben Ordner gelegt werden.
+* **Dateien**: Jedes Spiel hat eine `index.html` als Startseite. Du kannst den Code und Inhalte frei auf mehrere Dateien aufteilen (z. B. eigene CSS-, JavaScript-, Bild- oder Ton-Dateien daneben oder in Unterordnern). Wichtig ist nur, relative Pfade zu verwenden.
 * **Übersichten**: Das Inhaltsverzeichnis und die Menüs werden automatisch für dich erstellt.
 
 ---
