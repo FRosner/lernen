@@ -1,0 +1,1977 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Probeklausuren Deutsch – 3 / Leseverständnis</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --ink: #0f172a;
+      --ink-muted: #475569;
+      --primary: #0284c7;
+      --primary-hover: #0369a1;
+      --primary-soft: #e0f2fe;
+      --good: #16a34a;
+      --good-soft: #dcfce7;
+      --bad: #e11d48;
+      --bad-soft: #ffe4e6;
+      --line: #cbd5e1;
+      --radius: 1rem;
+      --shadow: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: var(--ink);
+      background-color: var(--bg);
+      overflow: hidden;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      line-height: 1.45;
+    }
+
+    .app-shell {
+      height: 100vh;
+      height: 100dvh;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      padding: max(0.6rem, env(safe-area-inset-top))
+               max(0.8rem, env(safe-area-inset-right))
+               max(0.6rem, env(safe-area-inset-bottom))
+               max(0.8rem, env(safe-area-inset-left));
+      gap: 0.6rem;
+      overflow: hidden;
+    }
+
+    /* Header */
+    header {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 0.6rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
+      flex-shrink: 0;
+    }
+
+    .header-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .header-title {
+      font-size: clamp(1rem, 1.4vw + 0.6rem, 1.3rem);
+      font-weight: 800;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header-sub {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--ink-muted);
+    }
+
+    .timer-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: #eff6ff;
+      color: #0369a1;
+      border: 2px solid #bae6fd;
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    /* Task Navigation Tabs */
+    .task-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.4rem;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 0.45rem 0.6rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
+      flex-shrink: 0;
+    }
+
+    .task-tabs {
+      display: flex;
+      gap: 0.35rem;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .task-tab-btn {
+      min-width: 44px;
+      height: 44px;
+      border-radius: 0.75rem;
+      border: 2px solid var(--line);
+      background: #f8fafc;
+      color: var(--ink-muted);
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+      position: relative;
+    }
+
+    .task-tab-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px -1px rgba(2, 132, 199, 0.3);
+    }
+
+    .task-tab-btn.completed:not(.active) {
+      background: var(--good-soft);
+      color: var(--good);
+      border-color: #86efac;
+    }
+
+    .task-tab-btn .badge-done {
+      position: absolute;
+      top: -3px;
+      right: -3px;
+      width: 14px;
+      height: 14px;
+      background: var(--good);
+      border-radius: 50%;
+      border: 2px solid #fff;
+    }
+
+    /* Mobile Text Toggle (only visible on small screens in exam) */
+    .mobile-tab-bar {
+      display: none;
+      gap: 0.4rem;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 767px) {
+      .mobile-tab-bar {
+        display: flex;
+      }
+    }
+
+    .mobile-tab-btn {
+      flex: 1;
+      height: 42px;
+      border-radius: 0.65rem;
+      border: 2px solid var(--line);
+      background: #f1f5f9;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .mobile-tab-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+
+    /* Main Area with Split Screen */
+    main {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      position: relative;
+    }
+
+    .screen {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      gap: 0.8rem;
+    }
+
+    .screen[hidden] {
+      display: none;
+    }
+
+    /* Split Screen Panels */
+    .split-pane {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 1.1rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .pane-text {
+      flex: 1.1;
+      border-left: 5px solid var(--primary);
+    }
+
+    .pane-tasks {
+      flex: 1.2;
+    }
+
+    @media (max-width: 767px) {
+      .screen-split {
+        flex-direction: column;
+      }
+      .pane-text, .pane-tasks {
+        flex: 1;
+        width: 100%;
+      }
+      .pane-text[data-active="false"] {
+        display: none;
+      }
+      .pane-tasks[data-active="false"] {
+        display: none;
+      }
+    }
+
+    /* Reading Story Styling */
+    .story-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.8rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #f1f5f9;
+      flex-shrink: 0;
+    }
+
+    .story-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--ink);
+      margin: 0;
+    }
+
+    .story-badge {
+      font-size: 0.85rem;
+      font-weight: 700;
+      background: var(--primary-soft);
+      color: var(--primary);
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+    }
+
+    .story-content {
+      font-size: clamp(1.05rem, 0.4vw + 1rem, 1.2rem);
+      line-height: 1.7;
+      color: #1e293b;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    .story-content p {
+      margin: 0 0 1rem 0;
+    }
+
+    /* Tasks Layout */
+    .task-header {
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .task-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--ink);
+      margin: 0;
+    }
+
+    .task-points {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--primary);
+      background: var(--primary-soft);
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      white-space: nowrap;
+    }
+
+    .task-prompt {
+      font-size: 1.15rem;
+      color: var(--ink);
+      font-weight: 600;
+      margin: 0.4rem 0 0.8rem 0;
+      line-height: 1.4;
+    }
+
+    /* Task Types */
+    .task-body {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    /* Typ 1: Richtig / Falsch Tabelle */
+    .tf-card {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .tf-text {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .tf-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .tf-btn {
+      flex: 1;
+      min-height: 44px;
+      border-radius: 0.6rem;
+      border: 2px solid var(--line);
+      background: #ffffff;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      transition: all 0.12s ease;
+    }
+
+    .tf-btn.selected-true {
+      background: var(--good);
+      color: #ffffff;
+      border-color: var(--good);
+      box-shadow: 0 0 0 2px #86efac;
+    }
+
+    .tf-btn.selected-false {
+      background: var(--bad);
+      color: #ffffff;
+      border-color: var(--bad);
+      box-shadow: 0 0 0 2px #fca5a5;
+    }
+
+    /* Typ 3: Chronologie / Reihenfolge */
+    .reorder-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .reorder-item {
+      background: #ffffff;
+      border: 2px solid var(--line);
+      border-radius: 0.75rem;
+      padding: 0.7rem 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .reorder-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .reorder-text {
+      flex: 1;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .reorder-ctrls {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .reorder-btn {
+      min-width: 44px;
+      min-height: 40px;
+      border-radius: 0.5rem;
+      border: 1px solid var(--line);
+      background: #f1f5f9;
+      color: var(--ink);
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .reorder-btn:disabled {
+      opacity: 0.25;
+      cursor: not-allowed;
+    }
+
+    /* Typ 2, 4, 5, 6: Multiple Choice Subtasks */
+    .subtask-card {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 0.85rem;
+      padding: 0.9rem;
+    }
+
+    .subtask-q {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+      color: var(--ink);
+    }
+
+    .options-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .option-btn {
+      width: 100%;
+      min-height: 48px;
+      padding: 0.6rem 0.9rem;
+      background: #ffffff;
+      border: 2px solid var(--line);
+      border-radius: 0.65rem;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--ink);
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.12s ease;
+    }
+
+    .option-btn:hover {
+      border-color: var(--primary);
+    }
+
+    .option-btn.selected {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: var(--primary-hover);
+      box-shadow: 0 0 0 2px #7dd3fc;
+      font-weight: 700;
+    }
+
+    /* Start Screen */
+    .start-container {
+      max-width: 680px;
+      margin: auto;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      padding: 1rem;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
+    }
+
+    .hero-badge {
+      display: inline-block;
+      align-self: center;
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-weight: 800;
+      padding: 0.4rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.95rem;
+    }
+
+    .start-title {
+      font-size: clamp(1.5rem, 2.5vw + 0.8rem, 2.1rem);
+      font-weight: 900;
+      color: var(--ink);
+      margin: 0;
+    }
+
+    .start-desc {
+      font-size: 1.1rem;
+      color: var(--ink-muted);
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .info-boxes {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin: 0.4rem 0;
+    }
+
+    .info-box {
+      background: #f8fafc;
+      border: 2px solid var(--line);
+      border-radius: 0.75rem;
+      padding: 0.7rem 0.5rem;
+    }
+
+    .info-box-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .info-box-text {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .variant-picker-title {
+      font-weight: 800;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+      text-align: left;
+    }
+
+    .variant-options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .variant-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #ffffff;
+      border: 2px solid var(--line);
+      border-radius: 0.75rem;
+      padding: 0.8rem 1rem;
+      cursor: pointer;
+      text-align: left;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--ink);
+      transition: all 0.15s ease;
+    }
+
+    .variant-btn:hover, .variant-btn.selected {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+    }
+
+    .variant-btn.selected {
+      box-shadow: 0 0 0 2px var(--primary);
+    }
+
+    .variant-tag {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--primary);
+      background: #ffffff;
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      border: 1px solid #bfdbfe;
+    }
+
+    /* Results Screen */
+    .results-container {
+      max-width: 600px;
+      margin: auto;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      padding: 1.2rem;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
+      width: 100%;
+    }
+
+    .score-circle {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+      box-shadow: 0 8px 16px -4px rgba(2,132,199,0.4);
+    }
+
+    .score-num {
+      font-size: 2.2rem;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .score-max {
+      font-size: 0.85rem;
+      opacity: 0.9;
+    }
+
+    .stars {
+      font-size: 2.2rem;
+      letter-spacing: 0.3rem;
+    }
+
+    .result-feedback {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--ink);
+      margin: 0;
+    }
+
+    .result-breakdown {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      text-align: left;
+      background: #f8fafc;
+      border: 2px solid var(--line);
+      border-radius: 0.85rem;
+      padding: 0.8rem 1rem;
+    }
+
+    .breakdown-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 0.25rem 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .breakdown-row:last-child {
+      border-bottom: 0;
+    }
+
+    .review-solution-box {
+      margin-top: 0.6rem;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      padding: 0.6rem 0.8rem;
+      border-radius: 0.6rem;
+      font-size: 0.95rem;
+      color: #166534;
+      text-align: left;
+    }
+
+    /* Footer Navigation */
+    footer {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 0.6rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
+      flex-shrink: 0;
+    }
+
+    .btn {
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 1.05rem;
+      min-height: 48px;
+      padding: 0.55rem 1.2rem;
+      border-radius: 0.75rem;
+      border: 0;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.1s ease;
+      text-decoration: none;
+    }
+
+    .btn:active:not(:disabled) {
+      transform: translateY(2px);
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: #f1f5f9;
+      color: var(--ink);
+      border: 2px solid var(--line);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+      border: 2px solid var(--primary-hover);
+    }
+
+    .btn-success {
+      background: var(--good);
+      color: #ffffff;
+      border: 2px solid #15803d;
+    }
+
+    /* Modal / Alert */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 100;
+    }
+
+    .modal-backdrop[hidden] {
+      display: none !important;
+    }
+
+    .modal-box {
+      background: #ffffff;
+      border-radius: 1rem;
+      max-width: 440px;
+      width: 100%;
+      padding: 1.4rem;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 0.6rem;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Header -->
+    <header>
+      <div class="header-info">
+        <div class="header-title">
+          <span>📖 Probeklausur: 3 / Leseverständnis</span>
+        </div>
+        <div class="header-sub" id="headerVariantLabel">Variante A: Das geheime Baumhaus</div>
+      </div>
+      <div class="timer-badge" id="timerBadge" title="Vergangene Zeit">
+        <span>⏱</span>
+        <span id="timerText">00:00</span>
+      </div>
+    </header>
+
+    <!-- Task Navigation Tabs -->
+    <nav class="task-nav" id="taskNav" hidden>
+      <div class="task-tabs" id="taskTabs">
+        <!-- Rendered by JS -->
+      </div>
+    </nav>
+
+    <!-- Mobile Switcher (Geschichte / Aufgaben) -->
+    <div class="mobile-tab-bar" id="mobileTabBar" hidden>
+      <button type="button" class="mobile-tab-btn" id="mTabStory">
+        📖 Geschichte lesen
+      </button>
+      <button type="button" class="mobile-tab-btn active" id="mTabTask">
+        ✏️ Aufgabe lösen
+      </button>
+    </div>
+
+    <!-- Main Content Area -->
+    <main>
+      <!-- 1. Start Screen -->
+      <section class="screen" id="startScreen">
+        <div class="start-container">
+          <div class="hero-badge">3. Klasse · Deutsch-Klausur</div>
+          <h1 class="start-title">Leseverständnis-Probeklausur</h1>
+          <p class="start-desc">
+            Lies eine spannende Geschichte und beantworte 6 knifflige Fragen dazu ganz in Ruhe und ohne Zeitdruck!
+          </p>
+
+          <div class="info-boxes">
+            <div class="info-box">
+              <div class="info-box-icon">⏱️</div>
+              <div class="info-box-text">Ohne Zeitlimit</div>
+            </div>
+            <div class="info-box">
+              <div class="info-box-icon">📝</div>
+              <div class="info-box-text">6 Aufgaben</div>
+            </div>
+            <div class="info-box">
+              <div class="info-box-icon">🏆</div>
+              <div class="info-box-text">24 Punkte möglich</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="variant-picker-title">Wähle deine Lesegeschichte:</div>
+            <div class="variant-options">
+              <button type="button" class="variant-btn selected" data-variant="A">
+                <span>🏡 <strong>Variante A:</strong> Das geheime Baumhaus</span>
+                <span class="variant-tag">Neu</span>
+              </button>
+              <button type="button" class="variant-btn" data-variant="B">
+                <span>🐱 <strong>Variante B:</strong> Das Fundkätzchen im Schuppen</span>
+                <span class="variant-tag">Neu</span>
+              </button>
+              <button type="button" class="variant-btn" data-variant="C">
+                <span>🍾 <strong>Variante C:</strong> Die geheimnisvolle Flaschenpost</span>
+                <span class="variant-tag">Neu</span>
+              </button>
+            </div>
+          </div>
+
+          <div style="margin-top: 0.5rem;">
+            <button type="button" class="btn btn-primary" id="btnStartExam" style="font-size: 1.25rem; width: 100%; min-height: 54px;">
+              Klausur jetzt starten 🚀
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Exam Screen (Split Screen: Story left, Questions right) -->
+      <section class="screen screen-split" id="examScreen" hidden>
+        <!-- Story Pane -->
+        <article class="split-pane pane-text" id="paneText" data-active="false">
+          <div class="story-header">
+            <h2 class="story-title" id="storyTitle">Das geheime Baumhaus</h2>
+            <span class="story-badge">Lesetext</span>
+          </div>
+          <div class="story-content" id="storyBody">
+            <!-- Story text loaded dynamically -->
+          </div>
+        </article>
+
+        <!-- Tasks Pane -->
+        <div class="split-pane pane-tasks" id="paneTasks" data-active="true">
+          <div class="task-header">
+            <h2 class="task-title" id="taskTitle">Aufgabe 1: Richtig oder Falsch?</h2>
+            <span class="task-points" id="taskPoints">4 Punkte</span>
+          </div>
+
+          <p class="task-prompt" id="taskPrompt">Lies den Text und entscheide:</p>
+
+          <div class="task-body" id="taskBody">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Results Screen -->
+      <section class="screen" id="resultsScreen" hidden>
+        <div class="results-container">
+          <div class="hero-badge" id="resultBadge">Klausur beendet</div>
+          <div class="score-circle">
+            <span class="score-num" id="scoreNum">24</span>
+            <span class="score-max">/ 24 Punkte</span>
+          </div>
+          <div class="stars" id="starRating">⭐⭐⭐</div>
+          <h2 class="result-feedback" id="feedbackText">Großartige Leseleistung!</h2>
+
+          <div class="result-breakdown" id="resultBreakdown">
+            <!-- Breakdown per task rendered here -->
+          </div>
+
+          <div style="display: flex; gap: 0.6rem; justify-content: center; flex-wrap: wrap;">
+            <button type="button" class="btn btn-primary" id="btnReviewSolutions">
+              🔍 Lösungen im Detail ansehen
+            </button>
+            <button type="button" class="btn btn-secondary" id="btnRestart">
+              🔄 Neue Klausur starten
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer Navigation -->
+    <footer id="appFooter" hidden>
+      <button type="button" class="btn btn-secondary" id="btnPrev">
+        ⬅ Zurück
+      </button>
+
+      <span id="footerStatus" style="font-size: 0.95rem; font-weight: 700; color: var(--ink-muted);">
+        Aufgabe 1 von 6
+      </span>
+
+      <button type="button" class="btn btn-primary" id="btnNext">
+        Weiter ➡
+      </button>
+
+      <button type="button" class="btn btn-success" id="btnFinish" style="display: none;">
+        Klausur abgeben 📝
+      </button>
+    </footer>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div class="modal-backdrop" id="confirmModal" hidden>
+    <div class="modal-box">
+      <div style="font-size: 2.5rem;">📝</div>
+      <h3 style="margin: 0; font-size: 1.3rem;">Möchtest du wirklich abgeben?</h3>
+      <p id="modalMsg" style="margin: 0; color: var(--ink-muted); font-size: 1rem;">
+        Du hast alle Aufgaben bearbeitet.
+      </p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" id="modalBtnCancel">Noch mal prüfen</button>
+        <button type="button" class="btn btn-success" id="modalBtnConfirm">Ja, abgeben!</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* =====================================================================
+       KLAUSUR-DATEN: 3 Varianten mit Text und je 6 Aufgabentypen
+       ===================================================================== */
+    const VARIANTS = {
+      A: {
+        name: "Variante A: Das geheime Baumhaus",
+        storyTitle: "Das geheime Baumhaus",
+        storyText: [
+          "Leo und Mira stöberten am Samstagnachmittag im verwilderten Garten von Tante Klara. Hinter einem dichten Holunderbusch entdeckten sie eine alte Holzleiter, die in eine mächtige Eiche führte. Ganz oben, verborgen zwischen grünen Blättern, versteckte sich ein verlassenes Baumhaus!",
+          "Vorsichtig stiegen die beiden Sprosse für Sprosse hinauf. Auf dem staubigen Holztisch lag eine kleine, rostige Blechdose. Mira öffnete sie neugierig. Darin glänzte eine bunte Glasmurmel und ein vergilbter Zettel mit der Aufschrift: „Nur für echte Entdecker!“",
+          "Plötzlich hörte Leo ein leises Summen am Dachbalken. Schnell flüsterte er: „Vorsicht, Mira, da oben bauen Wespen ihr Nest. Wir müssen ganz leise sein.“ Sie schlichen auf Zehenspitzen zurück zur Leiter. Abends im Bett dachte Leo glücklich: Morgen bringen wir eine Lupe mit!"
+        ],
+        tasks: [
+          {
+            type: "tf",
+            title: "Aufgabe 1: Richtig oder Falsch?",
+            prompt: "Lies den Text genau und entscheide für jede Aussage:",
+            statements: [
+              { text: "1. Das Baumhaus war in einer alten Eiche versteckt.", correct: true },
+              { text: "2. In der Blechdose lag ein goldener Schlüssel.", correct: false },
+              { text: "3. Am Dachbalken bauten Bienen ein Nest.", correct: false },
+              { text: "4. Leo freute sich am Abend schon auf den nächsten Tag.", correct: true }
+            ],
+            explanation: "In der Blechdose lag eine Glasmurmel und ein Zettel (kein Schlüssel). Am Balken waren Wespen, keine Bienen."
+          },
+          {
+            type: "mc",
+            title: "Aufgabe 2: Detail-Detektiv",
+            prompt: "Was stand genau auf dem vergilbten Zettel in der Blechdose?",
+            options: [
+              "„Geheimes Versteck – Betreten verboten!“",
+              "„Nur für echte Entdecker!“",
+              "„Schatzkarte von Tante Klara“"
+            ],
+            correct: "„Nur für echte Entdecker!“",
+            explanation: "Auf dem Zettel stand wörtlich: „Nur für echte Entdecker!“."
+          },
+          {
+            type: "reorder",
+            title: "Aufgabe 3: Reihenfolge (Chronologie)",
+            prompt: "Bringe die Ereignisse mit den Pfeiltasten in die richtige Reihenfolge von 1 bis 4:",
+            initialOrder: [2, 0, 3, 1],
+            correctSequence: [
+              "Die Kinder entdecken die Holzleiter hinter dem Holunderbusch.",
+              "Mira öffnet neugierig die rostige Blechdose.",
+              "Leo bemerkt das Wespennest am Dachbalken.",
+              "Die Kinder schleichen auf Zehenspitzen zurück zur Leiter."
+            ],
+            explanation: "Zuerst entdecken sie die Leiter, dann öffnet Mira die Dose, danach bemerkt Leo das Nest und schließlich schleichen sie zurück."
+          },
+          {
+            type: "mc",
+            title: "Aufgabe 4: Wörter im Kontext verstehen",
+            prompt: "Im Text heißt es: <em>„... versteckte sich ein <strong>verlassenes</strong> Baumhaus!“</em> Was bedeutet das Wort <strong>verlassen</strong> hier?",
+            options: [
+              "Das Baumhaus ist traurig und weint.",
+              "Niemand hat das Baumhaus seit längerer Zeit benutzt.",
+              "Das Baumhaus ist kaputt und eingestürzt."
+            ],
+            correct: "Niemand hat das Baumhaus seit längerer Zeit benutzt.",
+            explanation: "Ein verlassenes Haus oder Baumhaus steht leer und wird nicht mehr bewohnt oder genutzt."
+          },
+          {
+            type: "subtasks",
+            title: "Aufgabe 5: Wer war es?",
+            prompt: "Ordne die Handlungen der richtigen Person zu:",
+            items: [
+              {
+                q: "1. Wer öffnete die Blechdose auf dem Holztisch?",
+                options: ["Mira", "Leo", "Tante Klara"],
+                correct: "Mira",
+                explanation: "Im Text steht: 'Mira öffnete sie neugierig.'"
+              },
+              {
+                q: "2. Wer hörte zuerst das leise Summen der Wespen?",
+                options: ["Leo", "Mira", "Tante Klara"],
+                correct: "Leo",
+                explanation: "Im Text steht: 'Plötzlich hörte Leo ein leises Summen am Dachbalken.'"
+              }
+            ]
+          },
+          {
+            type: "subtasks",
+            title: "Aufgabe 6: Zwischen den Zeilen & Gesamtsinn",
+            prompt: "Überlege schlau und ziehe Schlüsse aus dem Text:",
+            items: [
+              {
+                q: "1. Warum schlichen die Kinder auf Zehenspitzen zurück?",
+                options: [
+                  "Damit sie die Wespen nicht erschrecken oder aufscheuchen.",
+                  "Weil die Holzleiter sonst zerbrechen würde.",
+                  "Weil Tante Klara schon tief schlief."
+                ],
+                correct: "Damit sie die Wespen nicht erschrecken oder aufscheuchen.",
+                explanation: "Wespen können stechen, wenn man laut ist oder ihr Nest stört. Die Kinder waren daher besonders vorsichtig."
+              },
+              {
+                q: "2. Welche Überschrift passt auch sehr gut zur Geschichte?",
+                options: [
+                  "Das Geheimnis in der alten Eiche",
+                  "Großer Ärger mit den Bienen",
+                  "Tante Klaras verlorene Dose"
+                ],
+                correct: "Das Geheimnis in der alten Eiche",
+                explanation: "Das Baumhaus und das Abenteuer spielen sich genau in der alten Eiche ab."
+              }
+            ]
+          }
+        ]
+      },
+
+      B: {
+        name: "Variante B: Das Fundkätzchen im Schuppen",
+        storyTitle: "Das Fundkätzchen im Schuppen",
+        storyText: [
+          "An einem regnerischen Herbsttag ging Paul in den alten Gartenschuppen, um trockenes Kaminholz zu holen. Plötzlich hörte er ein leises, klägliches Miauen. Hinter den ordentlich gestapelten Holzscheiten entdeckte er ein winziges, grau getigertes Kätzchen.",
+          "Sein Fell war ganz feucht und das kleine Tierchen zitterte vor Kälte. Paul lief sofort ins warme Wohnhaus und rief seine große Schwester Lena. Sie holte eine weiche Wolldecke und Paul füllte ein Schälchen mit lauwarmem Wasser.",
+          "Ganz behutsam wickelten sie das Kätzchen ein, bis es aufhörte zu zittern und leise schnurrte. Zusammen riefen die Geschwister bei Frau Weber vom Tierschutzverein an. Schon eine Stunde später kam sie vorbei und freute sich riesig: Eine Nachbarin aus der nächsten Straße hatte das Kätzchen schon seit zwei Tagen überall gesucht!"
+        ],
+        tasks: [
+          {
+            type: "tf",
+            title: "Aufgabe 1: Richtig oder Falsch?",
+            prompt: "Lies den Text genau und entscheide für jede Aussage:",
+            statements: [
+              { text: "1. Paul ging in den Schuppen, um Kaminholz zu holen.", correct: true },
+              { text: "2. Das gefundene Kätzchen hatte reinweißes Fell.", correct: false },
+              { text: "3. Paul und Lena wickelten das Kätzchen in eine Wolldecke.", correct: true },
+              { text: "4. Niemand im Dorf vermisste das Kätzchen.", correct: false }
+            ],
+            explanation: "Das Kätzchen war grau getigert (nicht reinweiß) und wurde bereits von einer Nachbarin vermisst."
+          },
+          {
+            type: "mc",
+            title: "Aufgabe 2: Detail-Detektiv",
+            prompt: "Warum zitterte das kleine Kätzchen hinter den Holzscheiten?",
+            options: [
+              "Weil es Angst vor Pauls großem Hund hatte.",
+              "Weil sein Fell feucht war und es fror.",
+              "Weil der Gartenschuppen eingestürzt war."
+            ],
+            correct: "Weil sein Fell feucht war und es fror.",
+            explanation: "Im Text heißt es: 'Sein Fell war ganz feucht und das kleine Tierchen zitterte vor Kälte.'"
+          },
+          {
+            type: "reorder",
+            title: "Aufgabe 3: Reihenfolge (Chronologie)",
+            prompt: "Bringe die Ereignisse mit den Pfeiltasten in die richtige Reihenfolge von 1 bis 4:",
+            initialOrder: [1, 3, 0, 2],
+            correctSequence: [
+              "Paul hört ein leises Miauen im alten Schuppen.",
+              "Lena und Paul holen Decke und Wasser für das Kätzchen.",
+              "Das Kätzchen wärmt sich auf und fängt an zu schnurren.",
+              "Frau Weber vom Tierschutzverein kommt vorbei."
+            ],
+            explanation: "Zuerst wird das Miauen gehört, dann Decke/Wasser geholt, dann schnurrt es und zum Schluss kommt Frau Weber."
+          },
+          {
+            type: "mc",
+            title: "Aufgabe 4: Wörter im Kontext verstehen",
+            prompt: "Im Text heißt es: <em>„Hinter den ordentlich <strong>gestapelten</strong> Holzscheiten...“</em> Was bedeutet <strong>gestapelt</strong>?",
+            options: [
+              "Das Holz lag unordentlich im tiefen Matsch.",
+              "Die Holzscheite waren ordentlich übereinandergelegt.",
+              "Das Holz war noch ganz frisch im Wald gesägt worden."
+            ],
+            correct: "Die Holzscheite waren ordentlich übereinandergelegt.",
+            explanation: "Stapeln bedeutet, Dinge Schicht für Schicht ordentlich übereinander zu schichten."
+          },
+          {
+            type: "subtasks",
+            title: "Aufgabe 5: Wer war es?",
+            prompt: "Ordne die Handlungen der richtigen Person zu:",
+            items: [
+              {
+                q: "1. Wer holte die weiche Wolldecke aus dem Haus?",
+                options: ["Lena", "Paul", "Frau Weber"],
+                correct: "Lena",
+                explanation: "Im Text steht: 'Sie (Lena) holte eine weiche Wolldecke...'"
+              },
+              {
+                q: "2. Wer vermisste das Kätzchen schon seit zwei Tagen?",
+                options: ["Eine Nachbarin", "Frau Weber", "Lena"],
+                correct: "Eine Nachbarin",
+                explanation: "Eine Nachbarin aus der nächsten Straße hatte das Kätzchen gesucht."
+              }
+            ]
+          },
+          {
+            type: "subtasks",
+            title: "Aufgabe 6: Zwischen den Zeilen & Gesamtsinn",
+            prompt: "Überlege schlau und ziehe Schlüsse aus dem Text:",
+            items: [
+              {
+                q: "1. Woran erkannten die Kinder, dass sich das Kätzchen wieder wohlfühlte?",
+                options: [
+                  "Es hörte auf zu zittern und schnurrte leise.",
+                  "Es kletterte sofort auf den Apfelbaum.",
+                  "Es trank eine ganze Kanne heiße Milch aus."
+                ],
+                correct: "Es hörte auf zu zittern und schnurrte leise.",
+                explanation: "Schnurren ist bei Katzen ein Zeichen von Zufriedenheit und Entspannung."
+              },
+              {
+                q: "2. Welche Überschrift passt auch sehr gut zur Geschichte?",
+                options: [
+                  "Rettung im Regen",
+                  "Pauls neues Holzhaus",
+                  "Der gefährliche Kamin"
+                ],
+                correct: "Rettung im Regen",
+                explanation: "Die Kinder haben das Kätzchen an einem Regentag gerettet."
+              }
+            ]
+          }
+        ]
+      },
+
+      C: {
+        name: "Variante C: Die geheimnisvolle Flaschenpost",
+        storyTitle: "Die geheimnisvolle Flaschenpost",
+        storyText: [
+          "An einem sonnigen Feriensamstag bauten Tim und Sophie am Kiesstrand des Baggersees eine riesige Sandburg. Plötzlich schwappte eine sanfte Welle eine dunkelgrüne Glasflasche direkt vor ihre Füße. Erstaunt kniete Sophie sich nieder: In der Flasche steckte eine mit roter Kordel verschnürte Papierrolle!",
+          "Tim zog den fest sitzenden Korken vorsichtig mit den Zähnen heraus. Sophie rollte das dicke Papier behutsam aus. Es war eine gezeichnete Landkarte! Bei den drei alten Weiden am Nordufer war ein großes rotes Kreuz eingezeichnet.",
+          "Neugierig packten die Kinder ihre Schaufeln ein und marschierten zum Nordufer. Nach kurzem Suchen entdeckten sie unter einer mächtigen Weidenwurzel eine wasserdichte Dose. Darin lag ein Logbuch für Schatzsucher mit vielen netten Grüßen anderer Kinder. Stolz trugen Tim und Sophie ihre Namen ein."
+        ],
+        tasks: [
+          {
+            type: "tf",
+            title: "Aufgabe 1: Richtig oder Falsch?",
+            prompt: "Lies den Text genau und entscheide für jede Aussage:",
+            statements: [
+              { text: "1. Die Kinder spielten am Strand eines Baggersees.", correct: true },
+              { text: "2. Die Flasche bestand aus hellem, durchsichtigem Plastik.", correct: false },
+              { text: "3. Auf der Landkarte war ein rotes Kreuz bei drei Weiden.", correct: true },
+              { text: "4. In der Dose lagen echte alte Goldmünzen.", correct: false }
+            ],
+            explanation: "Die Flasche war aus dunkelgrünem Glas und in der Dose lag ein Logbuch für Schatzsucher (kein Gold)."
+          },
+          {
+            type: "mc",
+            title: "Aufgabe 2: Detail-Detektiv",
+            prompt: "Wie schaffte Tim es, den Korken aus der Flasche zu ziehen?",
+            options: [
+              "Er benutzte ein langes Taschenmesser.",
+              "Er zog ihn vorsichtig mit den Zähnen heraus.",
+              "Sophie schlug den Flaschenhals vorsichtig mit einem Stein ab."
+            ],
+            correct: "Er zog ihn vorsichtig mit den Zähnen heraus.",
+            explanation: "Im Text steht: 'Tim zog den fest sitzenden Korken vorsichtig mit den Zähnen heraus.'"
+          },
+          {
+            type: "reorder",
+            title: "Aufgabe 3: Reihenfolge (Chronologie)",
+            prompt: "Bringe die Ereignisse mit den Pfeiltasten in die richtige Reihenfolge von 1 bis 4:",
+            initialOrder: [2, 0, 3, 1],
+            correctSequence: [
+              "Eine Welle spült die dunkelgrüne Glasflasche ans Ufer.",
+              "Tim öffnet die Flasche und Sophie rollt die Karte aus.",
+              "Die Kinder marschieren zu den drei alten Weiden am Nordufer.",
+              "Tim und Sophie tragen stolz ihre Namen in das Logbuch ein."
+            ],
+            explanation: "Zuerst wird die Flasche angespült, dann geöffnet, dann wandern sie zu den Weiden und tragen sich ein."
+          },
+          {
+            type: "mc",
+            title: "Aufgabe 4: Wörter im Kontext verstehen",
+            prompt: "Im Text heißt es: <em>„Sophie rollte das dicke Papier <strong>behutsam</strong> aus.“</em> Was bedeutet <strong>behutsam</strong>?",
+            options: [
+              "Ganz vorsichtig und achtsam, damit nichts zerreißt.",
+              "So hastig und schnell wie möglich.",
+              "Mit nassen, sandigen Händen."
+            ],
+            correct: "Ganz vorsichtig und achtsam, damit nichts zerreißt.",
+            explanation: "Behutsam bedeutet sehr vorsichtig, rücksichtsvoll und behutsam vorgehend."
+          },
+          {
+            type: "subtasks",
+            title: "Aufgabe 5: Wer war es?",
+            prompt: "Ordne die Handlungen der richtigen Person zu:",
+            items: [
+              {
+                q: "1. Wer kniete sich zuerst nieder und sah die Papierrolle?",
+                options: ["Sophie", "Tim", "Ein Badegast"],
+                correct: "Sophie",
+                explanation: "Im Text heißt es: 'Erstaunt kniete Sophie sich nieder...'"
+              },
+              {
+                q: "2. Wer hatte schon vor Tim und Sophie Grüße im Buch hinterlassen?",
+                options: ["Andere Kinder", "Der Bademeister", "Tante Klara"],
+                correct: "Andere Kinder",
+                explanation: "Im Text steht: 'mit vielen netten Grüßen anderer Kinder'."
+              }
+            ]
+          },
+          {
+            type: "subtasks",
+            title: "Aufgabe 6: Zwischen den Zeilen & Gesamtsinn",
+            prompt: "Überlege schlau und ziehe Schlüsse aus dem Text:",
+            items: [
+              {
+                q: "1. Um was für eine Art Schatzsuche handelte es sich hier?",
+                options: [
+                  "Geocaching (eine moderne Schnitzeljagd für Entdecker).",
+                  "Einen verlorenen Piratenschatz aus dem 17. Jahrhundert.",
+                  "Ein vergessenes Hausaufgabenheft einer Schulklasse."
+                ],
+                correct: "Geocaching (eine moderne Schnitzeljagd für Entdecker).",
+                explanation: "In einer wasserdichten Dose versteckte Logbücher sind typisch für Geocaching / Schnitzeljagden."
+              },
+              {
+                q: "2. Welche Überschrift passt auch sehr gut zur Geschichte?",
+                options: [
+                  "Das Geheimnis der Weidenwurzel",
+                  "Die eingestürzte Sandburg",
+                  "Ein gefährlicher Sturm am Meer"
+                ],
+                correct: "Das Geheimnis der Weidenwurzel",
+                explanation: "Unter der Weidenwurzel war die Dose mit dem Logbuch versteckt."
+              }
+            ]
+          }
+        ]
+      }
+    };
+
+    /* =====================================================================
+       APP STATUS & STATE
+       ===================================================================== */
+    let currentVariantKey = "A";
+    let currentTaskIndex = 0; // 0 to 5
+    let examActive = false;
+    let reviewMode = false;
+    let timerSeconds = 0;
+    let timerInterval = null;
+
+    // Speichert Antworten des Schülers: taskIndex -> answer data
+    let userAnswers = {};
+    let reorderTouched = {};
+
+    /* DOM Referenzen */
+    const startScreen = document.getElementById("startScreen");
+    const examScreen = document.getElementById("examScreen");
+    const resultsScreen = document.getElementById("resultsScreen");
+    const taskNav = document.getElementById("taskNav");
+    const taskTabs = document.getElementById("taskTabs");
+    const appFooter = document.getElementById("appFooter");
+    const mobileTabBar = document.getElementById("mobileTabBar");
+    const mTabStory = document.getElementById("mTabStory");
+    const mTabTask = document.getElementById("mTabTask");
+    const headerVariantLabel = document.getElementById("headerVariantLabel");
+    const timerBadge = document.getElementById("timerBadge");
+    const timerText = document.getElementById("timerText");
+
+    const storyTitle = document.getElementById("storyTitle");
+    const storyBody = document.getElementById("storyBody");
+    const paneText = document.getElementById("paneText");
+    const paneTasks = document.getElementById("paneTasks");
+
+    const taskTitle = document.getElementById("taskTitle");
+    const taskPoints = document.getElementById("taskPoints");
+    const taskPrompt = document.getElementById("taskPrompt");
+    const taskBody = document.getElementById("taskBody");
+
+    const btnPrev = document.getElementById("btnPrev");
+    const btnNext = document.getElementById("btnNext");
+    const btnFinish = document.getElementById("btnFinish");
+    const footerStatus = document.getElementById("footerStatus");
+
+    const confirmModal = document.getElementById("confirmModal");
+    const modalMsg = document.getElementById("modalMsg");
+    const modalBtnCancel = document.getElementById("modalBtnCancel");
+    const modalBtnConfirm = document.getElementById("modalBtnConfirm");
+
+    /* =====================================================================
+       INITIALISIERUNG
+       ===================================================================== */
+    function init() {
+      // Variantenauswahl auf dem Startbildschirm
+      document.querySelectorAll(".variant-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".variant-btn").forEach(b => b.classList.remove("selected"));
+          btn.classList.add("selected");
+          currentVariantKey = btn.dataset.variant;
+          headerVariantLabel.textContent = VARIANTS[currentVariantKey].name;
+        });
+      });
+
+      document.getElementById("btnStartExam").addEventListener("click", startExam);
+      document.getElementById("btnRestart").addEventListener("click", resetToStart);
+      document.getElementById("btnReviewSolutions").addEventListener("click", startReviewMode);
+
+      btnPrev.addEventListener("click", () => switchTask(currentTaskIndex - 1));
+      btnNext.addEventListener("click", () => switchTask(currentTaskIndex + 1));
+      btnFinish.addEventListener("click", promptFinishExam);
+
+      modalBtnCancel.addEventListener("click", () => confirmModal.hidden = true);
+      modalBtnConfirm.addEventListener("click", () => {
+        confirmModal.hidden = true;
+        finishExam();
+      });
+
+      // Mobile Split-Screen Toggle
+      mTabStory.addEventListener("click", () => {
+        mTabStory.classList.add("active");
+        mTabTask.classList.remove("active");
+        paneText.dataset.active = "true";
+        paneTasks.dataset.active = "false";
+      });
+
+      mTabTask.addEventListener("click", () => {
+        mTabTask.classList.add("active");
+        mTabStory.classList.remove("active");
+        paneTasks.dataset.active = "true";
+        paneText.dataset.active = "false";
+      });
+    }
+
+    function startExam() {
+      examActive = true;
+      reviewMode = false;
+      currentTaskIndex = 0;
+      userAnswers = {};
+      reorderTouched = {};
+      timerSeconds = 0;
+
+      startScreen.hidden = true;
+      resultsScreen.hidden = true;
+      examScreen.hidden = false;
+      taskNav.hidden = false;
+      mobileTabBar.hidden = false;
+      appFooter.hidden = false;
+
+      headerVariantLabel.textContent = VARIANTS[currentVariantKey].name;
+
+      // Reset mobile view to task pane
+      paneText.dataset.active = "false";
+      paneTasks.dataset.active = "true";
+      mTabTask.classList.add("active");
+      mTabStory.classList.remove("active");
+
+      loadStory();
+      initTaskAnswers();
+      renderTaskTabs();
+      renderCurrentTask();
+      startTimer();
+    }
+
+    function resetToStart() {
+      clearInterval(timerInterval);
+      examActive = false;
+      reviewMode = false;
+      timerSeconds = 0;
+      reorderTouched = {};
+      timerText.textContent = "00:00";
+
+      startScreen.hidden = false;
+      examScreen.hidden = true;
+      resultsScreen.hidden = true;
+      taskNav.hidden = true;
+      mobileTabBar.hidden = true;
+      appFooter.hidden = true;
+    }
+
+    function loadStory() {
+      const v = VARIANTS[currentVariantKey];
+      storyTitle.textContent = v.storyTitle;
+      storyBody.innerHTML = "";
+      v.storyText.forEach(pText => {
+        const p = document.createElement("p");
+        p.textContent = pText;
+        storyBody.appendChild(p);
+      });
+    }
+
+    function initTaskAnswers() {
+      const tasks = VARIANTS[currentVariantKey].tasks;
+      tasks.forEach((t, i) => {
+        if (t.type === "reorder") {
+          // Reihenfolge initialisieren aus initialOrder
+          userAnswers[i] = t.initialOrder.map(idx => t.correctSequence[idx]);
+        }
+      });
+    }
+
+    /* =====================================================================
+       TIMER LOGIK (Stoppuhr ohne Zeitlimit)
+       ===================================================================== */
+    function startTimer() {
+      clearInterval(timerInterval);
+      timerSeconds = 0;
+      updateTimerDisplay();
+      timerInterval = setInterval(() => {
+        timerSeconds++;
+        updateTimerDisplay();
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      const mins = Math.floor(timerSeconds / 60);
+      const secs = timerSeconds % 60;
+      timerText.textContent = `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+    }
+
+    /* =====================================================================
+       NAVIGATION & TABS
+       ===================================================================== */
+    function renderTaskTabs() {
+      taskTabs.innerHTML = "";
+      const tasks = VARIANTS[currentVariantKey].tasks;
+      tasks.forEach((task, idx) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "task-tab-btn";
+        btn.textContent = (idx + 1).toString();
+        if (idx === currentTaskIndex) btn.classList.add("active");
+
+        if (isTaskCompleted(idx)) {
+          btn.classList.add("completed");
+          const dot = document.createElement("span");
+          dot.className = "badge-done";
+          btn.appendChild(dot);
+        }
+
+        btn.addEventListener("click", () => switchTask(idx));
+        taskTabs.appendChild(btn);
+      });
+    }
+
+    function isTaskCompleted(idx) {
+      const task = VARIANTS[currentVariantKey].tasks[idx];
+      const ans = userAnswers[idx];
+      if (!ans) return false;
+
+      if (task.type === "tf") {
+        return Object.keys(ans).length === task.statements.length;
+      } else if (task.type === "mc") {
+        return typeof ans === "string" && ans.length > 0;
+      } else if (task.type === "reorder") {
+        return Boolean(reorderTouched[idx]);
+      } else if (task.type === "subtasks") {
+        return Object.keys(ans).length === task.items.length;
+      }
+      return false;
+    }
+
+    function switchTask(targetIdx) {
+      const tasks = VARIANTS[currentVariantKey].tasks;
+      if (targetIdx < 0 || targetIdx >= tasks.length) return;
+      currentTaskIndex = targetIdx;
+
+      // On mobile switch automatically to task view
+      mTabTask.classList.add("active");
+      mTabStory.classList.remove("active");
+      paneTasks.dataset.active = "true";
+      paneText.dataset.active = "false";
+
+      renderTaskTabs();
+      renderCurrentTask();
+    }
+
+    /* =====================================================================
+       AUFGABEN RENDERING
+       ===================================================================== */
+    function renderCurrentTask() {
+      const task = VARIANTS[currentVariantKey].tasks[currentTaskIndex];
+      taskTitle.textContent = task.title;
+      taskPoints.textContent = "4 Punkte";
+      taskPrompt.innerHTML = task.prompt;
+      taskBody.innerHTML = "";
+
+      footerStatus.textContent = `Aufgabe ${currentTaskIndex + 1} von 6`;
+      btnPrev.disabled = currentTaskIndex === 0;
+
+      if (currentTaskIndex === 5 && !reviewMode) {
+        btnNext.style.display = "none";
+        btnFinish.style.display = "inline-flex";
+      } else {
+        btnNext.style.display = "inline-flex";
+        btnFinish.style.display = "none";
+        btnNext.disabled = currentTaskIndex === 5;
+      }
+
+      if (task.type === "tf") {
+        renderTfTask(task);
+      } else if (task.type === "mc") {
+        renderMcTask(task);
+      } else if (task.type === "reorder") {
+        renderReorderTask(task);
+      } else if (task.type === "subtasks") {
+        renderSubtasksTask(task);
+      }
+
+      if (reviewMode) {
+        renderReviewExplanation(task);
+      }
+    }
+
+    /* Typ 1: Richtig / Falsch */
+    function renderTfTask(task) {
+      if (!userAnswers[currentTaskIndex]) {
+        userAnswers[currentTaskIndex] = {};
+      }
+      const ans = userAnswers[currentTaskIndex];
+
+      task.statements.forEach((stmt, sIdx) => {
+        const card = document.createElement("div");
+        card.className = "tf-card";
+
+        const text = document.createElement("div");
+        text.className = "tf-text";
+        text.textContent = stmt.text;
+        card.appendChild(text);
+
+        const btnRow = document.createElement("div");
+        btnRow.className = "tf-buttons";
+
+        const btnTrue = document.createElement("button");
+        btnTrue.type = "button";
+        btnTrue.className = "tf-btn";
+        btnTrue.innerHTML = "<span>✓ Richtig</span>";
+        if (ans[sIdx] === true) btnTrue.classList.add("selected-true");
+
+        const btnFalse = document.createElement("button");
+        btnFalse.type = "button";
+        btnFalse.className = "tf-btn";
+        btnFalse.innerHTML = "<span>✗ Falsch</span>";
+        if (ans[sIdx] === false) btnFalse.classList.add("selected-false");
+
+        if (reviewMode) {
+          btnTrue.disabled = true;
+          btnFalse.disabled = true;
+          if (stmt.correct === true) btnTrue.style.boxShadow = "0 0 0 2px #16a34a";
+          if (stmt.correct === false) btnFalse.style.boxShadow = "0 0 0 2px #dc2626";
+        } else {
+          btnTrue.addEventListener("click", () => {
+            ans[sIdx] = true;
+            renderCurrentTask();
+            renderTaskTabs();
+          });
+          btnFalse.addEventListener("click", () => {
+            ans[sIdx] = false;
+            renderCurrentTask();
+            renderTaskTabs();
+          });
+        }
+
+        btnRow.appendChild(btnTrue);
+        btnRow.appendChild(btnFalse);
+        card.appendChild(btnRow);
+        taskBody.appendChild(card);
+      });
+    }
+
+    /* Typ 2 & 4: Multiple Choice (Einzelne Frage) */
+    function renderMcTask(task) {
+      const selected = userAnswers[currentTaskIndex] || null;
+
+      const optList = document.createElement("div");
+      optList.className = "options-row";
+
+      task.options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "option-btn";
+        btn.textContent = opt;
+
+        const isSel = selected === opt;
+        if (isSel) btn.classList.add("selected");
+
+        if (reviewMode) {
+          btn.disabled = true;
+          if (opt === task.correct) {
+            btn.style.borderColor = "#16a34a";
+            btn.style.background = "#dcfce7";
+            btn.style.color = "#166534";
+          } else if (isSel && opt !== task.correct) {
+            btn.style.borderColor = "#dc2626";
+            btn.style.background = "#fee2e2";
+            btn.style.color = "#991b1b";
+          }
+        } else {
+          btn.addEventListener("click", () => {
+            userAnswers[currentTaskIndex] = opt;
+            renderCurrentTask();
+            renderTaskTabs();
+          });
+        }
+
+        optList.appendChild(btn);
+      });
+
+      taskBody.appendChild(optList);
+    }
+
+    /* Typ 3: Chronologie / Reihenfolge sortieren */
+    function renderReorderTask(task) {
+      const currentList = userAnswers[currentTaskIndex];
+
+      const listEl = document.createElement("div");
+      listEl.className = "reorder-list";
+
+      currentList.forEach((text, idx) => {
+        const item = document.createElement("div");
+        item.className = "reorder-item";
+
+        const numBadge = document.createElement("div");
+        numBadge.className = "reorder-num";
+        numBadge.textContent = (idx + 1).toString();
+        item.appendChild(numBadge);
+
+        const txtEl = document.createElement("div");
+        txtEl.className = "reorder-text";
+        txtEl.textContent = text;
+        item.appendChild(txtEl);
+
+        if (!reviewMode) {
+          const ctrls = document.createElement("div");
+          ctrls.className = "reorder-ctrls";
+
+          const btnUp = document.createElement("button");
+          btnUp.type = "button";
+          btnUp.className = "reorder-btn";
+          btnUp.innerHTML = "▲";
+          btnUp.title = "Nach oben verschieben";
+          btnUp.disabled = idx === 0;
+          btnUp.addEventListener("click", () => {
+            reorderTouched[currentTaskIndex] = true;
+            // Swap with previous
+            const temp = currentList[idx];
+            currentList[idx] = currentList[idx - 1];
+            currentList[idx - 1] = temp;
+            renderCurrentTask();
+            renderTaskTabs();
+          });
+
+          const btnDown = document.createElement("button");
+          btnDown.type = "button";
+          btnDown.className = "reorder-btn";
+          btnDown.innerHTML = "▼";
+          btnDown.title = "Nach unten verschieben";
+          btnDown.disabled = idx === currentList.length - 1;
+          btnDown.addEventListener("click", () => {
+            reorderTouched[currentTaskIndex] = true;
+            // Swap with next
+            const temp = currentList[idx];
+            currentList[idx] = currentList[idx + 1];
+            currentList[idx + 1] = temp;
+            renderCurrentTask();
+            renderTaskTabs();
+          });
+
+          ctrls.appendChild(btnUp);
+          ctrls.appendChild(btnDown);
+          item.appendChild(ctrls);
+        } else {
+          // Review Mode: Check if item is in correct place
+          const isCorrectPos = task.correctSequence[idx] === text;
+          const status = document.createElement("span");
+          status.style.fontSize = "1.2rem";
+          status.textContent = isCorrectPos ? "✓" : "✗";
+          status.style.color = isCorrectPos ? "#16a34a" : "#dc2626";
+          item.appendChild(status);
+        }
+
+        listEl.appendChild(item);
+      });
+
+      taskBody.appendChild(listEl);
+
+      if (!reviewMode) {
+        const confirmBtn = document.createElement("button");
+        confirmBtn.type = "button";
+        confirmBtn.className = "btn btn-secondary";
+        confirmBtn.style.marginTop = "0.75rem";
+        confirmBtn.style.alignSelf = "flex-start";
+        confirmBtn.innerHTML = reorderTouched[currentTaskIndex]
+          ? "<span>✓ Reihenfolge festgelegt</span>"
+          : "<span>Reihenfolge passt so ✓</span>";
+        if (reorderTouched[currentTaskIndex]) {
+          confirmBtn.style.borderColor = "var(--good)";
+          confirmBtn.style.color = "var(--good)";
+          confirmBtn.style.background = "var(--good-soft)";
+        }
+        confirmBtn.addEventListener("click", () => {
+          reorderTouched[currentTaskIndex] = true;
+          renderCurrentTask();
+          renderTaskTabs();
+        });
+        taskBody.appendChild(confirmBtn);
+      }
+    }
+
+    /* Typ 5 & 6: Subtasks (2 Fragen) */
+    function renderSubtasksTask(task) {
+      if (!userAnswers[currentTaskIndex]) {
+        userAnswers[currentTaskIndex] = {};
+      }
+      const ans = userAnswers[currentTaskIndex];
+
+      const container = document.createElement("div");
+      container.className = "reorder-list";
+
+      task.items.forEach((item, itemIdx) => {
+        const card = document.createElement("div");
+        card.className = "subtask-card";
+
+        const qTitle = document.createElement("div");
+        qTitle.className = "subtask-q";
+        qTitle.textContent = item.q;
+        card.appendChild(qTitle);
+
+        const optRow = document.createElement("div");
+        optRow.className = "options-row";
+
+        item.options.forEach(opt => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn";
+          btn.textContent = opt;
+
+          const isSelected = ans[itemIdx] === opt;
+          if (isSelected) btn.classList.add("selected");
+
+          if (reviewMode) {
+            btn.disabled = true;
+            if (opt === item.correct) {
+              btn.style.borderColor = "#16a34a";
+              btn.style.background = "#dcfce7";
+              btn.style.color = "#166534";
+            } else if (isSelected && opt !== item.correct) {
+              btn.style.borderColor = "#dc2626";
+              btn.style.background = "#fee2e2";
+              btn.style.color = "#991b1b";
+            }
+          } else {
+            btn.addEventListener("click", () => {
+              ans[itemIdx] = opt;
+              renderCurrentTask();
+              renderTaskTabs();
+            });
+          }
+
+          optRow.appendChild(btn);
+        });
+
+        card.appendChild(optRow);
+        container.appendChild(card);
+      });
+
+      taskBody.appendChild(container);
+    }
+
+    function renderReviewExplanation(task) {
+      const box = document.createElement("div");
+      box.className = "review-solution-box";
+      box.innerHTML = `<strong>💡 Erklärung &amp; Musterlösung:</strong><br>${task.explanation || "Gut nachgelesen!"}`;
+      taskBody.appendChild(box);
+    }
+
+    /* =====================================================================
+       KLAUSUR ABGEBEN & BEWERTUNG
+       ===================================================================== */
+    function promptFinishExam() {
+      let unanswered = 0;
+      const tasks = VARIANTS[currentVariantKey].tasks;
+      tasks.forEach((t, i) => {
+        if (!isTaskCompleted(i)) unanswered++;
+      });
+
+      if (unanswered > 0) {
+        modalMsg.textContent = `Du hast noch ${unanswered} Aufgabe(n) nicht vollständig beantwortet. Möchtest du trotzdem abgeben?`;
+      } else {
+        modalMsg.textContent = "Super, du hast alle 6 Aufgaben bearbeitet! Bereit für deine Auswertung?";
+      }
+
+      confirmModal.hidden = false;
+    }
+
+    function calculateScore() {
+      let total = 0;
+      const breakdown = [];
+      const tasks = VARIANTS[currentVariantKey].tasks;
+
+      tasks.forEach((task, idx) => {
+        let taskScore = 0;
+        const ans = userAnswers[idx];
+
+        if (task.type === "tf") {
+          let correctHits = 0;
+          task.statements.forEach((s, sIdx) => {
+            if (ans && ans[sIdx] === s.correct) correctHits++;
+          });
+          taskScore = correctHits; // je 1 Pkt = 4 Pkt
+        } else if (task.type === "mc") {
+          if (ans === task.correct) taskScore = 4;
+        } else if (task.type === "reorder") {
+          let matches = 0;
+          if (Array.isArray(ans)) {
+            ans.forEach((text, pos) => {
+              if (task.correctSequence[pos] === text) matches++;
+            });
+          }
+          if (matches === 4) taskScore = 4;
+          else if (matches >= 2) taskScore = 2;
+          else taskScore = 0;
+        } else if (task.type === "subtasks") {
+          let hits = 0;
+          task.items.forEach((item, itemIdx) => {
+            if (ans && ans[itemIdx] === item.correct) hits++;
+          });
+          taskScore = hits * 2; // 2 items je 2 Pkt = 4
+        }
+
+        total += taskScore;
+        breakdown.push({ title: task.title, score: taskScore });
+      });
+
+      return { total, breakdown };
+    }
+
+    function finishExam() {
+      clearInterval(timerInterval);
+      examActive = false;
+
+      const { total, breakdown } = calculateScore();
+
+      examScreen.hidden = true;
+      appFooter.hidden = true;
+      taskNav.hidden = true;
+      mobileTabBar.hidden = true;
+      resultsScreen.hidden = false;
+
+      document.getElementById("scoreNum").textContent = total;
+
+      const mins = Math.floor(timerSeconds / 60);
+      const secs = timerSeconds % 60;
+      document.getElementById("resultBadge").textContent = `Klausur beendet in ${mins > 0 ? mins + ' Min. ' : ''}${secs} Sek.`;
+
+      const starEl = document.getElementById("starRating");
+      const feedbackEl = document.getElementById("feedbackText");
+
+      if (total >= 22) {
+        starEl.textContent = "⭐⭐⭐";
+        feedbackEl.textContent = "Hervorragend! Du bist ein wahrer Meister-Leser! 🎉";
+      } else if (total >= 18) {
+        starEl.textContent = "⭐⭐";
+        feedbackEl.textContent = "Super Leseleistung! Fast alle Details gewusst! 👏";
+      } else if (total >= 12) {
+        starEl.textContent = "⭐";
+        feedbackEl.textContent = "Gut gelesen! Mit noch ein wenig Übung klappt es perfekt! 👍";
+      } else {
+        starEl.textContent = "🌱";
+        feedbackEl.textContent = "Guter Versuch! Schau dir den Text noch einmal genau an! 💪";
+      }
+
+      const bdContainer = document.getElementById("resultBreakdown");
+      bdContainer.innerHTML = "";
+      breakdown.forEach(item => {
+        const row = document.createElement("div");
+        row.className = "breakdown-row";
+        row.innerHTML = `
+          <span>${item.title}</span>
+          <span style="color: ${item.score === 4 ? '#16a34a' : '#d97706'}; font-weight: 800;">
+            ${item.score} / 4 Pkt.
+          </span>
+        `;
+        bdContainer.appendChild(row);
+      });
+    }
+
+    function startReviewMode() {
+      reviewMode = true;
+      currentTaskIndex = 0;
+      resultsScreen.hidden = true;
+      examScreen.hidden = false;
+      taskNav.hidden = false;
+      mobileTabBar.hidden = false;
+      appFooter.hidden = false;
+
+      btnFinish.style.display = "none";
+      btnNext.style.display = "inline-flex";
+
+      renderTaskTabs();
+      renderCurrentTask();
+    }
+
+    // Starten
+    window.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
