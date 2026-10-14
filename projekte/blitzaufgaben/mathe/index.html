@@ -17,9 +17,9 @@
         </header>
 
         <main class="start-content">
-          <div class="hero-badge">⚡ 1 Minute ⚡</div>
+          <div id="hero-badge" class="hero-badge">⚡ 1 Minute ⚡</div>
           <h1 class="spiel-titel">Blitzaufgaben: Mathe</h1>
-          <p class="spiel-untertitel">Wie viele Aufgaben schaffst du in 60 Sekunden?</p>
+          <p id="spiel-untertitel" class="spiel-untertitel">Wie viele Aufgaben schaffst du vor Ablauf der Zeit?</p>
 
           <div class="auswahl-sektion">
             <h2 class="auswahl-ueberschrift">Aufgabentyp wählen:</h2>
@@ -64,8 +64,11 @@
           <div class="aufgabe-karte">
             <div id="feedback-effekt" class="feedback-ebene" aria-hidden="true"></div>
             <div class="rechen-zeile">
-              <span id="aufgabe-term" class="aufgabe-term">6 · 7 =</span>
-              <div id="antwort-display" class="antwort-display platzhalter">?</div>
+              <span id="aufgabe-term" class="aufgabe-term">6 · 7</span>
+              <div class="loesung-zeile">
+                <span class="ist-gleich">=</span>
+                <div id="antwort-display" class="antwort-display platzhalter">?</div>
+              </div>
             </div>
           </div>
 
@@ -88,10 +91,6 @@
               <button type="button" class="taste" data-key="0">0</button>
               <button type="button" class="taste taste-ok" data-key="enter" aria-label="Antwort bestätigen">✓</button>
             </div>
-
-            <div class="zusatz-leiste">
-              <button type="button" class="btn-skip" data-key="skip">Aufgabe überspringen ⏭</button>
-            </div>
           </div>
         </main>
       </section>
@@ -100,7 +99,7 @@
       <section id="screen-end" class="screen" hidden>
         <main class="end-content">
           <div class="pokal-gross">⏱️</div>
-          <h2 class="end-titel">Die Minute ist um!</h2>
+          <h2 class="end-titel">Die Zeit ist um!</h2>
 
           <div class="ergebnis-karte">
             <div class="punkte-kreis">
