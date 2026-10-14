@@ -81,6 +81,19 @@ class BuildTest(unittest.TestCase):
         self.assertEqual(v_map["v3"], "v3")  # identisch mit Projekttitel -> Fallback auf Ordner
         self.assertEqual(v_map["v4"], "v4")  # kein Titel -> Fallback auf Ordner
 
+    def test_cache_busting(self):
+        write(
+            self.projekte / "spiel/v1/index.html",
+            '<link rel="stylesheet" href="style.css"><script src="game.js"></script>',
+        )
+        write(self.projekte / "spiel/v1/style.css", "body { color: red; }")
+        write(self.projekte / "spiel/v1/game.js", "console.log('hi');")
+
+        build.build(self.projekte, self.site)
+        html = (self.site / "spiel/v1/index.html").read_text(encoding="utf-8")
+        self.assertRegex(html, r'href="style\.css\?v=[0-9a-f]{8}"')
+        self.assertRegex(html, r'src="game\.js\?v=[0-9a-f]{8}"')
+
 
 if __name__ == "__main__":
     unittest.main()

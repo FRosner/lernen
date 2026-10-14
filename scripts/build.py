@@ -139,6 +139,29 @@ def _page(title: str, heading: str, items: list[tuple[str, str]], back: str | No
 """
 
 
+def _add_cache_busting(html_file: Path) -> None:
+    import hashlib
+    import re
+
+    content = html_file.read_text(encoding="utf-8")
+    parent = html_file.parent
+
+    def replace_asset(match: re.Match) -> str:
+        attr = match.group(1)
+        url = match.group(2)
+        if url.startswith(("http://", "https://", "//", "#", "/")) or "?" in url:
+            return match.group(0)
+        target = parent / url
+        if target.is_file():
+            file_hash = hashlib.md5(target.read_bytes()).hexdigest()[:8]
+            return f'{attr}="{url}?v={file_hash}"'
+        return match.group(0)
+
+    new_content = re.sub(r'\b(href|src)="([^"]+)"', replace_asset, content)
+    if new_content != content:
+        html_file.write_text(new_content, encoding="utf-8")
+
+
 def build(projects_dir: Path, out_dir: Path) -> list[Project]:
     projects = discover(projects_dir)
     if out_dir.exists():
@@ -148,7 +171,10 @@ def build(projects_dir: Path, out_dir: Path) -> list[Project]:
     for project in projects:
         project_out = out_dir / project.slug
         for version in project.versions:
-            shutil.copytree(projects_dir / project.slug / version.slug, project_out / version.slug)
+            version_out = project_out / version.slug
+            shutil.copytree(projects_dir / project.slug / version.slug, version_out)
+            for html_file in version_out.rglob("*.html"):
+                _add_cache_busting(html_file)
         (project_out / "index.html").write_text(
             _page(
                 project.title,
