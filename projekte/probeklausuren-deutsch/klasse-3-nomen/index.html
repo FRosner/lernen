@@ -1,0 +1,1780 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Probeklausuren Deutsch – 3 / Nomen</title>
+  <style>
+    :root {
+      --bg: #f0f4f8;
+      --card-bg: #ffffff;
+      --ink: #0f172a;
+      --ink-muted: #64748b;
+      --primary: #1d4ed8;
+      --primary-hover: #1e40af;
+      --primary-soft: #eff6ff;
+      --nomen: #1d4ed8;
+      --nomen-soft: #dbeafe;
+      --good: #16a34a;
+      --good-soft: #dcfce7;
+      --bad: #e11d48;
+      --bad-soft: #ffe4e6;
+      --line: #cbd5e1;
+      --radius: 1rem;
+      --shadow: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: var(--ink);
+      background-color: var(--bg);
+      overflow: hidden;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      line-height: 1.4;
+    }
+
+    .app-shell {
+      height: 100vh;
+      height: 100dvh;
+      width: 100%;
+      max-width: 960px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      padding: max(0.6rem, env(safe-area-inset-top))
+               max(0.8rem, env(safe-area-inset-right))
+               max(0.6rem, env(safe-area-inset-bottom))
+               max(0.8rem, env(safe-area-inset-left));
+      gap: 0.6rem;
+      overflow: hidden;
+    }
+
+    /* Header */
+    header {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 0.6rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
+      flex-shrink: 0;
+    }
+
+    .header-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .header-title {
+      font-size: clamp(1rem, 1.4vw + 0.6rem, 1.3rem);
+      font-weight: 800;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header-sub {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--ink-muted);
+    }
+
+    .timer-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--primary-soft);
+      color: var(--primary);
+      border: 2px solid #bfdbfe;
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    /* Task Navigation Tabs */
+    .task-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.4rem;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 0.45rem 0.6rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
+      flex-shrink: 0;
+      overflow-x: auto;
+    }
+
+    .task-tabs {
+      display: flex;
+      gap: 0.35rem;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .task-tab-btn {
+      min-width: 44px;
+      height: 44px;
+      border-radius: 0.75rem;
+      border: 2px solid var(--line);
+      background: #f8fafc;
+      color: var(--ink-muted);
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+      position: relative;
+    }
+
+    .task-tab-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px -1px rgba(29, 78, 216, 0.3);
+    }
+
+    .task-tab-btn.completed:not(.active) {
+      background: var(--good-soft);
+      color: var(--good);
+      border-color: #86efac;
+    }
+
+    .task-tab-btn .badge-done {
+      position: absolute;
+      top: -3px;
+      right: -3px;
+      width: 14px;
+      height: 14px;
+      background: var(--good);
+      border-radius: 50%;
+      border: 2px solid #fff;
+    }
+
+    /* Main Area */
+    main {
+      flex: 1;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 1rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .screen {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      gap: 1rem;
+    }
+
+    .screen[hidden] {
+      display: none;
+    }
+
+    /* Footer Navigation */
+    footer {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 0.6rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
+      flex-shrink: 0;
+    }
+
+    .btn {
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 1.05rem;
+      min-height: 48px;
+      padding: 0.55rem 1.2rem;
+      border-radius: 0.75rem;
+      border: 0;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.1s ease;
+      text-decoration: none;
+    }
+
+    .btn:active:not(:disabled) {
+      transform: translateY(2px);
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: #f1f5f9;
+      color: var(--ink);
+      border: 2px solid var(--line);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+      border: 2px solid var(--primary-hover);
+    }
+
+    .btn-success {
+      background: var(--good);
+      color: #ffffff;
+      border: 2px solid #15803d;
+    }
+
+    /* Start Screen */
+    .start-container {
+      max-width: 650px;
+      margin: auto;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      padding: 1rem 0;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      align-self: center;
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-weight: 800;
+      padding: 0.4rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.95rem;
+    }
+
+    .start-title {
+      font-size: clamp(1.5rem, 2.5vw + 0.8rem, 2.1rem);
+      font-weight: 900;
+      color: var(--ink);
+      margin: 0;
+    }
+
+    .start-desc {
+      font-size: 1.1rem;
+      color: var(--ink-muted);
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .info-boxes {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin: 0.4rem 0;
+    }
+
+    .info-box {
+      background: #f8fafc;
+      border: 2px solid var(--line);
+      border-radius: 0.75rem;
+      padding: 0.7rem 0.5rem;
+    }
+
+    .info-box-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .info-box-text {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .variant-picker-title {
+      font-weight: 800;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+      text-align: left;
+    }
+
+    .variant-options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .variant-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #ffffff;
+      border: 2px solid var(--line);
+      border-radius: 0.75rem;
+      padding: 0.8rem 1rem;
+      cursor: pointer;
+      text-align: left;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--ink);
+      transition: all 0.15s ease;
+    }
+
+    .variant-btn:hover, .variant-btn.selected {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+    }
+
+    .variant-btn.selected {
+      box-shadow: 0 0 0 2px var(--primary);
+    }
+
+    .variant-tag {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--primary);
+      background: #ffffff;
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      border: 1px solid #bfdbfe;
+    }
+
+    /* Task Header */
+    .task-header {
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 0.6rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .task-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--ink);
+      margin: 0;
+    }
+
+    .task-points {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--primary);
+      background: var(--primary-soft);
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      white-space: nowrap;
+    }
+
+    .task-prompt {
+      font-size: 1.15rem;
+      color: var(--ink);
+      font-weight: 600;
+      margin: 0.4rem 0 0.8rem 0;
+      line-height: 1.4;
+    }
+
+    /* Task 1: Großschreib-Detektiv */
+    .sentence-box {
+      background: #f8fafc;
+      border: 2px dashed var(--line);
+      border-radius: 0.85rem;
+      padding: 1.2rem;
+      font-size: 1.35rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 0.6rem;
+      align-items: center;
+      line-height: 1.8;
+      margin: 0.8rem 0;
+    }
+
+    .word-chip {
+      background: #ffffff;
+      border: 2px solid var(--line);
+      border-radius: 0.5rem;
+      padding: 0.35rem 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.12s ease;
+      display: inline-block;
+    }
+
+    .word-chip:hover {
+      border-color: var(--primary);
+    }
+
+    .word-chip.selected {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 2px 4px rgba(29, 78, 216, 0.2);
+    }
+
+    /* Task 2: Artikel & Geschlecht */
+    .gender-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .gender-card {
+      background: #f8fafc;
+      border: 2px solid var(--line);
+      border-radius: 0.85rem;
+      padding: 0.85rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .gender-word-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .gender-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .gender-row-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--ink-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .gender-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .choice-btn {
+      flex: 1;
+      min-width: 90px;
+      min-height: 44px;
+      padding: 0.4rem 0.8rem;
+      background: #ffffff;
+      border: 2px solid var(--line);
+      border-radius: 0.6rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--ink);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.1s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .choice-btn:hover {
+      border-color: var(--primary);
+    }
+
+    .choice-btn.selected {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: var(--primary);
+      box-shadow: 0 0 0 2px #bfdbfe;
+    }
+
+    /* Subtasks Lists (Task 3, 4, 5, 6) */
+    .subtasks-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .subtask-card {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 0.85rem;
+      padding: 0.9rem 1rem;
+    }
+
+    .subtask-q {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+      color: var(--ink);
+      line-height: 1.4;
+    }
+
+    .options-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .option-btn {
+      width: 100%;
+      min-height: 48px;
+      padding: 0.6rem 1rem;
+      background: #ffffff;
+      border: 2px solid var(--line);
+      border-radius: 0.65rem;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--ink);
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.12s ease;
+      display: flex;
+      align-items: center;
+    }
+
+    .option-btn:hover {
+      border-color: var(--primary);
+    }
+
+    .option-btn.selected {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: var(--primary);
+      box-shadow: 0 0 0 2px #bfdbfe;
+    }
+
+    /* Results Screen */
+    .results-container {
+      max-width: 600px;
+      margin: auto;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      padding: 1rem 0;
+    }
+
+    .score-circle {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1d4ed8, #2563eb);
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+      box-shadow: 0 8px 16px -4px rgba(29, 78, 216, 0.4);
+    }
+
+    .score-num {
+      font-size: 2.2rem;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .score-max {
+      font-size: 0.85rem;
+      opacity: 0.9;
+    }
+
+    .stars {
+      font-size: 2.2rem;
+      letter-spacing: 0.3rem;
+    }
+
+    .result-feedback {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--ink);
+      margin: 0;
+    }
+
+    .result-breakdown {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      text-align: left;
+      background: #f8fafc;
+      border: 2px solid var(--line);
+      border-radius: 0.85rem;
+      padding: 0.8rem 1rem;
+    }
+
+    .breakdown-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 0.25rem 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .breakdown-row:last-child {
+      border-bottom: 0;
+    }
+
+    .review-solution-box {
+      margin-top: 0.6rem;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      padding: 0.7rem 0.9rem;
+      border-radius: 0.6rem;
+      font-size: 0.95rem;
+      color: #166534;
+      text-align: left;
+      line-height: 1.5;
+    }
+
+    /* Modal / Alert */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 100;
+    }
+
+    .modal-backdrop[hidden] {
+      display: none !important;
+    }
+
+    .modal-box {
+      background: #ffffff;
+      border-radius: 1rem;
+      max-width: 440px;
+      width: 100%;
+      padding: 1.4rem;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 0.6rem;
+      justify-content: center;
+    }
+
+    @media (max-width: 600px) {
+      .info-boxes {
+        grid-template-columns: 1fr;
+      }
+      .choice-btn {
+        min-width: 75px;
+        font-size: 0.85rem;
+        padding: 0.35rem 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Header -->
+    <header>
+      <div class="header-info">
+        <div class="header-title">
+          <span>📚 Probeklausur: 3 / Nomen</span>
+        </div>
+        <div class="header-sub" id="headerVariantLabel">Variante A: Natur &amp; Waldtiere</div>
+      </div>
+      <div class="timer-badge" id="timerBadge" title="Vergangene Zeit">
+        <span>⏱</span>
+        <span id="timerText">00:00</span>
+      </div>
+    </header>
+
+    <!-- Task Navigation (visible during exam & review) -->
+    <nav class="task-nav" id="taskNav" hidden>
+      <div class="task-tabs" id="taskTabs">
+        <!-- Rendered by JS -->
+      </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main>
+      <!-- 1. Start Screen -->
+      <section class="screen" id="startScreen">
+        <div class="start-container">
+          <div class="hero-badge">3. Klasse · Deutsch-Klausur</div>
+          <h1 class="start-title">Nomen-Probeklausur</h1>
+          <p class="start-desc">
+            Teste dein Wissen über <strong>Nomen</strong>, <strong>Begleiter</strong>, <strong>Mehrzahl</strong>, <strong>Wortzusammensetzungen</strong> und die <strong>Großschreibung</strong> ganz in Ruhe und ohne Zeitdruck!
+          </p>
+
+          <div class="info-boxes">
+            <div class="info-box">
+              <div class="info-box-icon">⏱️</div>
+              <div class="info-box-text">Ohne Zeitlimit</div>
+            </div>
+            <div class="info-box">
+              <div class="info-box-icon">📝</div>
+              <div class="info-box-text">6 Aufgaben</div>
+            </div>
+            <div class="info-box">
+              <div class="info-box-icon">🏆</div>
+              <div class="info-box-text">24 Punkte möglich</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="variant-picker-title">Wähle deine Klausur-Variante:</div>
+            <div class="variant-options">
+              <button type="button" class="variant-btn selected" data-variant="A">
+                <span>🌲 <strong>Variante A:</strong> Natur &amp; Waldtiere</span>
+                <span class="variant-tag">Neu</span>
+              </button>
+              <button type="button" class="variant-btn" data-variant="B">
+                <span>🏫 <strong>Variante B:</strong> Schule &amp; Freundschaft</span>
+                <span class="variant-tag">Neu</span>
+              </button>
+              <button type="button" class="variant-btn" data-variant="C">
+                <span>🏙️ <strong>Variante C:</strong> Stadt &amp; Reiseabenteuer</span>
+                <span class="variant-tag">Neu</span>
+              </button>
+            </div>
+          </div>
+
+          <div style="margin-top: 0.5rem;">
+            <button type="button" class="btn btn-primary" id="btnStartExam" style="font-size: 1.25rem; width: 100%; min-height: 54px;">
+              Klausur jetzt starten 🚀
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Exam Screen (Questions) -->
+      <section class="screen" id="examScreen" hidden>
+        <div class="task-header">
+          <h2 class="task-title" id="taskTitle">Aufgabe 1: Großschreib-Detektiv</h2>
+          <span class="task-points" id="taskPoints">4 Punkte</span>
+        </div>
+
+        <p class="task-prompt" id="taskPrompt">Lies die Aufgabe aufmerksam durch:</p>
+
+        <div id="taskBody" style="flex: 1; overflow-y: auto;">
+          <!-- Active task contents rendered dynamically -->
+        </div>
+      </section>
+
+      <!-- 3. Results Screen -->
+      <section class="screen" id="resultsScreen" hidden>
+        <div class="results-container">
+          <div class="hero-badge" id="resultBadge">Klausur beendet</div>
+          <div class="score-circle">
+            <span class="score-num" id="scoreNum">24</span>
+            <span class="score-max">/ 24 Punkte</span>
+          </div>
+          <div class="stars" id="starRating">⭐⭐⭐</div>
+          <h2 class="result-feedback" id="feedbackText">Großartige Leistung!</h2>
+
+          <div class="result-breakdown" id="resultBreakdown">
+            <!-- Breakdown per task rendered here -->
+          </div>
+
+          <div style="display: flex; gap: 0.6rem; justify-content: center; flex-wrap: wrap;">
+            <button type="button" class="btn btn-primary" id="btnReviewSolutions">
+              🔍 Lösungen im Detail ansehen
+            </button>
+            <button type="button" class="btn btn-secondary" id="btnRestart">
+              🔄 Neue Klausur starten
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer Navigation (visible during exam & review) -->
+    <footer id="appFooter" hidden>
+      <button type="button" class="btn btn-secondary" id="btnPrev">
+        ⬅ Zurück
+      </button>
+
+      <span id="footerStatus" style="font-size: 0.95rem; font-weight: 700; color: var(--ink-muted);">
+        Aufgabe 1 von 6
+      </span>
+
+      <button type="button" class="btn btn-primary" id="btnNext">
+        Weiter ➡
+      </button>
+
+      <button type="button" class="btn btn-success" id="btnFinish" style="display: none;">
+        Klausur abgeben 📝
+      </button>
+    </footer>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div class="modal-backdrop" id="confirmModal" hidden>
+    <div class="modal-box">
+      <div style="font-size: 2.5rem;">📝</div>
+      <h3 style="margin: 0; font-size: 1.3rem;">Möchtest du wirklich abgeben?</h3>
+      <p id="modalMsg" style="margin: 0; color: var(--ink-muted); font-size: 1rem;">
+        Du hast alle Aufgaben bearbeitet.
+      </p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" id="modalBtnCancel">Noch mal prüfen</button>
+        <button type="button" class="btn btn-success" id="modalBtnConfirm">Ja, abgeben!</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* =====================================================================
+       KLAUSUR-DATEN: 3 Varianten zum Thema NOMEN (3. Klasse)
+       ===================================================================== */
+    const VARIANTS = {
+      A: {
+        name: "Variante A: Natur & Waldtiere",
+        tasks: [
+          {
+            type: "sentence_caps",
+            title: "Aufgabe 1: Der Großschreib-Detektiv",
+            prompt: "In diesem Satz wurden alle Wörter kleingeschrieben. Klicke alle Wörter an, die <strong>großgeschrieben</strong> werden müssen (Nomen und Satzanfang):",
+            sentence: ["im", "dichten", "wald", "klettert", "das", "flinke", "eichhörnchen", "auf", "eine", "hohe", "tanne."],
+            correctIndices: [0, 2, 6, 10], // im (Satzanfang), wald, eichhörnchen, tanne
+            explanation: "„Im“ steht am Satzanfang und muss großgeschrieben werden. „Wald“, „Eichhörnchen“ und „Tanne“ sind Nomen (Pflanzen, Tiere und Dinge) und haben einen Begleiter davor."
+          },
+          {
+            type: "article_gender",
+            title: "Aufgabe 2: Begleiter & grammatisches Geschlecht",
+            prompt: "Wähle für jedes Nomen den passenden Begleiter (der, die, das) und das richtige Geschlecht (männlich, weiblich, sächlich):",
+            words: [
+              { word: "Fuchs", correctArticle: "der", correctGender: "männlich" },
+              { word: "Eule", correctArticle: "die", correctGender: "weiblich" },
+              { word: "Reh", correctArticle: "das", correctGender: "sächlich" },
+              { word: "Moos", correctArticle: "das", correctGender: "sächlich" }
+            ],
+            explanation: "Es heißt: der Fuchs (männlich / Maskulinum), die Eule (weiblich / Femininum), das Reh (sächlich / Neutrum) und das Moos (sächlich / Neutrum)."
+          },
+          {
+            type: "subtasks",
+            title: "Aufgabe 3: Einzahl & Mehrzahl (Singular & Plural)",
+            prompt: "Finde die richtige Mehrzahlform mit Umlautwechsel:",
+            items: [
+              {
+                q: "1. Wie lautet die richtige Mehrzahl zu „der Baum“?",
+                options: ["die Baumer", "die Bäume", "die Bäumen"],
+                correct: "die Bäume",
+                explanation: "Bei der Mehrzahl verändert sich der Vokal zu einem Umlaut: der Baum &rarr; die Bäume."
+              },
+              {
+                q: "2. Welches Paar aus Einzahl und Mehrzahl ist RICHTIG geschrieben?",
+                options: ["der Vogel – die Vögel", "der Vogel – die Vogeln", "das Vogel – die Vögel"],
+                correct: "der Vogel – die Vögel",
+                explanation: "Richtig ist: der Vogel (Einzahl) – die Vögel (Mehrzahl mit Umlaut ö)."
+              }
+            ]
+          },
+          {
+            type: "subtasks",
+            title: "Aufgabe 4: Zusammengesetzte Nomen",
+            prompt: "Untersuche die Wortbausteine und bestimme den richtigen Begleiter:",
+            items: [
+              {
+                q: "1. Aus welchen zwei Wörtern besteht das Nomen „Waldameise“?",
+                options: ["Wald + Ameise", "Wal + Dameise", "Wald + Meise"],
+                correct: "Wald + Ameise",
+                explanation: "„Waldameise“ setzt sich aus dem Nomen „Wald“ und dem Nomen „Ameise“ zusammen."
+              },
+              {
+                q: "2. Welcher Begleiter gehört vor „Futterplatz“? (das Futter + der Platz)",
+                options: ["der Futterplatz", "das Futterplatz", "die Futterplatz"],
+                correct: "der Futterplatz",
+                explanation: "Merke: Immer das HINTERE Wort (das Grundwort) bestimmt den Begleiter! Da es „der Platz“ heißt, heißt es auch „der Futterplatz“."
+              }
+            ]
+          },
+          {
+            type: "subtasks",
+            title: "Aufgabe 5: Nomen bilden aus anderen Wörtern",
+            prompt: "Aus Adjektiven und Verben lassen sich mit Nachsilben neue Nomen zaubern:",
+            items: [
+              {
+                q: "1. Welches Nomen entsteht aus dem Wort „krank“ mit einer typischen Nomen-Endung?",
+                options: ["die Krankheit", "die Krankung", "das Kranknis"],
+                correct: "die Krankheit",
+                explanation: "Aus dem Adjektiv „krank“ wird mit der Nomen-Nachsilbe -heit das Nomen „die Krankheit“ (großgeschrieben!)."
+              },
+              {
+                q: "2. Welches Nomen entsteht aus dem Adjektiv „wild“ mit der Nachsilbe -nis?",
+                options: ["die Wildnis", "die Wildung", "das Wildheit"],
+                correct: "die Wildnis",
+                explanation: "Aus „wild“ entsteht mit der Endung -nis das Nomen „die Wildnis“."
+              }
+            ]
+          },
+          {
+            type: "subtasks",
+            title: "Aufgabe 6: Nomen-Signale & Versteckte Begleiter",
+            prompt: "Finde das Signalwort und wähle die richtige Nomen-Probe:",
+            items: [
+              {
+                q: "1. In welchem Satz steckt ein versteckter Begleiter vor einem großgeschriebenen Nomen?",
+                options: [
+                  "Beim Klettern muss das Eichhörnchen vorsichtig sein.",
+                  "Das Eichhörnchen klettert sehr flink.",
+                  "Immer wieder hüpft es von Ast zu Ast."
+                ],
+                correct: "Beim Klettern muss das Eichhörnchen vorsichtig sein.",
+                explanation: "„Beim“ ist ein versteckter Begleiter (beim = bei dem). Deshalb wird das Tunwort „Klettern“ hier zu einem Nomen und großgeschrieben!"
+              },
+              {
+                q: "2. Welche Nomen-Probe hilft dir schnell zu prüfen, ob ein Wort ein Nomen ist?",
+                options: [
+                  "Die Begleiterprobe: Man kann der, die oder das davor setzen.",
+                  "Die Silbenprobe: Das Wort muss genau drei Silben haben.",
+                  "Die Reimprobe: Es muss sich auf Katze reimen."
+                ],
+                correct: "Die Begleiterprobe: Man kann der, die oder das davor setzen.",
+                explanation: "Die Begleiterprobe ist der beste Test: Passt „der“, „die“ oder „das“ davor, handelt es sich um ein Nomen!"
+              }
+            ]
+          }
+        ]
+      },
+
+      B: {
+        name: "Variante B: Schule & Freundschaft",
+        tasks: [
+          {
+            type: "sentence_caps",
+            title: "Aufgabe 1: Der Großschreib-Detektiv",
+            prompt: "In diesem Satz wurden alle Wörter kleingeschrieben. Klicke alle Wörter an, die <strong>großgeschrieben</strong> werden müssen (Nomen und Satzanfang):",
+            sentence: ["in", "der", "großen", "pause", "spielen", "die", "fröhlichen", "kinder", "auf", "dem", "schulhof."],
+            correctIndices: [0, 3, 7, 10], // in (Satzanfang), pause, kinder, schulhof
+            explanation: "„In“ steht am Satzanfang. „Pause“, „Kinder“ und „Schulhof“ sind Nomen (Dinge, Menschen, Orte) mit Begleitern davor."
+          },
+          {
+            type: "article_gender",
+            title: "Aufgabe 2: Begleiter & grammatisches Geschlecht",
+            prompt: "Wähle für jedes Nomen den passenden Begleiter (der, die, das) und das richtige Geschlecht (männlich, weiblich, sächlich):",
+            words: [
+              { word: "Tisch", correctArticle: "der", correctGender: "männlich" },
+              { word: "Schultasche", correctArticle: "die", correctGender: "weiblich" },
+              { word: "Lineal", correctArticle: "das", correctGender: "sächlich" },
+              { word: "Heft", correctArticle: "das", correctGender: "sächlich" }
+            ],
+            explanation: "Es heißt: der Tisch (männlich), die Schultasche (weiblich), das Lineal (sächlich) und das Heft (sächlich)."
+          },
+          {
+            type: "subtasks",
+            title: "Aufgabe 3: Einzahl & Mehrzahl (Singular & Plural)",
+            prompt: "Finde die richtige Mehrzahlform mit Umlautwechsel:",
+            items: [
+              {
+                q: "1. Wie lautet die richtige Mehrzahl zu „das Buch“?",
+                options: ["die Buche", "die Bücher", "die Büchern"],
+                correct: "die Bücher",
+                explanation: "Das Buch verändert in der Mehrzahl seinen Stammvokal zum Umlaut ü: die Bücher."
+              },
+              {
+                q: "2. Welches Paar aus Einzahl und Mehrzahl ist RICHTIG geschrieben?",
+                options: ["die Hand – die Hände", "die Hand – die Hande", "der Hand – die Hände"],
+                correct: "die Hand – die Hände",
+                explanation: "Richtig ist: die Hand &rarr; die Hände (mit Umlaut ä)."
+              }
+            ]
+          },
+          {
+            type: "subtasks",
+            title: "Aufgabe 4: Zusammengesetzte Nomen",
+            prompt: "Untersuche die Wortbausteine und bestimme den richtigen Begleiter:",
+            items: [
+              {
+                q: "1. Aus welchen zwei Wörtern besteht das Nomen „Pausenhof“?",
+                options: ["Pause + Hof", "Pausen + Ofen", "Pauke + Hof"],
+                correct: "Pause + Hof",
+                explanation: "„Pausenhof“ setzt sich aus „Pause“ und „Hof“ zusammen."
+              },
+              {
+                q: "2. Welcher Begleiter gehört vor „Klassenzimmer“? (die Klasse + das Zimmer)",
+                options: ["das Klassenzimmer", "die Klassenzimmer", "der Klassenzimmer"],
+                correct: "das Klassenzimmer",
+                explanation: "Das hintere Grundwort „das Zimmer“ entscheidet über den Begleiter: das Klassenzimmer."
+              }
+            ]
+          },
+          {
+            type: "subtasks",
+            title: "Aufgabe 5: Nomen bilden aus anderen Wörtern",
+            prompt: "Aus Adjektiven und Verben lassen sich mit Nachsilben neue Nomen zaubern:",
+            items: [
+              {
+                q: "1. Welches Nomen entsteht aus dem Wort „freundlich“ mit einer passenden Nachsilbe?",
+                options: ["die Freundlichkeit", "die Freundlichung", "das Freundlichnis"],
+                correct: "die Freundlichkeit",
+                explanation: "Aus dem Wiewort „freundlich“ entsteht mit der Endung -keit das Nomen „die Freundlichkeit“."
+              },
+              {
+                q: "2. Welches Nomen entsteht aus dem Verb „zeichnen“ mit der Nachsilbe -ung?",
+                options: ["die Zeichnung", "das Zeichnis", "die Zeichenheit"],
+                correct: "die Zeichnung",
+                explanation: "Aus dem Tunwort „zeichnen“ wird mit der Endung -ung das Nomen „die Zeichnung“."
+              }
+            ]
+          },
+          {
+            type: "subtasks",
+            title: "Aufgabe 6: Nomen-Signale & Versteckte Begleiter",
+            prompt: "Finde das Signalwort und wähle die richtige Nomen-Probe:",
+            items: [
+              {
+                q: "1. In welchem Satz hat sich ein Nomen hinter einem versteckten Begleiter versteckt?",
+                options: [
+                  "Zum Rechnen benutzen wir bunte Holzstäbe.",
+                  "Wir rechnen heute sehr schnell im Kopf.",
+                  "Zehn Stäbe liegen ordentlich auf dem Tisch."
+                ],
+                correct: "Zum Rechnen benutzen wir bunte Holzstäbe.",
+                explanation: "„Zum“ ist die Abkürzung für „zu dem“. Durch diesen versteckten Begleiter wird „Rechnen“ zum Nomen!"
+              },
+              {
+                q: "2. Wie funktioniert die Adjektivprobe (Wiewortprobe)?",
+                options: [
+                  "Man setzt ein passendes Wiewort zwischen Begleiter und Nomen (z. B. das BLAUE Heft).",
+                  "Man liest das Wort rückwärts vor.",
+                  "Man ersetzt das Nomen durch ein Verb."
+                ],
+                correct: "Man setzt ein passendes Wiewort zwischen Begleiter und Nomen (z. B. das BLAUE Heft).",
+                explanation: "Wenn man ein Wiewort (Adjektiv) problemlos zwischen Begleiter und Wort setzen kann (z. B. das SCHLAUE Kind), ist es sicher ein Nomen."
+              }
+            ]
+          }
+        ]
+      },
+
+      C: {
+        name: "Variante C: Stadt & Reiseabenteuer",
+        tasks: [
+          {
+            type: "sentence_caps",
+            title: "Aufgabe 1: Der Großschreib-Detektiv",
+            prompt: "In diesem Satz wurden alle Wörter kleingeschrieben. Klicke alle Wörter an, die <strong>großgeschrieben</strong> werden müssen (Nomen und Satzanfang):",
+            sentence: ["am", "frühen", "morgen", "fährt", "der", "schnelle", "zug", "in", "den", "großen", "bahnhof."],
+            correctIndices: [0, 2, 6, 10], // am (Satzanfang), morgen (Nomen/Tageszeit), zug, bahnhof
+            explanation: "„Am“ steht am Satzanfang. „Morgen“ (Tageszeit nach am = an dem), „Zug“ und „Bahnhof“ sind Nomen und müssen großgeschrieben werden."
+          },
+          {
+            type: "article_gender",
+            title: "Aufgabe 2: Begleiter & grammatisches Geschlecht",
+            prompt: "Wähle für jedes Nomen den passenden Begleiter (der, die, das) und das richtige Geschlecht (männlich, weiblich, sächlich):",
+            words: [
+              { word: "Koffer", correctArticle: "der", correctGender: "männlich" },
+              { word: "Fahrkarte", correctArticle: "die", correctGender: "weiblich" },
+              { word: "Schiff", correctArticle: "das", correctGender: "sächlich" },
+              { word: "Gleis", correctArticle: "das", correctGender: "sächlich" }
+            ],
+            explanation: "Es heißt: der Koffer (männlich), die Fahrkarte (weiblich), das Schiff (sächlich) und das Gleis (sächlich)."
+          },
+          {
+            type: "subtasks",
+            title: "Aufgabe 3: Einzahl & Mehrzahl (Singular & Plural)",
+            prompt: "Finde die richtige Mehrzahlform mit Umlautwechsel:",
+            items: [
+              {
+                q: "1. Wie lautet die richtige Mehrzahl zu „die Stadt“?",
+                options: ["die Stadte", "die Städte", "die Städten"],
+                correct: "die Städte",
+                explanation: "Das Wort verändert sich in der Mehrzahl mit Umlaut ä: die Stadt &rarr; die Städte."
+              },
+              {
+                q: "2. Welches Paar aus Einzahl und Mehrzahl ist RICHTIG geschrieben?",
+                options: ["der Zug – die Züge", "der Zug – die Zuge", "das Zug – die Züge"],
+                correct: "der Zug – die Züge",
+                explanation: "Richtig ist: der Zug (Einzahl) – die Züge (Mehrzahl mit Umlaut ü)."
+              }
+            ]
+          },
+          {
+            type: "subtasks",
+            title: "Aufgabe 4: Zusammengesetzte Nomen",
+            prompt: "Untersuche die Wortbausteine und bestimme den richtigen Begleiter:",
+            items: [
+              {
+                q: "1. Aus welchen zwei Wörtern besteht das Nomen „Fahrradhelm“?",
+                options: ["Fahrrad + Helm", "Fahrt + Radhelm", "Fahr + Radelm"],
+                correct: "Fahrrad + Helm",
+                explanation: "„Fahrradhelm“ besteht aus dem Nomen „Fahrrad“ und dem Nomen „Helm“."
+              },
+              {
+                q: "2. Welcher Begleiter gehört vor „Reisebus“? (die Reise + der Bus)",
+                options: ["der Reisebus", "die Reisebus", "das Reisebus"],
+                correct: "der Reisebus",
+                explanation: "Das hintere Grundwort „der Bus“ bestimmt den Begleiter: der Reisebus."
+              }
+            ]
+          },
+          {
+            type: "subtasks",
+            title: "Aufgabe 5: Nomen bilden aus anderen Wörtern",
+            prompt: "Aus Adjektiven und Verben lassen sich mit Nachsilben neue Nomen zaubern:",
+            items: [
+              {
+                q: "1. Welches Nomen entsteht aus dem Wort „finster“ mit der Nachsilbe -nis?",
+                options: ["die Finsternis", "die Finsterheit", "das Finsterung"],
+                correct: "die Finsternis",
+                explanation: "Aus dem Wiewort „finster“ wird mit der Endung -nis das Nomen „die Finsternis“."
+              },
+              {
+                q: "2. Welches Nomen entsteht aus dem Verb „wohnen“ mit der Nachsilbe -ung?",
+                options: ["die Wohnung", "das Wohnnis", "die Wohnheit"],
+                correct: "die Wohnung",
+                explanation: "Aus dem Tunwort „wohnen“ entsteht mit der Endung -ung das Nomen „die Wohnung“."
+              }
+            ]
+          },
+          {
+            type: "subtasks",
+            title: "Aufgabe 6: Nomen-Signale & Versteckte Begleiter",
+            prompt: "Finde das Signalwort und erkenne die Nomen-Merkmale:",
+            items: [
+              {
+                q: "1. In welchem Satz hat sich ein Nomen mit einem versteckten Begleiter versteckt?",
+                options: [
+                  "Im Hotel packen die Reisenden ihre Koffer aus.",
+                  "Schnell rennt der Schaffner über den Bahnsteig.",
+                  "Heute reisen wir pünktlich ab."
+                ],
+                correct: "Im Hotel packen die Reisenden ihre Koffer aus.",
+                explanation: "„Im“ ist ein versteckter Begleiter (im = in dem). Daher ist „Hotel“ ein Nomen und wird großgeschrieben."
+              },
+              {
+                q: "2. Woran erkennst du sicher, dass „Freundschaft“ ein Nomen ist?",
+                options: [
+                  "An der Nomen-Endung -schaft und man kann den Begleiter „die“ davorsetzen.",
+                  "Weil das Wort mit einem F beginnt.",
+                  "Weil es ein Tunwort in der Vergangenheit ist."
+                ],
+                correct: "An der Nomen-Endung -schaft und man kann den Begleiter „die“ davorsetzen.",
+                explanation: "Wörter mit Endungen wie -schaft, -heit, -keit oder -ung sind immer Nomen und haben einen Begleiter (die Freundschaft)!"
+              }
+            ]
+          }
+        ]
+      }
+    };
+
+    /* =====================================================================
+       APP STATUS & STATE
+       ===================================================================== */
+    let currentVariantKey = "A";
+    let currentTaskIndex = 0; // 0 to 5
+    let examActive = false;
+    let reviewMode = false;
+    let timerSeconds = 0;
+    let timerInterval = null;
+
+    // Speichert Antworten des Schülers: taskIndex -> answer data
+    let userAnswers = {};
+
+    /* DOM Referenzen */
+    const startScreen = document.getElementById("startScreen");
+    const examScreen = document.getElementById("examScreen");
+    const resultsScreen = document.getElementById("resultsScreen");
+    const taskNav = document.getElementById("taskNav");
+    const taskTabs = document.getElementById("taskTabs");
+    const appFooter = document.getElementById("appFooter");
+    const headerVariantLabel = document.getElementById("headerVariantLabel");
+    const timerBadge = document.getElementById("timerBadge");
+    const timerText = document.getElementById("timerText");
+
+    const taskTitle = document.getElementById("taskTitle");
+    const taskPoints = document.getElementById("taskPoints");
+    const taskPrompt = document.getElementById("taskPrompt");
+    const taskBody = document.getElementById("taskBody");
+
+    const btnPrev = document.getElementById("btnPrev");
+    const btnNext = document.getElementById("btnNext");
+    const btnFinish = document.getElementById("btnFinish");
+    const footerStatus = document.getElementById("footerStatus");
+
+    const confirmModal = document.getElementById("confirmModal");
+    const modalMsg = document.getElementById("modalMsg");
+    const modalBtnCancel = document.getElementById("modalBtnCancel");
+    const modalBtnConfirm = document.getElementById("modalBtnConfirm");
+
+    /* =====================================================================
+       INITIALISIERUNG & EVENT LISTENERS
+       ===================================================================== */
+    function init() {
+      // Variantenauswahl auf dem Startbildschirm
+      document.querySelectorAll(".variant-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".variant-btn").forEach(b => b.classList.remove("selected"));
+          btn.classList.add("selected");
+          currentVariantKey = btn.dataset.variant;
+          headerVariantLabel.textContent = VARIANTS[currentVariantKey].name;
+        });
+      });
+
+      document.getElementById("btnStartExam").addEventListener("click", startExam);
+      document.getElementById("btnRestart").addEventListener("click", resetToStart);
+      document.getElementById("btnReviewSolutions").addEventListener("click", startReviewMode);
+
+      btnPrev.addEventListener("click", () => switchTask(currentTaskIndex - 1));
+      btnNext.addEventListener("click", () => switchTask(currentTaskIndex + 1));
+      btnFinish.addEventListener("click", promptFinishExam);
+
+      modalBtnCancel.addEventListener("click", () => confirmModal.hidden = true);
+      modalBtnConfirm.addEventListener("click", () => {
+        confirmModal.hidden = true;
+        finishExam();
+      });
+    }
+
+    function startExam() {
+      examActive = true;
+      reviewMode = false;
+      currentTaskIndex = 0;
+      userAnswers = {};
+      timerSeconds = 0;
+
+      startScreen.hidden = true;
+      resultsScreen.hidden = true;
+      examScreen.hidden = false;
+      taskNav.hidden = false;
+      appFooter.hidden = false;
+
+      headerVariantLabel.textContent = VARIANTS[currentVariantKey].name;
+
+      renderTaskTabs();
+      renderCurrentTask();
+      startTimer();
+    }
+
+    function resetToStart() {
+      clearInterval(timerInterval);
+      examActive = false;
+      reviewMode = false;
+      timerSeconds = 0;
+      timerText.textContent = "00:00";
+
+      startScreen.hidden = false;
+      examScreen.hidden = true;
+      resultsScreen.hidden = true;
+      taskNav.hidden = true;
+      appFooter.hidden = true;
+    }
+
+    /* =====================================================================
+       TIMER LOGIK (Stoppuhr ohne Zeitlimit)
+       ===================================================================== */
+    function startTimer() {
+      clearInterval(timerInterval);
+      timerSeconds = 0;
+      updateTimerDisplay();
+      timerInterval = setInterval(() => {
+        timerSeconds++;
+        updateTimerDisplay();
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      const mins = Math.floor(timerSeconds / 60);
+      const secs = timerSeconds % 60;
+      timerText.textContent = `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+    }
+
+    /* =====================================================================
+       NAVIGATION & TABS
+       ===================================================================== */
+    function renderTaskTabs() {
+      taskTabs.innerHTML = "";
+      const tasks = VARIANTS[currentVariantKey].tasks;
+      tasks.forEach((task, idx) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "task-tab-btn";
+        btn.textContent = (idx + 1).toString();
+        if (idx === currentTaskIndex) btn.classList.add("active");
+
+        if (isTaskCompleted(idx)) {
+          btn.classList.add("completed");
+          const dot = document.createElement("span");
+          dot.className = "badge-done";
+          btn.appendChild(dot);
+        }
+
+        btn.addEventListener("click", () => switchTask(idx));
+        taskTabs.appendChild(btn);
+      });
+    }
+
+    function isTaskCompleted(idx) {
+      const task = VARIANTS[currentVariantKey].tasks[idx];
+      const ans = userAnswers[idx];
+      if (!ans) return false;
+
+      if (task.type === "sentence_caps") {
+        return Array.isArray(ans) && ans.length > 0;
+      } else if (task.type === "article_gender") {
+        let completedCount = 0;
+        task.words.forEach((_, wIdx) => {
+          if (ans[wIdx] && ans[wIdx].art && ans[wIdx].gen) {
+            completedCount++;
+          }
+        });
+        return completedCount === task.words.length;
+      } else if (task.type === "subtasks") {
+        return Object.keys(ans).length === task.items.length;
+      }
+      return false;
+    }
+
+    function switchTask(targetIdx) {
+      const tasks = VARIANTS[currentVariantKey].tasks;
+      if (targetIdx < 0 || targetIdx >= tasks.length) return;
+      currentTaskIndex = targetIdx;
+      renderTaskTabs();
+      renderCurrentTask();
+    }
+
+    /* =====================================================================
+       AUFGABEN-RENDERING
+       ===================================================================== */
+    function renderCurrentTask() {
+      const task = VARIANTS[currentVariantKey].tasks[currentTaskIndex];
+      taskTitle.textContent = task.title;
+      taskPoints.textContent = "4 Punkte";
+      taskPrompt.innerHTML = task.prompt;
+      taskBody.innerHTML = "";
+
+      footerStatus.textContent = `Aufgabe ${currentTaskIndex + 1} von 6`;
+      btnPrev.disabled = currentTaskIndex === 0;
+
+      if (currentTaskIndex === 5 && !reviewMode) {
+        btnNext.style.display = "none";
+        btnFinish.style.display = "inline-flex";
+      } else {
+        btnNext.style.display = "inline-flex";
+        btnFinish.style.display = "none";
+        btnNext.disabled = currentTaskIndex === 5;
+      }
+
+      if (task.type === "sentence_caps") {
+        renderSentenceCapsTask(task);
+      } else if (task.type === "article_gender") {
+        renderArticleGenderTask(task);
+      } else if (task.type === "subtasks") {
+        renderSubtasksTask(task);
+      }
+
+      if (reviewMode) {
+        renderReviewExplanation(task);
+      }
+    }
+
+    /* Typ 1: Großschreib-Detektiv */
+    function renderSentenceCapsTask(task) {
+      if (!userAnswers[currentTaskIndex]) {
+        userAnswers[currentTaskIndex] = [];
+      }
+      const selArr = userAnswers[currentTaskIndex];
+
+      const sBox = document.createElement("div");
+      sBox.className = "sentence-box";
+
+      task.sentence.forEach((word, wIdx) => {
+        const chip = document.createElement("span");
+        chip.className = "word-chip";
+        chip.textContent = word;
+
+        if (selArr.includes(wIdx)) {
+          chip.classList.add("selected");
+        }
+
+        if (reviewMode) {
+          chip.style.cursor = "default";
+          const isCorrect = task.correctIndices.includes(wIdx);
+          const wasSelected = selArr.includes(wIdx);
+          if (isCorrect && wasSelected) {
+            chip.style.background = "#dcfce7";
+            chip.style.borderColor = "#16a34a";
+            chip.style.color = "#166534";
+          } else if (!isCorrect && wasSelected) {
+            chip.style.background = "#fee2e2";
+            chip.style.borderColor = "#dc2626";
+            chip.style.color = "#991b1b";
+          } else if (isCorrect && !wasSelected) {
+            chip.style.border = "2px dashed #16a34a";
+            chip.style.color = "#166534";
+          }
+        } else {
+          chip.addEventListener("click", () => {
+            const idxPos = selArr.indexOf(wIdx);
+            if (idxPos >= 0) {
+              selArr.splice(idxPos, 1);
+            } else {
+              selArr.push(wIdx);
+            }
+            renderCurrentTask();
+            renderTaskTabs();
+          });
+        }
+
+        sBox.appendChild(chip);
+      });
+
+      taskBody.appendChild(sBox);
+
+      const hint = document.createElement("div");
+      hint.style.fontSize = "0.95rem";
+      hint.style.color = "var(--ink-muted)";
+      hint.textContent = "💡 Tipp: Klicke auf ein Wort, um es für die Großschreibung zu markieren. Ein erneuter Klick hebt die Markierung auf.";
+      taskBody.appendChild(hint);
+    }
+
+    /* Typ 2: Artikel & Geschlecht */
+    function renderArticleGenderTask(task) {
+      if (!userAnswers[currentTaskIndex]) {
+        userAnswers[currentTaskIndex] = {};
+      }
+      const ans = userAnswers[currentTaskIndex];
+
+      const grid = document.createElement("div");
+      grid.className = "gender-grid";
+
+      task.words.forEach((item, wIdx) => {
+        if (!ans[wIdx]) ans[wIdx] = { art: null, gen: null };
+        const curAns = ans[wIdx];
+
+        const card = document.createElement("div");
+        card.className = "gender-card";
+
+        const title = document.createElement("div");
+        title.className = "gender-word-title";
+        title.innerHTML = `<span>🔹 <strong>${item.word}</strong></span>`;
+        card.appendChild(title);
+
+        // Row 1: Artikel
+        const artRow = document.createElement("div");
+        artRow.className = "gender-row";
+        const artLabel = document.createElement("div");
+        artLabel.className = "gender-row-label";
+        artLabel.textContent = "Begleiter:";
+        artRow.appendChild(artLabel);
+
+        const artBtns = document.createElement("div");
+        artBtns.className = "gender-buttons";
+        ["der", "die", "das"].forEach(art => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "choice-btn";
+          btn.textContent = art;
+          if (curAns.art === art) btn.classList.add("selected");
+
+          if (reviewMode) {
+            btn.disabled = true;
+            if (item.correctArticle === art) {
+              btn.style.borderColor = "#16a34a";
+              btn.style.background = "#dcfce7";
+              btn.style.color = "#166534";
+            } else if (curAns.art === art && item.correctArticle !== art) {
+              btn.style.borderColor = "#dc2626";
+              btn.style.background = "#fee2e2";
+              btn.style.color = "#991b1b";
+            }
+          } else {
+            btn.addEventListener("click", () => {
+              curAns.art = art;
+              renderCurrentTask();
+              renderTaskTabs();
+            });
+          }
+          artBtns.appendChild(btn);
+        });
+        artRow.appendChild(artBtns);
+        card.appendChild(artRow);
+
+        // Row 2: Geschlecht
+        const genRow = document.createElement("div");
+        genRow.className = "gender-row";
+        const genLabel = document.createElement("div");
+        genLabel.className = "gender-row-label";
+        genLabel.textContent = "Geschlecht:";
+        genRow.appendChild(genLabel);
+
+        const genBtns = document.createElement("div");
+        genBtns.className = "gender-buttons";
+        [
+          { key: "männlich", label: "männlich" },
+          { key: "weiblich", label: "weiblich" },
+          { key: "sächlich", label: "sächlich" }
+        ].forEach(genObj => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "choice-btn";
+          btn.textContent = genObj.label;
+          if (curAns.gen === genObj.key) btn.classList.add("selected");
+
+          if (reviewMode) {
+            btn.disabled = true;
+            if (item.correctGender === genObj.key) {
+              btn.style.borderColor = "#16a34a";
+              btn.style.background = "#dcfce7";
+              btn.style.color = "#166534";
+            } else if (curAns.gen === genObj.key && item.correctGender !== genObj.key) {
+              btn.style.borderColor = "#dc2626";
+              btn.style.background = "#fee2e2";
+              btn.style.color = "#991b1b";
+            }
+          } else {
+            btn.addEventListener("click", () => {
+              curAns.gen = genObj.key;
+              renderCurrentTask();
+              renderTaskTabs();
+            });
+          }
+          genBtns.appendChild(btn);
+        });
+        genRow.appendChild(genBtns);
+        card.appendChild(genRow);
+
+        grid.appendChild(card);
+      });
+
+      taskBody.appendChild(grid);
+    }
+
+    /* Typ 3, 4, 5, 6: Subtasks (Multiple Choice) */
+    function renderSubtasksTask(task) {
+      if (!userAnswers[currentTaskIndex]) {
+        userAnswers[currentTaskIndex] = {};
+      }
+      const ans = userAnswers[currentTaskIndex];
+
+      const container = document.createElement("div");
+      container.className = "subtasks-list";
+
+      task.items.forEach((item, itemIdx) => {
+        const card = document.createElement("div");
+        card.className = "subtask-card";
+
+        const qTitle = document.createElement("div");
+        qTitle.className = "subtask-q";
+        qTitle.textContent = item.q;
+        card.appendChild(qTitle);
+
+        const optRow = document.createElement("div");
+        optRow.className = "options-row";
+
+        item.options.forEach(opt => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn";
+          btn.textContent = opt;
+
+          const isSelected = ans[itemIdx] === opt;
+          if (isSelected) btn.classList.add("selected");
+
+          if (reviewMode) {
+            btn.disabled = true;
+            if (opt === item.correct) {
+              btn.style.borderColor = "#16a34a";
+              btn.style.background = "#dcfce7";
+              btn.style.color = "#166534";
+            } else if (isSelected && opt !== item.correct) {
+              btn.style.borderColor = "#dc2626";
+              btn.style.background = "#fee2e2";
+              btn.style.color = "#991b1b";
+            }
+          } else {
+            btn.addEventListener("click", () => {
+              ans[itemIdx] = opt;
+              renderCurrentTask();
+              renderTaskTabs();
+            });
+          }
+
+          optRow.appendChild(btn);
+        });
+
+        card.appendChild(optRow);
+        container.appendChild(card);
+      });
+
+      taskBody.appendChild(container);
+    }
+
+    function renderReviewExplanation(task) {
+      const box = document.createElement("div");
+      box.className = "review-solution-box";
+      box.innerHTML = `<strong>💡 Erklärung &amp; Musterlösung:</strong><br>${task.explanation || "Alle Punkte richtig erarbeitet."}`;
+      taskBody.appendChild(box);
+    }
+
+    /* =====================================================================
+       KLAUSUR ABGEBEN & BEWERTEN
+       ===================================================================== */
+    function promptFinishExam() {
+      let unanswered = 0;
+      const tasks = VARIANTS[currentVariantKey].tasks;
+      tasks.forEach((t, i) => {
+        if (!isTaskCompleted(i)) unanswered++;
+      });
+
+      if (unanswered > 0) {
+        modalMsg.textContent = `Du hast noch ${unanswered} Aufgabe(n) nicht vollständig beantwortet. Möchtest du trotzdem abgeben?`;
+      } else {
+        modalMsg.textContent = "Super, du hast alle 6 Aufgaben bearbeitet! Bereit für deine Auswertung?";
+      }
+
+      confirmModal.hidden = false;
+    }
+
+    function calculateScore() {
+      let total = 0;
+      const breakdown = [];
+      const tasks = VARIANTS[currentVariantKey].tasks;
+
+      tasks.forEach((task, idx) => {
+        let taskScore = 0;
+        const ans = userAnswers[idx] || {};
+
+        if (task.type === "sentence_caps") {
+          const sel = ans || [];
+          let hits = 0;
+          let falsePositives = 0;
+          sel.forEach(wIdx => {
+            if (task.correctIndices.includes(wIdx)) hits++;
+            else falsePositives++;
+          });
+          if (hits === task.correctIndices.length && falsePositives === 0) taskScore = 4;
+          else if (hits === task.correctIndices.length && falsePositives === 1) taskScore = 3;
+          else if (hits >= 2 && falsePositives <= 1) taskScore = 2;
+          else if (hits > 0) taskScore = 1;
+        } else if (task.type === "article_gender") {
+          let correctItems = 0;
+          task.words.forEach((item, wIdx) => {
+            const userItem = ans[wIdx] || {};
+            if (userItem.art === item.correctArticle && userItem.gen === item.correctGender) {
+              correctItems++;
+            }
+          });
+          taskScore = correctItems; // 4 Wörter = 4 Punkte
+        } else if (task.type === "subtasks") {
+          let subHits = 0;
+          task.items.forEach((item, itemIdx) => {
+            if (ans[itemIdx] === item.correct) subHits++;
+          });
+          taskScore = subHits * 2; // 2 items je 2 Pkt = 4
+        }
+
+        total += taskScore;
+        breakdown.push({ title: task.title, score: taskScore });
+      });
+
+      return { total, breakdown };
+    }
+
+    function finishExam() {
+      clearInterval(timerInterval);
+      examActive = false;
+
+      const { total, breakdown } = calculateScore();
+
+      examScreen.hidden = true;
+      appFooter.hidden = true;
+      taskNav.hidden = true;
+      resultsScreen.hidden = false;
+
+      document.getElementById("scoreNum").textContent = total;
+
+      const mins = Math.floor(timerSeconds / 60);
+      const secs = timerSeconds % 60;
+      document.getElementById("resultBadge").textContent = `Klausur beendet in ${mins > 0 ? mins + ' Min. ' : ''}${secs} Sek.`;
+
+      const starEl = document.getElementById("starRating");
+      const feedbackEl = document.getElementById("feedbackText");
+
+      if (total >= 22) {
+        starEl.textContent = "⭐⭐⭐";
+        feedbackEl.textContent = "Hervorragend! Du bist ein echter Nomen-Meister! 🎉";
+      } else if (total >= 18) {
+        starEl.textContent = "⭐⭐";
+        feedbackEl.textContent = "Super Leistung! Fast fehlerfrei! 👏";
+      } else if (total >= 12) {
+        starEl.textContent = "⭐";
+        feedbackEl.textContent = "Gut gemacht! Mit ein bisschen Übung schaffst du noch mehr! 👍";
+      } else {
+        starEl.textContent = "🌱";
+        feedbackEl.textContent = "Guter Versuch! Sieh dir die Lösungen an und versuche es gleich noch einmal! 💪";
+      }
+
+      const bdContainer = document.getElementById("resultBreakdown");
+      bdContainer.innerHTML = "";
+      breakdown.forEach(item => {
+        const row = document.createElement("div");
+        row.className = "breakdown-row";
+        row.innerHTML = `
+          <span>${item.title}</span>
+          <span style="color: ${item.score === 4 ? '#16a34a' : '#d97706'}; font-weight: 800;">
+            ${item.score} / 4 Pkt.
+          </span>
+        `;
+        bdContainer.appendChild(row);
+      });
+    }
+
+    function startReviewMode() {
+      reviewMode = true;
+      currentTaskIndex = 0;
+      resultsScreen.hidden = true;
+      examScreen.hidden = false;
+      taskNav.hidden = false;
+      appFooter.hidden = false;
+
+      btnFinish.style.display = "none";
+      btnNext.style.display = "inline-flex";
+
+      renderTaskTabs();
+      renderCurrentTask();
+    }
+
+    // Beim Laden initialisieren
+    window.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
