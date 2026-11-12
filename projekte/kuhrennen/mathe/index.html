@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Kuhrennen – Mathe</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div class="app-container">
+
+      <!-- ===================================================================
+           1. START-BILDSCHIRM (PROFIL & MODUS-WAHL)
+           =================================================================== -->
+      <section id="screen-home" class="screen">
+        <header class="app-header">
+          <a href="../" class="nav-back">&larr; Zurück</a>
+          <div class="header-titel-mini">🐄 Kuhrennen</div>
+          <button id="sound-toggle" class="btn-icon" type="button" aria-label="Ton an/aus">🔊</button>
+        </header>
+
+        <main class="home-content">
+          <div class="hero-sektion">
+            <div class="hero-badge">🏁 20 Schritte bis ins Ziel · Bis zu 4 Spieler 🏁</div>
+            <h1 class="spiel-titel">Kuhrennen: Mathe</h1>
+            <p class="spiel-untertitel">
+              Richtig gerechnet = <strong>1 Schritt vor (+1)</strong> · Verrechnet = <strong>0,25 Schritte zurück (−0,25)</strong>
+            </p>
+          </div>
+
+          <!-- Spieler-Profil: Name & Kuh-Auswahl -->
+          <div class="karte profil-karte">
+            <div class="profil-zeile">
+              <label for="input-player-name" class="feld-label">Dein Name:</label>
+              <input
+                id="input-player-name"
+                class="text-input"
+                type="text"
+                maxlength="16"
+                placeholder="z. B. Max"
+                autocomplete="off"
+              >
+            </div>
+
+            <div class="kuh-auswahl-block">
+              <span class="feld-label">Deine Rennkuh wählen:</span>
+              <div id="home-cow-picker" class="kuh-grid" role="radiogroup" aria-label="Rennkuh wählen">
+                <!-- Wird dynamisch aus game.js gerendert -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Hauptaktionen: Spiel erstellen oder Beitreten -->
+          <div class="home-aktionen">
+            <button id="btn-create-lobby" class="btn-primaer btn-gross" type="button">
+              👑 Rennstall eröffnen (Spielleiter / Üben)
+            </button>
+            <button id="btn-go-join" class="btn-sekundaer btn-gross" type="button">
+              🔗 Einem Rennen beitreten (Mitspieler)
+            </button>
+          </div>
+        </main>
+      </section>
+
+      <!-- ===================================================================
+           2. RENNSTALL / LOBBY (SPIELLEITER & MITSPIELER)
+           =================================================================== -->
+      <section id="screen-lobby" class="screen" hidden>
+        <header class="app-header">
+          <button id="btn-leave-lobby" class="nav-back btn-link-optik" type="button">&larr; Verlassen</button>
+          <div id="lobby-role-badge" class="rolle-badge">👑 Spielleiter</div>
+          <button class="btn-icon header-sound" type="button" aria-label="Ton an/aus">🔊</button>
+        </header>
+
+        <main class="lobby-content">
+          <div class="lobby-grid">
+            <!-- Linke/Obere Spalte: Startboxen (1 bis 4 Spieler) -->
+            <div class="karte stall-karte">
+              <div class="karte-kopf">
+                <h2 class="sektion-titel">🐄 Startboxen (<span id="lobby-player-count">1</span>/4)</h2>
+                <button id="btn-open-invite" class="btn-akzent-klein" type="button">
+                  ➕ Mitspieler einladen
+                </button>
+              </div>
+
+              <div id="lobby-players-list" class="stall-liste">
+                <!-- Spieler-Slots werden dynamisch gerendert -->
+              </div>
+
+              <!-- Schneller Kuh-Wechsel in der Lobby -->
+              <div class="lobby-profil-leiste">
+                <span class="klein-label">Kuh wechseln:</span>
+                <div id="lobby-cow-picker" class="kuh-grid-kompakt"></div>
+              </div>
+            </div>
+
+            <!-- Rechte/Untere Spalte: Aufgabentyp & Start -->
+            <div class="karte einstellungen-karte">
+              <h2 class="sektion-titel">📐 Aufgabentyp für dieses Rennen</h2>
+              <p id="lobby-typ-hinweis" class="klein-hinweis">
+                Der Spielleiter wählt die Aufgaben für alle aus (alle erhalten exakt dieselben Aufgaben):
+              </p>
+
+              <div id="lobby-typen-container" class="typen-liste">
+                <!-- Aufgabentypen aus game.js -->
+              </div>
+
+              <div class="lobby-start-bereich">
+                <button id="btn-start-race" class="btn-primaer btn-gross" type="button">
+                  🚦 Rennen starten!
+                </button>
+                <div id="guest-waiting-msg" class="warte-box" hidden>
+                  <span class="puls-punkt"></span>
+                  <span>Verbunden! Warte darauf, dass der Spielleiter das Rennen startet…</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </section>
+
+      <!-- ===================================================================
+           3. BEITRITTS-BILDSCHIRM FÜR MITSPIELER (WEBRTC HANDSHAKE)
+           =================================================================== -->
+      <section id="screen-join" class="screen" hidden>
+        <header class="app-header">
+          <button id="btn-cancel-join" class="nav-back btn-link-optik" type="button">&larr; Zurück</button>
+          <div class="rolle-badge">🔗 Mitspieler-Verbindung</div>
+          <button class="btn-icon header-sound" type="button" aria-label="Ton an/aus">🔊</button>
+        </header>
+
+        <main class="join-content">
+          <div class="karte join-karte">
+            <!-- Schritt 1 für Mitspieler: Einladungs-Code eingeben (falls nicht per Link geöffnet) -->
+            <div id="guest-step-1" class="handshake-schritt">
+              <div class="schritt-badge">Schritt 1 von 2</div>
+              <h2 class="sektion-titel">Einladung vom Spielleiter einfügen</h2>
+              <p class="schritt-text">
+                Füge hier den <strong>Einladungs-Link</strong> oder <strong>Einladungs-Code</strong> ein, den dir der Spielleiter geschickt hat:
+              </p>
+              <div class="code-eingabe-zeile">
+                <input
+                  id="input-offer-code"
+                  class="text-input code-input"
+                  type="text"
+                  placeholder="Einladungs-Code oder Link hier einfügen…"
+                  autocomplete="off"
+                >
+                <button id="btn-paste-offer" class="btn-sekundaer" type="button" title="Aus Zwischenablage einfügen">
+                  📋 Einfügen
+                </button>
+              </div>
+              <p id="join-error-msg" class="fehler-text" hidden></p>
+              <button id="btn-process-offer" class="btn-primaer btn-gross" type="button">
+                Weiter &rarr; Antwort-Code erzeugen
+              </button>
+            </div>
+
+            <!-- Schritt 2 für Mitspieler: Antwort-Code zurückschicken -->
+            <div id="guest-step-2" class="handshake-schritt" hidden>
+              <div class="schritt-badge erfolg">Schritt 2 von 2</div>
+              <h2 class="sektion-titel">Antwort-Code an Spielleiter schicken</h2>
+              <p class="schritt-text">
+                Super! Kopiere jetzt diesen <strong>Antwort-Code</strong> und schicke ihn zurück an den Spielleiter:
+              </p>
+
+              <div class="code-anzeige-box">
+                <input
+                  id="output-answer-code"
+                  class="text-input code-input"
+                  type="text"
+                  readonly
+                >
+                <button id="btn-copy-answer" class="btn-primaer" type="button">
+                  📋 Antwort-Code kopieren
+                </button>
+              </div>
+              <p id="copy-answer-feedback" class="erfolg-text" hidden>
+                ✅ Antwort-Code kopiert! Schicke ihn jetzt dem Spielleiter.
+              </p>
+
+              <div class="warte-box">
+                <span class="puls-punkt"></span>
+                <span>Warte darauf, dass der Spielleiter deinen Antwort-Code einfügt… (Du wirst danach automatisch in den Rennstall weitergeleitet!)</span>
+              </div>
+            </div>
+          </div>
+        </main>
+      </section>
+
+      <!-- ===================================================================
+           4. SPIEL-BILDSCHIRM (RENNBAHN + RECHEN-COCKPIT)
+           =================================================================== -->
+      <section id="screen-game" class="screen" hidden>
+        <header class="game-header">
+          <div class="status-element schritte-box">
+            <span class="status-label">Dein Ziel</span>
+            <span id="own-progress-text" class="status-wert">0 / 20</span>
+          </div>
+
+          <div class="game-info-mitte">
+            <span id="game-category-badge" class="kategorie-pill">1 ×/÷ 1</span>
+            <span id="game-timer-text" class="renn-uhr">0:00</span>
+          </div>
+
+          <div class="header-rechts-gruppe">
+            <button id="btn-abort-race" class="btn-klein-abbruch" type="button" title="Rennen beenden">✕</button>
+            <button class="btn-icon header-sound" type="button" aria-label="Ton an/aus">🔊</button>
+          </div>
+        </header>
+
+        <main class="game-layout">
+          <!-- OBERER BEREICH: LIVE-RENNBAHN (1 bis 4 KÜHE) -->
+          <section class="rennbahn-sektion" aria-label="Rennbahn">
+            <div class="rennbahn-skala">
+              <span>Start</span>
+              <span>5</span>
+              <span>10</span>
+              <span>15</span>
+              <span>🏁 20</span>
+            </div>
+            <div id="race-tracks-container" class="rennbahn-spuren">
+              <!-- Spuren für 1–4 Spieler werden dynamisch gerendert -->
+            </div>
+          </section>
+
+          <!-- UNTERER BEREICH: AUFGABE + ZIFFERNBLOCK -->
+          <section class="cockpit-sektion">
+            <div class="aufgabe-karte">
+              <div id="feedback-effekt" class="feedback-ebene" aria-hidden="true"></div>
+              <div class="aufgabe-kopf-zeile">
+                <span id="aufgabe-nummer-badge" class="aufgabe-nr">Aufgabe #1</span>
+              </div>
+              <div class="rechen-zeile">
+                <span id="aufgabe-term" class="aufgabe-term">6 · 7</span>
+                <div class="loesung-zeile">
+                  <span class="ist-gleich">=</span>
+                  <div id="antwort-display" class="antwort-display platzhalter">?</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Touch-Ziffernblock & Tastatur-Steuerung -->
+            <div class="tasten-block">
+              <div class="ziffern-grid">
+                <button type="button" class="taste" data-key="1">1</button>
+                <button type="button" class="taste" data-key="2">2</button>
+                <button type="button" class="taste" data-key="3">3</button>
+
+                <button type="button" class="taste" data-key="4">4</button>
+                <button type="button" class="taste" data-key="5">5</button>
+                <button type="button" class="taste" data-key="6">6</button>
+
+                <button type="button" class="taste" data-key="7">7</button>
+                <button type="button" class="taste" data-key="8">8</button>
+                <button type="button" class="taste" data-key="9">9</button>
+
+                <button type="button" class="taste taste-loeschen" data-key="backspace" aria-label="Letzte Ziffer löschen">⌫</button>
+                <button type="button" class="taste" data-key="0">0</button>
+                <button type="button" class="taste taste-ok" data-key="enter" aria-label="Antwort bestätigen">✓</button>
+              </div>
+            </div>
+          </section>
+        </main>
+
+        <!-- 3-2-1-LOS! STARTAMPEL OVERLAY -->
+        <div id="countdown-overlay" class="overlay-huelle" hidden>
+          <div class="ampel-karte">
+            <div class="ampel-lichter">
+              <span id="ampel-rot" class="ampel-kreis"></span>
+              <span id="ampel-gelb" class="ampel-kreis"></span>
+              <span id="ampel-gruen" class="ampel-kreis"></span>
+            </div>
+            <div id="countdown-zahl" class="countdown-zahl">3</div>
+            <p class="countdown-sub">Mach dich bereit zum Rechnen!</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           5. SIEGEREHRUNG & STATISTIK-BILDSCHIRM
+           =================================================================== -->
+      <section id="screen-end" class="screen" hidden>
+        <div id="confetti-container" class="konfetti-ebene" aria-hidden="true"></div>
+
+        <header class="app-header">
+          <div class="rolle-badge">🏁 Zieleinlauf</div>
+          <button class="btn-icon header-sound" type="button" aria-label="Ton an/aus">🔊</button>
+        </header>
+
+        <main class="end-content">
+          <div class="sieger-banner">
+            <div id="winner-cow-avatar" class="sieger-kuh-gross"></div>
+            <div class="sieger-text-block">
+              <span class="krone-badge">🏆 Sieger-Kuh 🏆</span>
+              <h2 id="winner-title" class="end-titel">Max gewinnt!</h2>
+              <p id="winner-subtitle" class="end-untertitel">20 Schritte in 45,2 Sekunden</p>
+            </div>
+          </div>
+
+          <!-- Rangliste & Detail-Statistik für alle Spieler -->
+          <div class="karte rangliste-karte">
+            <h3 class="sektion-titel">📊 Platzierungen & Statistik</h3>
+            <div id="results-table-container" class="rangliste-scroll">
+              <!-- Dynamische Tabelle mit Platz, Kuh, Name, Schritte, Richtig, Fehler, Quote, Zeit -->
+            </div>
+          </div>
+
+          <!-- Aktionen nach dem Rennen (Verbindung bleibt bestehen!) -->
+          <div id="host-end-actions" class="end-aktionen">
+            <button id="btn-rematch" class="btn-primaer btn-gross" type="button">
+              🔄 Gleich nochmal spielen!
+            </button>
+            <button id="btn-back-lobby" class="btn-sekundaer" type="button">
+              🏠 Zurück in den Rennstall (Aufgabentyp ändern)
+            </button>
+          </div>
+
+          <div id="guest-end-waiting" class="warte-box" hidden>
+            <span class="puls-punkt"></span>
+            <span>Warte auf den Spielleiter für die nächste Runde…</span>
+          </div>
+        </main>
+      </section>
+
+      <!-- ===================================================================
+           MODAL: MITSPIELER EINLADEN (FÜR SPIELLEITER)
+           =================================================================== -->
+      <div id="modal-invite" class="overlay-huelle" hidden role="dialog" aria-modal="true" aria-labelledby="invite-modal-title">
+        <div class="modal-karte">
+          <div class="modal-kopf">
+            <h2 id="invite-modal-title" class="sektion-titel">➕ Mitspieler einladen</h2>
+            <button id="btn-close-invite" class="btn-icon-klein" type="button" aria-label="Schließen">✕</button>
+          </div>
+
+          <div class="modal-inhalt">
+            <!-- Schritt 1: Einladungs-Link oder Code senden -->
+            <div class="handshake-schritt">
+              <div class="schritt-badge">1. Einladung verschicken</div>
+              <p class="schritt-text">
+                Schicke deinem Mitspieler diesen <strong>Einladungs-Link</strong> (oder den Code):
+              </p>
+              <div class="invite-buttons-row">
+                <button id="btn-copy-invite-link" class="btn-primaer" type="button">
+                  🔗 Einladungs-Link kopieren
+                </button>
+                <button id="btn-copy-invite-code" class="btn-sekundaer" type="button">
+                  📋 Nur Code kopieren
+                </button>
+              </div>
+              <input id="output-offer-code" class="text-input code-input-klein" type="text" readonly>
+              <p id="invite-copy-feedback" class="erfolg-text" hidden></p>
+            </div>
+
+            <hr class="trennlinie">
+
+            <!-- Schritt 2: Antwort-Code vom Mitspieler einfügen -->
+            <div class="handshake-schritt">
+              <div class="schritt-badge erfolg">2. Antwort-Code vom Mitspieler einfügen</div>
+              <p class="schritt-text">
+                Sobald dein Mitspieler den Link geöffnet hat, schickt er dir seinen <strong>Antwort-Code</strong> zurück. Füge ihn hier ein:
+              </p>
+              <div class="code-eingabe-zeile">
+                <input
+                  id="input-answer-code"
+                  class="text-input code-input"
+                  type="text"
+                  placeholder="Antwort-Code hier einfügen…"
+                  autocomplete="off"
+                >
+                <button id="btn-paste-answer" class="btn-sekundaer" type="button" title="Aus Zwischenablage einfügen">
+                  📋 Einfügen
+                </button>
+              </div>
+              <p id="invite-error-msg" class="fehler-text" hidden></p>
+              <button id="btn-connect-guest" class="btn-primaer btn-gross" type="button">
+                ✅ Mitspieler verbinden
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <script src="audio.js"></script>
+    <script src="webrtc.js"></script>
+    <script src="game.js"></script>
+  </body>
+</html>
