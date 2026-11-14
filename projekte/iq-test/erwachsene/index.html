@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>IQ-Test – Erwachsene (Fluide Intelligenz)</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ==========================================
+       1. STARTBILDSCHIRM (Intro & Instruktionen)
+       ========================================== -->
+  <main id="screen-intro" class="screen">
+    <div class="intro-card">
+      <span class="badge-tag">Psychometrische Skala (M=100, SD=15)</span>
+      <h1>IQ- &amp; Logik-Test für Erwachsene</h1>
+      <p class="intro-desc">
+        Wissenschaftlich inspirierter Test zur Erfassung der <strong>fluiden Intelligenz (Gf)</strong>. Der Test misst logisches Schlussfolgern, Mustererkennung, räumliches Vorstellungsvermögen und algorithmisches Denken unabhängig von Vorwissen oder Sprachfertigkeit.
+      </p>
+
+      <div class="intro-features">
+        <div class="feat-item">
+          <div class="feat-title">20 progressive Aufgaben</div>
+          <div class="feat-desc">Von moderat bis anspruchsvoll gestaffelt zur präzisen Differenzierung.</div>
+        </div>
+        <div class="feat-item">
+          <div class="feat-title">4 Dimensionen</div>
+          <div class="feat-desc">Visuelle Matrizen, Zahlenlogik, Raumkognition &amp; formale Deduktion.</div>
+        </div>
+        <div class="feat-item">
+          <div class="feat-title">Fundierte Auswertung</div>
+          <div class="feat-desc">Normierter IQ-Wert, 90%-Konfidenzintervall, Prozentrang &amp; Profil.</div>
+        </div>
+        <div class="feat-item">
+          <div class="feat-title">Lösungsheft inklusive</div>
+          <div class="feat-desc">Detaillierte logische Begründung zu jeder einzelnen Aufgabe.</div>
+        </div>
+      </div>
+
+      <div class="mode-section">
+        <label class="mode-label">Wähle deinen Testmodus:</label>
+        <div class="mode-options">
+          <button type="button" class="mode-btn active" data-mode="timed">
+            <span class="mode-name">⏱ Standardisierter Test</span>
+            <span class="mode-sub">20 Minuten Timer (empfohlen für valide Normierung)</span>
+          </button>
+          <button type="button" class="mode-btn" data-mode="free">
+            <span class="mode-name">☕ Freies Training</span>
+            <span class="mode-sub">Ohne Zeitdruck nachdenken und knobeln</span>
+          </button>
+        </div>
+      </div>
+
+      <button type="button" id="btn-start" class="btn-primary">Test jetzt starten →</button>
+    </div>
+  </main>
+
+  <!-- ==========================================
+       2. TESTBILDSCHIRM (Konsequent ohne Scrollen)
+       ========================================== -->
+  <section id="screen-test" class="screen hidden" aria-live="polite">
+    <!-- Topbar -->
+    <header class="test-topbar">
+      <button type="button" id="btn-quit" class="btn-icon-subtle" title="Test abbrechen">✕ Abbrechen</button>
+      <div id="progress-segments" class="progress-container" aria-label="Aufgabenfortschritt"></div>
+      <div id="timer-display" class="timer-box" aria-label="Verbleibende Zeit">20:00</div>
+    </header>
+
+    <!-- Aufgabenbereich -->
+    <article class="test-card">
+      <div class="task-header">
+        <span id="category-badge" class="cat-pill">Fluide visuelle Logik</span>
+        <span id="task-title" class="task-headline">Aufgabe 1 von 20</span>
+      </div>
+
+      <p id="task-prompt" class="task-question">Welche Figur ergänzt das Fragezeichen logisch?</p>
+
+      <div id="task-visual" class="visual-area">
+        <!-- Dynamischer SVG- oder Grafikinhalt -->
+      </div>
+
+      <!-- Auswahloptionen (Große Touch-Buttons) -->
+      <div id="options-grid" class="options-grid" role="group" aria-label="Antwortoptionen">
+        <!-- Dynamisch erzeugte Optionen A-D -->
+      </div>
+
+      <!-- Navigationsleiste unten -->
+      <footer class="test-navbar">
+        <button type="button" id="btn-skip" class="btn-skip">Aufgabe überspringen</button>
+        <button type="button" id="btn-next" class="btn-next" disabled>Weiter →</button>
+      </footer>
+    </article>
+  </section>
+
+  <!-- ==========================================
+       3. AUSWERTUNGSBILDSCHIRM (Ergebnis & Erklärungen)
+       ========================================== -->
+  <section id="screen-results" class="screen hidden">
+    <div class="res-card">
+      <header class="res-header">
+        <span class="badge-tag">Testergebnis &amp; Psychometrischer Bericht</span>
+        
+        <div class="res-iq-circle">
+          <span id="res-iq" class="res-iq-val">--</span>
+          <span class="res-iq-lbl">Normierter IQ</span>
+        </div>
+
+        <div id="res-class" class="res-class-badge">Durchschnittlich</div>
+
+        <div class="res-meta-line">
+          <span id="res-ci" class="res-meta-pill">90%-Konfidenz: --</span>
+          <span id="res-pr" class="res-meta-pill">Prozentrang: PR --</span>
+          <span id="res-raw" class="res-meta-pill">-- / 20 richtig</span>
+        </div>
+        <p id="res-time-info" style="margin-top: 0.6rem; font-size: 0.85rem; color: var(--text-muted);"></p>
+      </header>
+
+      <!-- Kognitives Stärkenprofil -->
+      <div class="res-section">
+        <h2 class="res-section-title">Kognitives Profil (Sub-Dimensionen)</h2>
+        <div id="cat-bars" class="cat-bars">
+          <!-- Dynamisch berechnete Balken -->
+        </div>
+      </div>
+
+      <!-- Wissenschaftliche Einordnung -->
+      <div class="sci-box">
+        <strong>Statistische Erläuterung:</strong> Der berechnete Intelligenzquotient basiert auf der Gaußschen Normalverteilung mit einem Mittelwert von 100 und einer Standardabweichung von 15 (σ = 15). Ein Prozentrang (PR) von 85 bedeutet beispielsweise, dass das erzielte Ergebnis gleich oder besser ist als das von 85 % einer repräsentativen Vergleichsstichprobe von Erwachsenen. Das Konfidenzintervall berücksichtigt den psychometrischen Standardmessfehler (SEM).
+      </div>
+
+      <!-- Interaktives Lösungsheft -->
+      <div class="res-section">
+        <div class="solutions-header">
+          <h2 class="res-section-title" style="margin-bottom: 0;">Lösungsheft &amp; Erklärungen</h2>
+          <div class="filter-group">
+            <button type="button" class="filter-btn active" data-filter="all">Alle (20)</button>
+            <button type="button" class="filter-btn" data-filter="wrong">Nur Fehler</button>
+            <button type="button" class="filter-btn" data-filter="correct">Nur Richtig</button>
+          </div>
+        </div>
+
+        <div id="solutions-list" class="solutions-list">
+          <!-- Dynamisch erzeugte Lösungsdetails -->
+        </div>
+      </div>
+
+      <div class="res-actions">
+        <button type="button" id="btn-restart" class="btn-primary">Test wiederholen ↺</button>
+        <a href="../../" class="btn-skip" style="display: flex; align-items: center; justify-content: center; text-decoration: none;">Zur Projektübersicht</a>
+      </div>
+    </div>
+  </section>
+
+  <script src="tasks.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
