@@ -455,6 +455,7 @@
   const elBtnScanAnswerQr = document.getElementById("btn-scan-answer-qr");
   const elHostQrScannerBox = document.getElementById("host-qr-scanner-box");
   const elHostQrVideo = document.getElementById("host-qr-video");
+  const elHostQrStatus = document.getElementById("host-qr-status");
   const elBtnStopHostScan = document.getElementById("btn-stop-host-scan");
 
   // Join Screen (Guest)
@@ -471,6 +472,7 @@
   const elBtnScanOfferQr = document.getElementById("btn-scan-offer-qr");
   const elGuestQrScannerBox = document.getElementById("guest-qr-scanner-box");
   const elGuestQrVideo = document.getElementById("guest-qr-video");
+  const elGuestQrStatus = document.getElementById("guest-qr-status");
   const elBtnStopGuestScan = document.getElementById("btn-stop-guest-scan");
   const elGuestAnswerQr = document.getElementById("guest-answer-qr");
 
@@ -932,12 +934,16 @@
     elInviteErrorMsg.hidden = true;
     elBtnScanAnswerQr.hidden = true;
     elHostQrScannerBox.hidden = false;
+    if (elHostQrStatus) elHostQrStatus.textContent = "⏳ Starte Kamera…";
 
     qrScanner.start(elHostQrVideo, {
       validate: (raw) => Boolean(root.KuhNetzwerk.extractCodeFromInput(raw)),
+      onReady: () => {
+        if (elHostQrStatus) elHostQrStatus.textContent = "📷 Kamera aktiv – halte den QR-Code in den Rahmen";
+      },
       onDetect: (decodedText) => {
-        window.soundManager.playCorrect();
         stoppeAlleQRScanner();
+        window.soundManager.playStepForward();
         elInputAnswerCode.value = decodedText.trim();
         verbindeMitAntwortCode(decodedText.trim());
       },
@@ -1035,12 +1041,16 @@
     elJoinErrorMsg.hidden = true;
     elBtnScanOfferQr.hidden = true;
     elGuestQrScannerBox.hidden = false;
+    if (elGuestQrStatus) elGuestQrStatus.textContent = "⏳ Starte Kamera…";
 
     qrScanner.start(elGuestQrVideo, {
       validate: (raw) => Boolean(root.KuhNetzwerk.extractCodeFromInput(raw)),
+      onReady: () => {
+        if (elGuestQrStatus) elGuestQrStatus.textContent = "📷 Kamera aktiv – halte den QR-Code in den Rahmen";
+      },
       onDetect: (decodedText) => {
-        window.soundManager.playCorrect();
         stoppeAlleQRScanner();
+        window.soundManager.playStepForward();
         elInputOfferCode.value = decodedText.trim();
         verarbeiteHostOffer(decodedText.trim());
       },

@@ -145,9 +145,10 @@
 
               <div id="guest-qr-scanner-box" class="qr-scanner-box" hidden>
                 <div class="qr-video-rahmen">
-                  <video id="guest-qr-video" class="qr-video" playsinline muted></video>
+                  <video id="guest-qr-video" class="qr-video" autoplay playsinline muted></video>
                   <div class="qr-zielrahmen" aria-hidden="true"></div>
                 </div>
+                <span id="guest-qr-status" class="klein-hinweis">⏳ Starte Kamera…</span>
                 <button id="btn-stop-guest-scan" class="btn-sekundaer" type="button">
                   ✕ Kamera schließen
                 </button>
@@ -408,9 +409,10 @@
 
               <div id="host-qr-scanner-box" class="qr-scanner-box" hidden>
                 <div class="qr-video-rahmen">
-                  <video id="host-qr-video" class="qr-video" playsinline muted></video>
+                  <video id="host-qr-video" class="qr-video" autoplay playsinline muted></video>
                   <div class="qr-zielrahmen" aria-hidden="true"></div>
                 </div>
+                <span id="host-qr-status" class="klein-hinweis">⏳ Starte Kamera…</span>
                 <button id="btn-stop-host-scan" class="btn-sekundaer" type="button">
                   ✕ Kamera schließen
                 </button>

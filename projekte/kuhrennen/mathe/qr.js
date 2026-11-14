@@ -526,7 +526,7 @@
       }
     }
 
-    async start(videoEl, { onDetect, onError, validate }) {
+    async start(videoEl, { onDetect, onError, onReady, validate }) {
       this.stop();
       this.videoEl = videoEl;
 
@@ -537,14 +537,17 @@
       }
 
       try {
-        this.stream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: { ideal: "environment" },
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          },
-          audio: false
-        });
+        try {
+          this.stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: { ideal: "environment" } },
+            audio: false
+          });
+        } catch (_firstErr) {
+          this.stream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: false
+          });
+        }
       } catch (err) {
         const msg =
           err && err.name === "NotAllowedError"
@@ -554,20 +557,35 @@
         return;
       }
 
-      videoEl.srcObject = this.stream;
-      videoEl.setAttribute("playsinline", "true");
+      // Attribute VOR srcObject setzen (wichtig für iOS Safari)
+      videoEl.playsInline = true;
       videoEl.muted = true;
-      await videoEl.play();
+      videoEl.autoplay = true;
+      videoEl.setAttribute("playsinline", "true");
+      videoEl.setAttribute("muted", "true");
+      videoEl.srcObject = this.stream;
+
+      try {
+        await videoEl.play();
+      } catch (_playErr) {
+        // Manche Browser starten über autoplay auch wenn play() abbricht
+      }
 
       this.running = true;
       let lastScanTime = 0;
       let busy = false;
+      let readyFired = false;
 
       const loop = async (now) => {
         if (!this.running) return;
         this.rafId = requestAnimationFrame(loop);
 
-        if (busy || now - lastScanTime < 130) return;
+        if (videoEl.readyState >= 2 && videoEl.videoWidth > 0 && !readyFired) {
+          readyFired = true;
+          if (onReady) onReady();
+        }
+
+        if (busy || now - lastScanTime < 140) return;
         if (videoEl.readyState < 2 || videoEl.videoWidth === 0) return;
 
         lastScanTime = now;
@@ -620,7 +638,7 @@
         this.workCtx.drawImage(videoEl, 0, 0, w, h);
         const imgData = this.workCtx.getImageData(0, 0, w, h);
         const result = root.jsQR(imgData.data, w, h, {
-          inversionAttempts: "dontInvert"
+          inversionAttempts: "attemptBoth"
         });
         if (result && result.data) {
           return result.data;
