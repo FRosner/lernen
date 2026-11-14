@@ -104,3 +104,11 @@ Sobald die Dateien erstellt oder geändert wurden:
   * Stellt sicher, dass alle Projekte eine `index.html` haben und die Generierung fehlerfrei funktioniert.
 * **Deployment**:
   * Über GitHub Actions ([`.github/workflows/pages.yml`](.github/workflows/pages.yml)). Ein Push auf `main` aktualisiert automatisch die Live-Seite.
+* **Standard-Notenschlüssel für Probeklausuren**:
+  * Wenn bei einer Probeklausur eine Schulnote berechnet wird, gilt dieser Schlüssel (Anteil der erreichten Punkte in Prozent):
+    * **ab 95 %**: Note 1
+    * **ab 81 %**: Note 2
+    * **ab 66 %**: Note 3
+    * **ab 51 %**: Note 4
+    * **ab 26 %**: Note 5
+    * **unter 26 %**: Note 6

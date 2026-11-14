@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Probeklausuren Mathe – 3 / Zahlen bis 1000 &amp; 1×1</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Header -->
+    <header>
+      <div class="header-info">
+        <div class="header-title">
+          <span>📐</span>
+          <span>Mathe-Probeklausur – Klasse 3</span>
+        </div>
+        <div class="header-sub" id="headerSub">Zahlen bis 1000 &amp; Kleines 1×1 · 20 Aufgaben</div>
+      </div>
+
+      <div class="header-right">
+        <div class="timer-badge" id="timerBadge" title="Verstrichene Zeit (ohne Zeitlimit)">
+          <span>⏱️</span>
+          <span id="timerText">00:00</span>
+        </div>
+        <button type="button" class="btn btn-secondary" id="btnBackToResults" hidden style="min-height: 36px; padding: 0.25rem 0.65rem; font-size: 0.85rem;">
+          📊 Auswertung
+        </button>
+        <button type="button" class="btn btn-success" id="btnHeaderSubmit" hidden style="min-height: 36px; padding: 0.25rem 0.7rem; font-size: 0.85rem;">
+          📝 Abgeben
+        </button>
+      </div>
+    </header>
+
+    <!-- 20-Task Navigation Tabs -->
+    <nav class="task-nav" id="taskNav" aria-label="Aufgaben-Navigation" hidden>
+      <div class="task-tabs" id="taskTabs"></div>
+    </nav>
+
+    <!-- Main Screen Area -->
+    <main>
+      <!-- 1. Start Screen -->
+      <section class="screen" id="startScreen">
+        <div class="start-container">
+          <div class="hero-badge">🎲 Zufallsgenerator · Jedes Mal neue Aufgaben</div>
+          <h1 class="start-title">Zahlen bis 1000 &amp; Kleines 1×1</h1>
+          <p class="start-desc">
+            Bearbeite alle 20 Aufgaben in deiner eigenen Reihenfolge. Die Uhr läuft nur zur Orientierung mit – du hast so viel Zeit, wie du brauchst!
+          </p>
+
+          <div class="info-grid">
+            <div class="info-box">
+              <div class="info-box-icon">📋</div>
+              <div class="info-box-text">20 Aufgaben</div>
+            </div>
+            <div class="info-box">
+              <div class="info-box-icon">💯</div>
+              <div class="info-box-text">100 Punkte</div>
+            </div>
+            <div class="info-box">
+              <div class="info-box-icon">⏱️</div>
+              <div class="info-box-text">Ohne Zeitdruck</div>
+            </div>
+            <div class="info-box">
+              <div class="info-box-icon">🎓</div>
+              <div class="info-box-text">Mit Schulnote</div>
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size: 0.88rem; font-weight: 800; color: var(--ink-muted); margin-bottom: 0.4rem;">
+              Alle 8 Schwerpunkte sind enthalten:
+            </div>
+            <div class="topic-pills">
+              <span class="topic-pill">🧱 Stellenwerte &amp; Bündeln</span>
+              <span class="topic-pill">🔢 Zahldarstellungen</span>
+              <span class="topic-pill">📅 Hundertertafeln &amp; Rätsel</span>
+              <span class="topic-pill">🏠 Zahlzerlegungen</span>
+              <span class="topic-pill">📏 Zahlenstrahl &amp; Nachbarzahlen</span>
+              <span class="topic-pill">✏️ Rechenstrich</span>
+              <span class="topic-pill">🔄 Zahlenfolgen</span>
+              <span class="topic-pill">✖️➗ 1×1, Division &amp; Sachaufgaben</span>
+            </div>
+          </div>
+
+          <div style="margin-top: 0.25rem;">
+            <button type="button" class="btn btn-primary" id="btnStartExam" style="font-size: 1.18rem; width: 100%; min-height: 52px;">
+              🎲 Neue Probeklausur auswürfeln &amp; starten 🚀
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Exam & Review Screen -->
+      <section class="screen" id="examScreen" hidden>
+        <div class="task-header">
+          <div class="task-title-wrap">
+            <span class="task-num-badge" id="taskNumBadge">Aufgabe 1</span>
+            <h2 class="task-title" id="taskTitle">Zahlen ablesen</h2>
+            <span class="task-topic-tag" id="taskTopicTag">Stellenwerte</span>
+          </div>
+          <span class="task-points" id="taskPoints">4 Punkte</span>
+        </div>
+
+        <p class="task-prompt" id="taskPrompt"></p>
+
+        <div id="taskBody"></div>
+      </section>
+
+      <!-- 3. Results Screen -->
+      <section class="screen" id="resultsScreen" hidden>
+        <div class="results-container">
+          <div class="hero-badge" id="resultBadge">Klausur ausgewertet</div>
+          <h2 style="margin: 0; font-size: 1.45rem; font-weight: 900;" id="feedbackText">Tolle Leistung!</h2>
+
+          <div class="results-top-grid">
+            <div class="result-stat-card">
+              <div style="font-size: 0.85rem; font-weight: 800; color: var(--ink-muted);">Deine Schulnote</div>
+              <div class="grade-circle" id="gradeNum">1</div>
+              <div style="font-size: 0.92rem; font-weight: 800;" id="gradeWord">Sehr gut</div>
+            </div>
+
+            <div class="result-stat-card">
+              <div style="font-size: 0.85rem; font-weight: 800; color: var(--ink-muted);">Erreichte Punkte</div>
+              <div style="font-size: 2rem; font-weight: 900; color: var(--primary);" id="scoreNum">96 / 100</div>
+              <div style="font-size: 0.95rem; font-weight: 800; color: var(--ink-muted);" id="scorePct">96 % · ⭐⭐⭐</div>
+            </div>
+
+            <div class="result-stat-card">
+              <div style="font-size: 0.85rem; font-weight: 800; color: var(--ink-muted);">Bearbeitungszeit</div>
+              <div style="font-size: 1.7rem; font-weight: 900; color: var(--ink);" id="resultTime">14:20 Min.</div>
+              <div style="font-size: 0.85rem; font-weight: 700; color: var(--ink-muted);">20 Aufgaben geprüft</div>
+            </div>
+          </div>
+
+          <div class="grade-scale-bar" id="gradeScaleBar"></div>
+
+          <div style="text-align: left;">
+            <div style="font-size: 0.92rem; font-weight: 800; margin-bottom: 0.35rem; color: var(--ink);">
+              Ergebnisse je Aufgabe (anklicken, um die Lösung anzusehen):
+            </div>
+            <div class="result-breakdown" id="resultBreakdown"></div>
+          </div>
+
+          <div style="display: flex; gap: 0.6rem; justify-content: center; flex-wrap: wrap; padding-bottom: 0.4rem;">
+            <button type="button" class="btn btn-primary" id="btnReviewSolutions">
+              🔍 Lösungen im Detail ansehen
+            </button>
+            <button type="button" class="btn btn-secondary" id="btnRestart">
+              🎲 Neue Klausur auswürfeln
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer Navigation -->
+    <footer id="appFooter" hidden>
+      <button type="button" class="btn btn-secondary" id="btnPrev">
+        ⬅ Zurück
+      </button>
+
+      <span id="footerStatus" style="font-size: 0.92rem; font-weight: 800; color: var(--ink-muted);">
+        Aufgabe 1 von 20
+      </span>
+
+      <div style="display: flex; gap: 0.45rem;">
+        <button type="button" class="btn btn-primary" id="btnNext">
+          Weiter ➡
+        </button>
+        <button type="button" class="btn btn-success" id="btnFinish" hidden>
+          Klausur abgeben 📝
+        </button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div class="modal-backdrop" id="confirmModal" hidden>
+    <div class="modal-box">
+      <div style="font-size: 2.3rem;">📝</div>
+      <h3 style="margin: 0; font-size: 1.25rem;">Möchtest du die Klausur abgeben?</h3>
+      <p id="modalMsg" style="margin: 0; color: var(--ink-muted); font-size: 0.98rem; line-height: 1.45;"></p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" id="modalBtnCancel">Noch weiterrechnen</button>
+        <button type="button" class="btn btn-success" id="modalBtnConfirm">Ja, jetzt auswerten!</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

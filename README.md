@@ -37,6 +37,21 @@ projekte/
 
 ---
 
+## Standard-Notenschlüssel für Probeklausuren
+
+Für Probeklausuren mit Schulnoten-Berechnung gilt folgender Notenschlüssel (Anteil der erreichten Punkte):
+
+| Erreichte Punkte (%) | Schulnote |
+| :--- | :--- |
+| ab **95 %** | **Note 1** (sehr gut) |
+| ab **81 %** | **Note 2** (gut) |
+| ab **66 %** | **Note 3** (befriedigend) |
+| ab **51 %** | **Note 4** (ausreichend) |
+| ab **26 %** | **Note 5** (mangelhaft) |
+| unter **26 %** | **Note 6** (ungenügend) |
+
+---
+
 ## Wo finde ich die Spiele online?
 
 Die veröffentlichten Spiele sind über deine GitHub-Pages-Adresse erreichbar:
