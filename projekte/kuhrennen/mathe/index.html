@@ -131,58 +131,88 @@
 
         <main class="join-content">
           <div class="karte join-karte">
-            <!-- Schritt 1 für Mitspieler: Einladungs-Code eingeben (falls nicht per Link geöffnet) -->
+            <!-- Schritt 1 für Mitspieler: Einladungs-QR scannen oder Code eingeben -->
             <div id="guest-step-1" class="handshake-schritt">
               <div class="schritt-badge">Schritt 1 von 2</div>
-              <h2 class="sektion-titel">Einladung vom Spielleiter einfügen</h2>
+              <h2 class="sektion-titel">Einladung vom Spielleiter scannen</h2>
               <p class="schritt-text">
-                Füge hier den <strong>Einladungs-Link</strong> oder <strong>Einladungs-Code</strong> ein, den dir der Spielleiter geschickt hat:
+                Scanne den <strong>QR-Code</strong> auf dem Bildschirm des Spielleiters:
               </p>
-              <div class="code-eingabe-zeile">
-                <input
-                  id="input-offer-code"
-                  class="text-input code-input"
-                  type="text"
-                  placeholder="Einladungs-Code oder Link hier einfügen…"
-                  autocomplete="off"
-                >
-                <button id="btn-paste-offer" class="btn-sekundaer" type="button" title="Aus Zwischenablage einfügen">
-                  📋 Einfügen
+
+              <button id="btn-scan-offer-qr" class="btn-primaer btn-gross" type="button">
+                📷 Einladungs-QR-Code scannen
+              </button>
+
+              <div id="guest-qr-scanner-box" class="qr-scanner-box" hidden>
+                <div class="qr-video-rahmen">
+                  <video id="guest-qr-video" class="qr-video" playsinline muted></video>
+                  <div class="qr-zielrahmen" aria-hidden="true"></div>
+                </div>
+                <button id="btn-stop-guest-scan" class="btn-sekundaer" type="button">
+                  ✕ Kamera schließen
                 </button>
               </div>
+
               <p id="join-error-msg" class="fehler-text" hidden></p>
-              <button id="btn-process-offer" class="btn-primaer btn-gross" type="button">
-                Weiter &rarr; Antwort-Code erzeugen
-              </button>
+
+              <details class="fallback-details">
+                <summary class="fallback-summary">Oder Einladungs-Link / Code einfügen</summary>
+                <div class="fallback-inhalt">
+                  <div class="code-eingabe-zeile">
+                    <input
+                      id="input-offer-code"
+                      class="text-input code-input"
+                      type="text"
+                      placeholder="Einladungs-Code oder Link hier einfügen…"
+                      autocomplete="off"
+                    >
+                    <button id="btn-paste-offer" class="btn-sekundaer" type="button" title="Aus Zwischenablage einfügen">
+                      📋 Einfügen
+                    </button>
+                  </div>
+                  <button id="btn-process-offer" class="btn-sekundaer btn-gross" type="button">
+                    Weiter &rarr; Antwort-Code erzeugen
+                  </button>
+                </div>
+              </details>
             </div>
 
-            <!-- Schritt 2 für Mitspieler: Antwort-Code zurückschicken -->
+            <!-- Schritt 2 für Mitspieler: Antwort-QR-Code zeigen -->
             <div id="guest-step-2" class="handshake-schritt" hidden>
               <div class="schritt-badge erfolg">Schritt 2 von 2</div>
-              <h2 class="sektion-titel">Antwort-Code an Spielleiter schicken</h2>
+              <h2 class="sektion-titel">Antwort-QR-Code zeigen</h2>
               <p class="schritt-text">
-                Super! Kopiere jetzt diesen <strong>Antwort-Code</strong> und schicke ihn zurück an den Spielleiter:
+                Super! Zeige diesen <strong>QR-Code</strong> dem Spielleiter, damit er ihn scannen kann:
               </p>
 
-              <div class="code-anzeige-box">
-                <input
-                  id="output-answer-code"
-                  class="text-input code-input"
-                  type="text"
-                  readonly
-                >
-                <button id="btn-copy-answer" class="btn-primaer" type="button">
-                  📋 Antwort-Code kopieren
-                </button>
+              <div class="qr-anzeige-karte">
+                <canvas id="guest-answer-qr" class="qr-canvas" aria-label="Antwort-QR-Code"></canvas>
               </div>
-              <p id="copy-answer-feedback" class="erfolg-text" hidden>
-                ✅ Antwort-Code kopiert! Schicke ihn jetzt dem Spielleiter.
-              </p>
 
               <div class="warte-box">
                 <span class="puls-punkt"></span>
-                <span>Warte darauf, dass der Spielleiter deinen Antwort-Code einfügt… (Du wirst danach automatisch in den Rennstall weitergeleitet!)</span>
+                <span>Warte darauf, dass der Spielleiter deinen QR-Code scannt… (Danach geht es automatisch weiter!)</span>
               </div>
+
+              <details class="fallback-details">
+                <summary class="fallback-summary">Oder Antwort-Code kopieren</summary>
+                <div class="fallback-inhalt">
+                  <div class="code-anzeige-box">
+                    <input
+                      id="output-answer-code"
+                      class="text-input code-input"
+                      type="text"
+                      readonly
+                    >
+                    <button id="btn-copy-answer" class="btn-primaer" type="button">
+                      📋 Kopieren
+                    </button>
+                  </div>
+                  <p id="copy-answer-feedback" class="erfolg-text" hidden>
+                    ✅ Antwort-Code kopiert! Schicke ihn jetzt dem Spielleiter.
+                  </p>
+                </div>
+              </details>
             </div>
           </div>
         </main>
@@ -334,48 +364,80 @@
           </div>
 
           <div class="modal-inhalt">
-            <!-- Schritt 1: Einladungs-Link oder Code senden -->
+            <!-- Schritt 1: Einladungs-QR-Code zeigen -->
             <div class="handshake-schritt">
-              <div class="schritt-badge">1. Einladung verschicken</div>
+              <div class="schritt-badge">1. Einladungs-QR-Code zeigen</div>
               <p class="schritt-text">
-                Schicke deinem Mitspieler diesen <strong>Einladungs-Link</strong> (oder den Code):
+                Dein Mitspieler scannt diesen <strong>QR-Code</strong> (mit seiner Handy-Kamera oder im Spiel unter „Beitreten“):
               </p>
-              <div class="invite-buttons-row">
-                <button id="btn-copy-invite-link" class="btn-primaer" type="button">
-                  🔗 Einladungs-Link kopieren
-                </button>
-                <button id="btn-copy-invite-code" class="btn-sekundaer" type="button">
-                  📋 Nur Code kopieren
-                </button>
+
+              <div id="host-qr-wrap" class="qr-anzeige-karte">
+                <canvas id="host-invite-qr" class="qr-canvas" aria-label="Einladungs-QR-Code"></canvas>
+                <span id="host-qr-loading" class="klein-hinweis">Erzeuge QR-Code…</span>
               </div>
-              <input id="output-offer-code" class="text-input code-input-klein" type="text" readonly>
-              <p id="invite-copy-feedback" class="erfolg-text" hidden></p>
+
+              <details class="fallback-details">
+                <summary class="fallback-summary">Oder Einladungs-Link / Code kopieren</summary>
+                <div class="fallback-inhalt">
+                  <div class="invite-buttons-row">
+                    <button id="btn-copy-invite-link" class="btn-primaer" type="button">
+                      🔗 Link kopieren
+                    </button>
+                    <button id="btn-copy-invite-code" class="btn-sekundaer" type="button">
+                      📋 Nur Code kopieren
+                    </button>
+                  </div>
+                  <input id="output-offer-code" class="text-input code-input-klein" type="text" readonly>
+                  <p id="invite-copy-feedback" class="erfolg-text" hidden></p>
+                </div>
+              </details>
             </div>
 
             <hr class="trennlinie">
 
-            <!-- Schritt 2: Antwort-Code vom Mitspieler einfügen -->
+            <!-- Schritt 2: Antwort-QR-Code vom Mitspieler scannen -->
             <div class="handshake-schritt">
-              <div class="schritt-badge erfolg">2. Antwort-Code vom Mitspieler einfügen</div>
+              <div class="schritt-badge erfolg">2. Antwort-QR-Code scannen</div>
               <p class="schritt-text">
-                Sobald dein Mitspieler den Link geöffnet hat, schickt er dir seinen <strong>Antwort-Code</strong> zurück. Füge ihn hier ein:
+                Sobald beim Mitspieler der <strong>Antwort-QR-Code</strong> erscheint, scanne ihn hier:
               </p>
-              <div class="code-eingabe-zeile">
-                <input
-                  id="input-answer-code"
-                  class="text-input code-input"
-                  type="text"
-                  placeholder="Antwort-Code hier einfügen…"
-                  autocomplete="off"
-                >
-                <button id="btn-paste-answer" class="btn-sekundaer" type="button" title="Aus Zwischenablage einfügen">
-                  📋 Einfügen
+
+              <button id="btn-scan-answer-qr" class="btn-primaer btn-gross" type="button">
+                📷 Antwort-QR-Code scannen
+              </button>
+
+              <div id="host-qr-scanner-box" class="qr-scanner-box" hidden>
+                <div class="qr-video-rahmen">
+                  <video id="host-qr-video" class="qr-video" playsinline muted></video>
+                  <div class="qr-zielrahmen" aria-hidden="true"></div>
+                </div>
+                <button id="btn-stop-host-scan" class="btn-sekundaer" type="button">
+                  ✕ Kamera schließen
                 </button>
               </div>
+
               <p id="invite-error-msg" class="fehler-text" hidden></p>
-              <button id="btn-connect-guest" class="btn-primaer btn-gross" type="button">
-                ✅ Mitspieler verbinden
-              </button>
+
+              <details class="fallback-details">
+                <summary class="fallback-summary">Oder Antwort-Code manuell einfügen</summary>
+                <div class="fallback-inhalt">
+                  <div class="code-eingabe-zeile">
+                    <input
+                      id="input-answer-code"
+                      class="text-input code-input"
+                      type="text"
+                      placeholder="Antwort-Code hier einfügen…"
+                      autocomplete="off"
+                    >
+                    <button id="btn-paste-answer" class="btn-sekundaer" type="button" title="Aus Zwischenablage einfügen">
+                      📋 Einfügen
+                    </button>
+                  </div>
+                  <button id="btn-connect-guest" class="btn-sekundaer btn-gross" type="button">
+                    ✅ Mitspieler verbinden
+                  </button>
+                </div>
+              </details>
             </div>
           </div>
         </div>
@@ -385,6 +447,8 @@
 
     <script src="audio.js"></script>
     <script src="webrtc.js"></script>
+    <script src="jsqr.js"></script>
+    <script src="qr.js"></script>
     <script src="game.js"></script>
   </body>
 </html>

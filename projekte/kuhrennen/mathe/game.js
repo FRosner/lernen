@@ -450,6 +450,12 @@
   const elBtnPasteAnswer = document.getElementById("btn-paste-answer");
   const elInviteErrorMsg = document.getElementById("invite-error-msg");
   const elBtnConnectGuest = document.getElementById("btn-connect-guest");
+  const elHostInviteQr = document.getElementById("host-invite-qr");
+  const elHostQrLoading = document.getElementById("host-qr-loading");
+  const elBtnScanAnswerQr = document.getElementById("btn-scan-answer-qr");
+  const elHostQrScannerBox = document.getElementById("host-qr-scanner-box");
+  const elHostQrVideo = document.getElementById("host-qr-video");
+  const elBtnStopHostScan = document.getElementById("btn-stop-host-scan");
 
   // Join Screen (Guest)
   const elBtnCancelJoin = document.getElementById("btn-cancel-join");
@@ -462,6 +468,11 @@
   const elOutputAnswerCode = document.getElementById("output-answer-code");
   const elBtnCopyAnswer = document.getElementById("btn-copy-answer");
   const elCopyAnswerFeedback = document.getElementById("copy-answer-feedback");
+  const elBtnScanOfferQr = document.getElementById("btn-scan-offer-qr");
+  const elGuestQrScannerBox = document.getElementById("guest-qr-scanner-box");
+  const elGuestQrVideo = document.getElementById("guest-qr-video");
+  const elBtnStopGuestScan = document.getElementById("btn-stop-guest-scan");
+  const elGuestAnswerQr = document.getElementById("guest-answer-qr");
 
   // Game Screen
   const elOwnProgressText = document.getElementById("own-progress-text");
@@ -831,14 +842,52 @@
   }
 
   // =========================================================================
-  // 10. WEBRTC EINLADUNGS-DIALOG (HOST) & BEITRITT (GUEST)
+  // 10. WEBRTC EINLADUNGS-DIALOG (HOST) & BEITRITT (GUEST) + QR-CODES
   // =========================================================================
+  const qrScanner = root.KuhQR ? new root.KuhQR.QRScanner() : null;
+
+  function stoppeAlleQRScanner() {
+    if (qrScanner) qrScanner.stop();
+    if (elHostQrScannerBox) elHostQrScannerBox.hidden = true;
+    if (elBtnScanAnswerQr) elBtnScanAnswerQr.hidden = false;
+    if (elGuestQrScannerBox) elGuestQrScannerBox.hidden = true;
+    if (elBtnScanOfferQr) elBtnScanOfferQr.hidden = false;
+  }
+
+  function zeichneQRCode(canvasEl, text) {
+    if (!canvasEl || !root.KuhQR) return;
+    try {
+      root.KuhQR.renderToCanvas(canvasEl, text, { sizePx: 230, quietZone: 4 });
+    } catch (_err) {
+      // Falls Text zu lang für QR wäre, bleibt Fallback-Copy-Paste nutzbar
+    }
+  }
+
+  async function verbindeMitAntwortCode(code) {
+    elInviteErrorMsg.hidden = true;
+    elBtnConnectGuest.disabled = true;
+    elBtnConnectGuest.textContent = "⏳ Verbinde…";
+
+    try {
+      await netzwerk.acceptGuestAnswer(code);
+    } catch (err) {
+      elInviteErrorMsg.textContent = err.message || "Verbindung fehlgeschlagen.";
+      elInviteErrorMsg.hidden = false;
+    } finally {
+      elBtnConnectGuest.disabled = false;
+      elBtnConnectGuest.textContent = "✅ Mitspieler verbinden";
+    }
+  }
+
   async function oeffneEinladungsModal() {
     window.soundManager.playClick();
+    stoppeAlleQRScanner();
     elInviteErrorMsg.hidden = true;
     elInviteCopyFeedback.hidden = true;
     elInputAnswerCode.value = "";
     elOutputOfferCode.value = "Erzeuge Einladungs-Code…";
+    if (elHostInviteQr) elHostInviteQr.hidden = true;
+    if (elHostQrLoading) elHostQrLoading.hidden = false;
     elModalInvite.hidden = false;
 
     try {
@@ -846,7 +895,13 @@
       aktuellerOfferCode = offerCode;
       aktuellerInviteLink = inviteLink;
       elOutputOfferCode.value = offerCode;
+      if (elHostInviteQr) {
+        zeichneQRCode(elHostInviteQr, inviteLink);
+        elHostInviteQr.hidden = false;
+      }
+      if (elHostQrLoading) elHostQrLoading.hidden = true;
     } catch (err) {
+      if (elHostQrLoading) elHostQrLoading.hidden = true;
       elInviteErrorMsg.textContent = err.message || "Fehler beim Erstellen der Einladung.";
       elInviteErrorMsg.hidden = false;
     }
@@ -867,7 +922,36 @@
   elBtnOpenInvite.addEventListener("click", oeffneEinladungsModal);
   elBtnCloseInvite.addEventListener("click", () => {
     window.soundManager.playClick();
+    stoppeAlleQRScanner();
     elModalInvite.hidden = true;
+  });
+
+  elBtnScanAnswerQr.addEventListener("click", () => {
+    if (!qrScanner) return;
+    window.soundManager.playClick();
+    elInviteErrorMsg.hidden = true;
+    elBtnScanAnswerQr.hidden = true;
+    elHostQrScannerBox.hidden = false;
+
+    qrScanner.start(elHostQrVideo, {
+      validate: (raw) => Boolean(root.KuhNetzwerk.extractCodeFromInput(raw)),
+      onDetect: (decodedText) => {
+        window.soundManager.playCorrect();
+        stoppeAlleQRScanner();
+        elInputAnswerCode.value = decodedText.trim();
+        verbindeMitAntwortCode(decodedText.trim());
+      },
+      onError: (err) => {
+        stoppeAlleQRScanner();
+        elInviteErrorMsg.textContent = err.message;
+        elInviteErrorMsg.hidden = false;
+      }
+    });
+  });
+
+  elBtnStopHostScan.addEventListener("click", () => {
+    window.soundManager.playClick();
+    stoppeAlleQRScanner();
   });
 
   elBtnCopyInviteLink.addEventListener("click", () => {
@@ -896,7 +980,7 @@
     } catch (_e) {}
   });
 
-  elBtnConnectGuest.addEventListener("click", async () => {
+  elBtnConnectGuest.addEventListener("click", () => {
     window.soundManager.playClick();
     const code = elInputAnswerCode.value.trim();
     if (!code) {
@@ -904,26 +988,14 @@
       elInviteErrorMsg.hidden = false;
       return;
     }
-
-    elInviteErrorMsg.hidden = true;
-    elBtnConnectGuest.disabled = true;
-    elBtnConnectGuest.textContent = "⏳ Verbinde…";
-
-    try {
-      await netzwerk.acceptGuestAnswer(code);
-    } catch (err) {
-      elInviteErrorMsg.textContent = err.message || "Verbindung fehlgeschlagen.";
-      elInviteErrorMsg.hidden = false;
-    } finally {
-      elBtnConnectGuest.disabled = false;
-      elBtnConnectGuest.textContent = "✅ Mitspieler verbinden";
-    }
+    verbindeMitAntwortCode(code);
   });
 
   // GUEST: Beitritts-Ablauf
   function oeffneJoinScreen(vorausgefuellterOfferCode = "") {
     window.soundManager.init();
     window.soundManager.playClick();
+    stoppeAlleQRScanner();
     elJoinErrorMsg.hidden = true;
     elCopyAnswerFeedback.hidden = true;
     elGuestStep1.hidden = false;
@@ -944,6 +1016,7 @@
     try {
       const { answerCode } = await netzwerk.joinWithOffer(offerInput);
       elOutputAnswerCode.value = answerCode;
+      zeichneQRCode(elGuestAnswerQr, answerCode);
       elGuestStep1.hidden = true;
       elGuestStep2.hidden = false;
     } catch (err) {
@@ -956,9 +1029,38 @@
     }
   }
 
+  elBtnScanOfferQr.addEventListener("click", () => {
+    if (!qrScanner) return;
+    window.soundManager.playClick();
+    elJoinErrorMsg.hidden = true;
+    elBtnScanOfferQr.hidden = true;
+    elGuestQrScannerBox.hidden = false;
+
+    qrScanner.start(elGuestQrVideo, {
+      validate: (raw) => Boolean(root.KuhNetzwerk.extractCodeFromInput(raw)),
+      onDetect: (decodedText) => {
+        window.soundManager.playCorrect();
+        stoppeAlleQRScanner();
+        elInputOfferCode.value = decodedText.trim();
+        verarbeiteHostOffer(decodedText.trim());
+      },
+      onError: (err) => {
+        stoppeAlleQRScanner();
+        elJoinErrorMsg.textContent = err.message;
+        elJoinErrorMsg.hidden = false;
+      }
+    });
+  });
+
+  elBtnStopGuestScan.addEventListener("click", () => {
+    window.soundManager.playClick();
+    stoppeAlleQRScanner();
+  });
+
   elBtnGoJoin.addEventListener("click", () => oeffneJoinScreen(""));
   elBtnCancelJoin.addEventListener("click", () => {
     window.soundManager.playClick();
+    stoppeAlleQRScanner();
     netzwerk.reset();
     zeigeScreen("home");
   });
