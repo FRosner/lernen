@@ -517,6 +517,168 @@ body {
   font-style: italic;
 }
 
+.stall-slot.leer-klickbar {
+  cursor: pointer;
+  border-style: dashed;
+  border-color: #cbd5e1;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.stall-slot.leer-klickbar:hover {
+  background: #f1f5f9;
+  border-color: #64748b;
+}
+
+.btn-bot-hinzufuegen {
+  background: #f1f5f9;
+  color: #1e293b;
+  border: 1.5px solid #cbd5e1;
+  border-radius: var(--radius-klein);
+  padding: 0.3rem 0.65rem;
+  font-size: 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+}
+
+.btn-bot-hinzufuegen:hover {
+  background: #e2e8f0;
+  border-color: #94a3b8;
+}
+
+.btn-bot-hinzufuegen:active {
+  transform: scale(0.96);
+}
+
+/* Computerkuh-Slot im Rennstall */
+.stall-slot.bot-slot {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.32rem;
+  padding: 0.4rem 0.65rem;
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.stall-slot.bot-slot-baby {
+  background: #f0f9ff;
+  border-color: #7dd3fc;
+}
+
+.stall-slot.bot-slot-leicht {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+.stall-slot.bot-slot-mittel {
+  background: #eff6ff;
+  border-color: #60a5fa;
+}
+
+.stall-slot.bot-slot-schwer {
+  background: #fff7ed;
+  border-color: #fb923c;
+}
+
+.stall-slot.bot-slot-terminator {
+  background: #fef2f2;
+  border-color: #f87171;
+}
+
+.bot-slot-kopf {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.btn-bot-entfernen {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid #fecaca;
+  background: #ffffff;
+  color: #dc2626;
+  font-size: 0.82rem;
+  font-weight: 900;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.btn-bot-entfernen:hover {
+  background: #fee2e2;
+}
+
+.btn-bot-entfernen:active {
+  transform: scale(0.92);
+}
+
+.bot-stufen-leiste {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.25rem;
+}
+
+.bot-stufe-btn {
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 0.4rem;
+  color: #475569;
+  font-size: clamp(0.66rem, 1.35vh, 0.74rem);
+  font-weight: 800;
+  padding: 0.2rem 0.15rem;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: all 0.12s ease;
+}
+
+.bot-stufe-btn:hover {
+  border-color: #64748b;
+  color: #0f172a;
+}
+
+.bot-stufe-btn.stufe-baby.aktiv {
+  background: #0284c7;
+  border-color: #0369a1;
+  color: #ffffff;
+}
+
+.bot-stufe-btn.stufe-leicht.aktiv {
+  background: #475569;
+  border-color: #334155;
+  color: #ffffff;
+}
+
+.bot-stufe-btn.stufe-mittel.aktiv {
+  background: #2563eb;
+  border-color: #1d4ed8;
+  color: #ffffff;
+}
+
+.bot-stufe-btn.stufe-schwer.aktiv {
+  background: #ea580c;
+  border-color: #c2410c;
+  color: #ffffff;
+}
+
+.bot-stufe-btn.stufe-terminator.aktiv {
+  background: #dc2626;
+  border-color: #991b1b;
+  color: #ffffff;
+}
+
+.bot-status-badge {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
 .lobby-profil-leiste {
   display: flex;
   align-items: center;
@@ -1057,7 +1219,7 @@ body {
   background: rgba(255, 255, 255, 0.82);
   padding: 0.08rem 0.42rem;
   border-radius: 999px;
-  max-width: 7.5rem;
+  max-width: clamp(8rem, 24vw, 13.5rem);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

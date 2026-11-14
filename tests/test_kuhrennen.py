@@ -48,6 +48,13 @@ class KuhrennenProjectTest(unittest.TestCase):
         self.assertIn("generiereAufgabeFuerIndex", game_js)
         self.assertIn("berechneNeuePosition", game_js)
         self.assertIn("berechneRangliste", game_js)
+        self.assertIn("BOT_STUFEN", game_js)
+        self.assertIn("berechneBotAntwortZeitMs", game_js)
+        self.assertIn("entscheideBotAntwort", game_js)
+
+        audio_js = (MATHE_DIR / "audio.js").read_text(encoding="utf-8")
+        self.assertIn("playRobotMoo", audio_js)
+        self.assertIn("playRobotFanfare", audio_js)
 
     def test_serverless_webrtc_and_stun_configuration(self):
         webrtc_js = (MATHE_DIR / "webrtc.js").read_text(encoding="utf-8")
@@ -132,6 +139,45 @@ class KuhrennenProjectTest(unittest.TestCase):
           "u.XyZ987_654",
           "Extraktion aus reinem Code"
         );
+
+        // 5. Roboter-Computerkühe (5 Schwierigkeitsstufen, steigende Genauigkeit & Geschwindigkeit)
+        assertEq(L.BOT_STUFEN.length, 5, "Genau 5 Roboter-Schwierigkeitsstufen");
+        const stufenIds = L.BOT_STUFEN.map((s) => s.id).join(",");
+        assertEq(stufenIds, "baby,leicht,mittel,schwer,terminator", "Reihenfolge der Bot-Stufen");
+
+        for (let i = 0; i < L.BOT_STUFEN.length; i++) {{
+          const st = L.BOT_STUFEN[i];
+          const svg = L.renderCowSvg(st.cowId);
+          if (!svg || !svg.includes("<svg")) {{
+            throw new Error("Roboter-SVG fehlt für " + st.cowId);
+          }}
+          if (i > 0) {{
+            const prev = L.BOT_STUFEN[i - 1];
+            if (!(st.accuracy > prev.accuracy)) {{
+              throw new Error("Genauigkeit muss mit Schwierigkeit steigen: " + st.id);
+            }}
+            if (!(st.maxTimeMs < prev.maxTimeMs && st.minTimeMs < prev.minTimeMs)) {{
+              throw new Error("Antwortzeit muss mit Schwierigkeit sinken: " + st.id);
+            }}
+          }}
+        }}
+
+        // Zeit-Anpassung an Aufgabentyp (Plus/Minus bis 1000 dauert länger als 1x1)
+        const fixedRng = () => 0.5;
+        const zeit1x1 = L.berechneBotAntwortZeitMs("mittel", "einmaleins_und_durch", fixedRng);
+        const zeit1000 = L.berechneBotAntwortZeitMs("mittel", "plus_minus_1000", fixedRng);
+        if (!(zeit1000 > zeit1x1)) {{
+          throw new Error("Plus/Minus 1000 sollte längere Bot-Zeit haben als 1x1");
+        }}
+
+        // Bot-Namen bei einzelnen und mehrfachen Stufen
+        const b1 = L.erzeugeBotSpieler("bot_1", "baby");
+        const b2 = L.erzeugeBotSpieler("bot_2", "terminator");
+        const b3 = L.erzeugeBotSpieler("bot_3", "terminator");
+        L.aktualisiereBotNamen([b1, b2, b3]);
+        assertEq(b1.name, "Baby-Bot (Baby)", "Einzelner Baby-Bot Name");
+        assertEq(b2.name, "Muh-minator 1 (Terminator)", "Erster Terminator bei Duplikat");
+        assertEq(b3.name, "Muh-minator 2 (Terminator)", "Zweiter Terminator bei Duplikat");
 
         print("ALL_JS_TESTS_PASSED");
         """

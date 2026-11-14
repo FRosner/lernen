@@ -193,6 +193,118 @@ class KuhSoundManager {
     osc.stop(now + 0.58);
   }
 
+  // Roboter-Kuh-Sound beim Hinzufügen oder Schwierigkeit-Wechseln (je nach Stufe!)
+  playRobotMoo(difficulty = "leicht") {
+    if (!this.enabled) return;
+    this.init();
+    if (!this.ctx) return;
+
+    const now = this.ctx.currentTime;
+
+    if (difficulty === "baby") {
+      // Süßes R2D2-Piepsen + hohes Baby-Roboter-Muuuh
+      this._playChime(now, 1046.5, 0.07, 0.16, "sine");
+      this._playChime(now + 0.065, 1396.9, 0.08, 0.18, "sine");
+      this._playChime(now + 0.14, 1174.7, 0.07, 0.15, "triangle");
+      this._playVocoderMoo(now + 0.21, 310, 420, 280, 0.36, 18, "triangle", 0.2);
+    } else if (difficulty === "leicht") {
+      // Freundliches 8-Bit Blech-Roboter "Biep-Boop-Muh"
+      this._playChime(now, 523.25, 0.06, 0.14, "square");
+      this._playChime(now + 0.07, 659.25, 0.06, 0.14, "square");
+      this._playChime(now + 0.14, 440.0, 0.06, 0.14, "square");
+      this._playVocoderMoo(now + 0.21, 185, 215, 155, 0.42, 28, "square", 0.18);
+    } else if (difficulty === "mittel") {
+      // Futuristischer Cyber-Scan + Vocoder-Muh
+      const cyberNotes = [440, 554.37, 659.25, 880];
+      cyberNotes.forEach((f, idx) => {
+        this._playChime(now + idx * 0.04, f, 0.055, 0.14, "sawtooth");
+      });
+      this._playVocoderMoo(now + 0.17, 145, 175, 125, 0.46, 36, "sawtooth", 0.22);
+    } else if (difficulty === "schwer") {
+      // Schwerer Mecha-Servo + tiefes Kampf-Schnauben
+      this._playLaserSweep(now, 140, 520, 0.16, 0.18, "sawtooth");
+      this._playCowbell(now + 0.14, 220, 330, 0.18, 0.2);
+      this._playVocoderMoo(now + 0.18, 98, 122, 78, 0.52, 24, "sawtooth", 0.28);
+    } else {
+      // Terminator ("Muh-minator"): Metallischer Doppel-Schlag + Laser + Cyborg-Dröhnen
+      this._playCowbell(now, 110, 165, 0.16, 0.28);
+      this._playCowbell(now + 0.13, 110, 165, 0.2, 0.3);
+      this._playLaserSweep(now + 0.24, 1750, 320, 0.18, 0.18, "sawtooth");
+      this._playVocoderMoo(now + 0.28, 68, 86, 52, 0.62, 42, "sawtooth", 0.32);
+    }
+  }
+
+  // Interner Synthesizer für metallisch-roboterhaftes "Muuuh" mit Ring-/AM-Modulation
+  _playVocoderMoo(startTime, fStart, fPeak, fEnd, duration, modFreq, waveType, gainLevel) {
+    const osc = this.ctx.createOscillator();
+    const oscSub = this.ctx.createOscillator();
+    const modOsc = this.ctx.createOscillator();
+    const modGain = this.ctx.createGain();
+    const filter = this.ctx.createBiquadFilter();
+    const outGain = this.ctx.createGain();
+
+    osc.type = waveType;
+    osc.frequency.setValueAtTime(fStart, startTime);
+    osc.frequency.linearRampToValueAtTime(fPeak, startTime + duration * 0.35);
+    osc.frequency.linearRampToValueAtTime(fEnd, startTime + duration);
+
+    oscSub.type = "square";
+    oscSub.frequency.setValueAtTime(fStart * 1.5, startTime);
+    oscSub.frequency.linearRampToValueAtTime(fPeak * 1.5, startTime + duration * 0.35);
+    oscSub.frequency.linearRampToValueAtTime(fEnd * 1.5, startTime + duration);
+
+    filter.type = "bandpass";
+    filter.frequency.setValueAtTime(fStart * 2.4, startTime);
+    filter.frequency.linearRampToValueAtTime(fPeak * 2.8, startTime + duration * 0.4);
+    filter.frequency.linearRampToValueAtTime(fEnd * 2.0, startTime + duration);
+    filter.Q.setValueAtTime(3.2, startTime);
+
+    // Roboter-Puls-Modulation
+    modOsc.type = "square";
+    modOsc.frequency.setValueAtTime(modFreq, startTime);
+    modGain.gain.setValueAtTime(gainLevel * 0.45, startTime);
+
+    outGain.gain.setValueAtTime(0.001, startTime);
+    outGain.gain.linearRampToValueAtTime(gainLevel, startTime + 0.03);
+    outGain.gain.setValueAtTime(gainLevel * 0.9, startTime + duration * 0.7);
+    outGain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+    osc.connect(filter);
+    oscSub.connect(filter);
+    filter.connect(outGain);
+    modOsc.connect(modGain);
+    modGain.connect(outGain.gain);
+    outGain.connect(this.ctx.destination);
+
+    osc.start(startTime);
+    oscSub.start(startTime);
+    modOsc.start(startTime);
+
+    const stopAt = startTime + duration + 0.03;
+    osc.stop(stopAt);
+    oscSub.stop(stopAt);
+    modOsc.stop(stopAt);
+  }
+
+  _playLaserSweep(startTime, fStart, fEnd, duration, gainLevel, type = "sawtooth") {
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = type;
+    osc.frequency.setValueAtTime(fStart, startTime);
+    osc.frequency.exponentialRampToValueAtTime(Math.max(20, fEnd), startTime + duration);
+
+    gain.gain.setValueAtTime(0.001, startTime);
+    gain.gain.linearRampToValueAtTime(gainLevel, startTime + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start(startTime);
+    osc.stop(startTime + duration + 0.02);
+  }
+
   // Countdown-Ton (3 - 2 - 1 - LOS!)
   playCountdownTick(isGo = false) {
     if (!this.enabled) return;
@@ -230,6 +342,45 @@ class KuhSoundManager {
 
     this._playCowbell(now + 0.36, 587.33, 880, 0.35, 0.18);
     this._playCowbell(now + 0.55, 659.25, 987.77, 0.4, 0.2);
+  }
+
+  // Eigene Sieges-/Blech-Fanfare, wenn eine Roboter-Kuh das Rennen gewinnt!
+  playRobotFanfare(difficulty = "leicht") {
+    if (!this.enabled) return;
+    this.init();
+    if (!this.ctx) return;
+
+    const now = this.ctx.currentTime;
+
+    if (difficulty === "schwer" || difficulty === "terminator") {
+      // Dramatische Cyborg-/Mecha-Fanfare ("Duhn-Duhn ... Duhn-Duhn-Duhn!")
+      const hits = [
+        { f: 110, t: 0.0, d: 0.16 },
+        { f: 110, t: 0.16, d: 0.16 },
+        { f: 110, t: 0.38, d: 0.14 },
+        { f: 130.81, t: 0.52, d: 0.18 },
+        { f: 146.83, t: 0.68, d: 0.55 }
+      ];
+      hits.forEach(({ f, t, d }) => {
+        this._playChime(now + t, f, d, 0.26, "sawtooth");
+        this._playCowbell(now + t, f * 2, f * 3, d * 0.9, 0.18);
+      });
+      this._playLaserSweep(now + 0.68, 1600, 260, 0.45, 0.16, "sawtooth");
+    } else {
+      // Verspielte 8-Bit-/Blech-Roboter-Siegesmelodie
+      const chipNotes = [
+        { f: 523.25, t: 0.0, d: 0.11 },
+        { f: 659.25, t: 0.1, d: 0.11 },
+        { f: 783.99, t: 0.2, d: 0.11 },
+        { f: 1046.5, t: 0.3, d: 0.18 },
+        { f: 783.99, t: 0.46, d: 0.11 },
+        { f: 1046.5, t: 0.56, d: 0.42 }
+      ];
+      chipNotes.forEach(({ f, t, d }) => {
+        this._playChime(now + t, f, d, 0.18, "square");
+      });
+      this._playVocoderMoo(now + 0.62, 220, 260, 195, 0.35, 25, "square", 0.16);
+    }
   }
 }
 

@@ -35,6 +35,7 @@
       badge: "1 ×/÷ 1",
       titel: "1 mal 1 & 1 durch 1",
       beschreibung: "Multiplikation & Division (Faktoren 1 bis 9)",
+      botZeitFaktor: 1.0,
       generiere(rng = Math.random) {
         const istMal = rng() < 0.5;
         const a = zufallMitRng(rng, 1, 9);
@@ -61,6 +62,7 @@
       badge: "+ / −",
       titel: "Plus & Minus bis 1000",
       beschreibung: "Addition & Subtraktion (Ergebnis bis 1000)",
+      botZeitFaktor: 3.0,
       generiere(rng = Math.random) {
         const istPlus = rng() < 0.5;
         const istKleinerRaum = rng() < 0.3;
@@ -308,7 +310,347 @@
     }
   ];
 
+  // =========================================================================
+  // 4b. ROBOTER-COMPUTERKÜHE (5 SCHWIERIGKEITSSTUFEN)
+  // =========================================================================
+  const BOT_STUFEN = [
+    {
+      id: "baby",
+      cowId: "robo_baby",
+      label: "Baby",
+      baseName: "Baby-Bot",
+      minTimeMs: 8000,
+      maxTimeMs: 12000,
+      accuracy: 0.70
+    },
+    {
+      id: "leicht",
+      cowId: "robo_leicht",
+      label: "Leicht",
+      baseName: "Blech-Berta",
+      minTimeMs: 5000,
+      maxTimeMs: 8000,
+      accuracy: 0.80
+    },
+    {
+      id: "mittel",
+      cowId: "robo_mittel",
+      label: "Mittel",
+      baseName: "Cyber-Kuh",
+      minTimeMs: 3500,
+      maxTimeMs: 5500,
+      accuracy: 0.88
+    },
+    {
+      id: "schwer",
+      cowId: "robo_schwer",
+      label: "Schwer",
+      baseName: "Mecha-Muh",
+      minTimeMs: 2200,
+      maxTimeMs: 3500,
+      accuracy: 0.94
+    },
+    {
+      id: "terminator",
+      cowId: "robo_terminator",
+      label: "Terminator",
+      baseName: "Muh-minator",
+      minTimeMs: 1200,
+      maxTimeMs: 2200,
+      accuracy: 0.99
+    }
+  ];
+
+  function holeBotStufe(stufeId) {
+    return BOT_STUFEN.find((s) => s.id === stufeId) || BOT_STUFEN[1];
+  }
+
+  function berechneBotAntwortZeitMs(stufeId, typId, rng = Math.random) {
+    const stufe = holeBotStufe(stufeId);
+    const typ = AUFGABEN_KATALOG.find((t) => t.id === typId) || AUFGABEN_KATALOG[0];
+    const faktor = typ.botZeitFaktor || 1.0;
+    const minMs = Math.round(stufe.minTimeMs * faktor);
+    const maxMs = Math.round(stufe.maxTimeMs * faktor);
+    return zufallMitRng(rng, minMs, maxMs);
+  }
+
+  function entscheideBotAntwort(stufeId, rng = Math.random) {
+    const stufe = holeBotStufe(stufeId);
+    return rng() < stufe.accuracy;
+  }
+
+  function erzeugeBotSpieler(botId, stufeId = "leicht") {
+    const stufe = holeBotStufe(stufeId);
+    return {
+      id: botId,
+      name: `${stufe.baseName} (${stufe.label})`,
+      cowId: stufe.cowId,
+      isHost: false,
+      isBot: true,
+      botDifficulty: stufe.id,
+      position: 0,
+      richtig: 0,
+      fehler: 0
+    };
+  }
+
+  function aktualisiereBotNamen(liste) {
+    const anzahlProStufe = {};
+    liste.forEach((sp) => {
+      if (sp && sp.isBot) {
+        anzahlProStufe[sp.botDifficulty] = (anzahlProStufe[sp.botDifficulty] || 0) + 1;
+      }
+    });
+
+    const laufIndexProStufe = {};
+    liste.forEach((sp) => {
+      if (sp && sp.isBot) {
+        const stufe = holeBotStufe(sp.botDifficulty);
+        const gesamt = anzahlProStufe[sp.botDifficulty] || 1;
+        sp.cowId = stufe.cowId;
+        if (gesamt > 1) {
+          laufIndexProStufe[sp.botDifficulty] = (laufIndexProStufe[sp.botDifficulty] || 0) + 1;
+          sp.name = `${stufe.baseName} ${laufIndexProStufe[sp.botDifficulty]} (${stufe.label})`;
+        } else {
+          sp.name = `${stufe.baseName} (${stufe.label})`;
+        }
+      }
+    });
+    return liste;
+  }
+
+  function renderRobotCowSvg(cowId) {
+    if (cowId === "robo_baby") {
+      // 1. BABY-BOT: Süßes Pastell-Blech-Kälbchen mit Aufziehschlüssel, Propellerhut, Kuller-LEDs & Schnuller
+      return `
+        <svg viewBox="0 0 84 62" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <!-- Feder-Schwänzchen mit gelber Kugel -->
+          <path d="M12 29 Q6 26 7 33 Q4 36 8 38" fill="none" stroke="#0284c7" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="7" cy="38" r="2.8" fill="#facc15" stroke="#0284c7" stroke-width="1.2"/>
+          <!-- Aufziehschlüssel auf dem Rücken -->
+          <line x1="25" y1="20" x2="25" y2="13" stroke="#94a3b8" stroke-width="2.5"/>
+          <circle cx="22" cy="11" r="3" fill="none" stroke="#f59e0b" stroke-width="2"/>
+          <circle cx="28" cy="11" r="3" fill="none" stroke="#f59e0b" stroke-width="2"/>
+          <!-- Kleine Stützräder-Beine -->
+          <rect x="18" y="42" width="5.5" height="12" rx="2" fill="#bae6fd" stroke="#0369a1" stroke-width="1.6"/>
+          <rect x="27" y="43" width="5.5" height="11" rx="2" fill="#bae6fd" stroke="#0369a1" stroke-width="1.6"/>
+          <rect x="43" y="42" width="5.5" height="12" rx="2" fill="#bae6fd" stroke="#0369a1" stroke-width="1.6"/>
+          <rect x="51" y="43" width="5.5" height="11" rx="2" fill="#bae6fd" stroke="#0369a1" stroke-width="1.6"/>
+          <circle cx="20.7" cy="55" r="2.4" fill="#38bdf8" stroke="#0369a1" stroke-width="1.2"/>
+          <circle cx="45.7" cy="55" r="2.4" fill="#38bdf8" stroke="#0369a1" stroke-width="1.2"/>
+          <!-- Runder Baby-Roboter-Körper -->
+          <rect x="13" y="21" width="44" height="24" rx="11" fill="#e0f2fe" stroke="#0369a1" stroke-width="2"/>
+          <rect x="20" y="25" width="24" height="15" rx="6" fill="#ffffff" stroke="#7dd3fc" stroke-width="1.4"/>
+          <!-- Kleines Herz-Lämpchen auf dem Bauch -->
+          <circle cx="32" cy="32.5" r="3.5" fill="#f472b6"/>
+          <!-- Kopf -->
+          <g>
+            <!-- Bunter Propeller-Hut -->
+            <path d="M51 14 Q59 7 67 14 Z" fill="#facc15" stroke="#0369a1" stroke-width="1.5"/>
+            <line x1="59" y1="10" x2="59" y2="6" stroke="#0369a1" stroke-width="2"/>
+            <ellipse cx="59" cy="6" rx="8" ry="1.8" fill="#ef4444" stroke="#991b1b" stroke-width="1"/>
+            <!-- Kopfbasis -->
+            <rect x="46" y="14" width="26" height="22" rx="9" fill="#e0f2fe" stroke="#0369a1" stroke-width="2"/>
+            <!-- Große süße Kuller-LED-Augen -->
+            <circle cx="55.5" cy="23" r="3.6" fill="#0f172a"/>
+            <circle cx="66.5" cy="23" r="3.6" fill="#0f172a"/>
+            <circle cx="55.5" cy="23" r="2.3" fill="#38bdf8"/>
+            <circle cx="66.5" cy="23" r="2.3" fill="#38bdf8"/>
+            <circle cx="54.7" cy="22" r="1" fill="#ffffff"/>
+            <circle cx="65.7" cy="22" r="1" fill="#ffffff"/>
+            <!-- Schnauze mit Schnuller -->
+            <ellipse cx="62" cy="32" rx="10" ry="6" fill="#bae6fd" stroke="#0369a1" stroke-width="1.5"/>
+            <circle cx="62" cy="33" r="3.4" fill="#f472b6" stroke="#be185d" stroke-width="1.2"/>
+            <circle cx="62" cy="36.2" r="2.8" fill="none" stroke="#facc15" stroke-width="1.6"/>
+          </g>
+        </svg>
+      `;
+    }
+
+    if (cowId === "robo_leicht") {
+      // 2. BLECH-BERTA (LEICHT): Freundlicher Retro-Blechroboter mit Glühbirnen-Antenne & Nieten
+      return `
+        <svg viewBox="0 0 84 62" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <!-- Draht-Schwanz -->
+          <polyline points="12,28 5,26 7,35 4,38" fill="none" stroke="#64748b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- Ziehharmonika-Blechbeine -->
+          <rect x="18" y="42" width="5.5" height="14" rx="1.5" fill="#94a3b8" stroke="#334155" stroke-width="1.8"/>
+          <rect x="27" y="43" width="5.5" height="13" rx="1.5" fill="#94a3b8" stroke="#334155" stroke-width="1.8"/>
+          <rect x="43" y="42" width="5.5" height="14" rx="1.5" fill="#94a3b8" stroke="#334155" stroke-width="1.8"/>
+          <rect x="51" y="43" width="5.5" height="13" rx="1.5" fill="#94a3b8" stroke="#334155" stroke-width="1.8"/>
+          <!-- Kastiger Blechkörper mit Kupfer-Platte und Nieten -->
+          <rect x="12" y="20" width="46" height="25" rx="5" fill="#cbd5e1" stroke="#334155" stroke-width="2"/>
+          <rect x="18" y="25" width="16" height="14" rx="2" fill="#d97706" stroke="#78350f" stroke-width="1.4"/>
+          <circle cx="15.5" cy="23.5" r="1.2" fill="#475569"/>
+          <circle cx="15.5" cy="41.5" r="1.2" fill="#475569"/>
+          <circle cx="41" cy="24" r="1.2" fill="#475569"/>
+          <circle cx="41" cy="41" r="1.2" fill="#475569"/>
+          <!-- Zahnrad-Glocke am Hals -->
+          <circle cx="54" cy="41" r="4.5" fill="#f59e0b" stroke="#78350f" stroke-width="1.6" stroke-dasharray="2.5 1.5"/>
+          <circle cx="54" cy="41" r="1.6" fill="#334155"/>
+          <!-- Kopf -->
+          <g>
+            <!-- Kleine Blech-Rohr-Hörner & Glühbirnen-Antenne -->
+            <rect x="49" y="9" width="3.5" height="6" rx="1" fill="#94a3b8" stroke="#334155" stroke-width="1.4"/>
+            <rect x="65" y="9" width="3.5" height="6" rx="1" fill="#94a3b8" stroke="#334155" stroke-width="1.4"/>
+            <line x1="59" y1="14" x2="59" y2="7" stroke="#475569" stroke-width="2"/>
+            <circle cx="59" cy="5.5" r="3.2" fill="#fde047" stroke="#ca8a04" stroke-width="1.4"/>
+            <!-- Kastiger Blech-Kopf -->
+            <rect x="46" y="14" width="26" height="22" rx="4" fill="#cbd5e1" stroke="#334155" stroke-width="2"/>
+            <!-- Freundliche grüne LED-Augen -->
+            <rect x="52" y="19.5" width="6.5" height="6" rx="1.2" fill="#0f172a"/>
+            <rect x="62" y="19.5" width="6.5" height="6" rx="1.2" fill="#0f172a"/>
+            <circle cx="55.2" cy="22.5" r="2" fill="#4ade80"/>
+            <circle cx="65.2" cy="22.5" r="2" fill="#4ade80"/>
+            <!-- Lautsprecher-Gitter-Schnauze -->
+            <rect x="51" y="28" width="21" height="9" rx="3" fill="#94a3b8" stroke="#334155" stroke-width="1.6"/>
+            <line x1="56" y1="29.8" x2="56" y2="35.2" stroke="#1e293b" stroke-width="1.5"/>
+            <line x1="60" y1="29.8" x2="60" y2="35.2" stroke="#1e293b" stroke-width="1.5"/>
+            <line x1="64" y1="29.8" x2="64" y2="35.2" stroke="#1e293b" stroke-width="1.5"/>
+            <line x1="68" y1="29.8" x2="68" y2="35.2" stroke="#1e293b" stroke-width="1.5"/>
+          </g>
+        </svg>
+      `;
+    }
+
+    if (cowId === "robo_mittel") {
+      // 3. CYBER-KUH (MITTEL): Schnittige Chrom-Kuh mit blauem Laser-Visier & Energie-Kern
+      return `
+        <svg viewBox="0 0 84 62" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <!-- Cyber-Kabel-Schwanz mit blauem Leucht-Ende -->
+          <path d="M12 27 Q3 24 5 35" fill="none" stroke="#1e293b" stroke-width="2.6" stroke-linecap="round"/>
+          <circle cx="5" cy="36" r="2.6" fill="#38bdf8" stroke="#0284c7" stroke-width="1.2"/>
+          <!-- Hydraulik-Beine -->
+          <rect x="18" y="42" width="5.5" height="14" rx="2" fill="#64748b" stroke="#0f172a" stroke-width="1.8"/>
+          <rect x="27" y="43" width="5.5" height="13" rx="2" fill="#64748b" stroke="#0f172a" stroke-width="1.8"/>
+          <rect x="43" y="42" width="5.5" height="14" rx="2" fill="#64748b" stroke="#0f172a" stroke-width="1.8"/>
+          <rect x="51" y="43" width="5.5" height="13" rx="2" fill="#64748b" stroke="#0f172a" stroke-width="1.8"/>
+          <!-- Chrom-Körper mit leuchtenden Cyber-Leiterbahnen -->
+          <rect x="12" y="20" width="46" height="25" rx="9" fill="#94a3b8" stroke="#0f172a" stroke-width="2"/>
+          <polyline points="17,32 25,32 29,26 39,26" fill="none" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="22,38 34,38 38,34 44,34" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="39" cy="26" r="2.2" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.2"/>
+          <!-- Leuchtender blauer Reaktor-Kern am Hals -->
+          <circle cx="54" cy="40.5" r="4.5" fill="#0284c7" stroke="#0f172a" stroke-width="1.5"/>
+          <circle cx="54" cy="40.5" r="2.3" fill="#7dd3fc"/>
+          <!-- Kopf -->
+          <g>
+            <!-- Kantige Silber-Klingen-Hörner -->
+            <polygon points="49,15 46,6 54,13" fill="#e2e8f0" stroke="#0f172a" stroke-width="1.6"/>
+            <polygon points="63,13 70,6 68,15" fill="#e2e8f0" stroke="#0f172a" stroke-width="1.6"/>
+            <!-- Kopfbasis -->
+            <rect x="46" y="14" width="26" height="22" rx="7" fill="#94a3b8" stroke="#0f172a" stroke-width="2"/>
+            <!-- Durchgehendes leuchtendes Cyber-Visier (fokussiert) -->
+            <rect x="50" y="18.5" width="20" height="7" rx="3" fill="#0f172a" stroke="#0284c7" stroke-width="1.2"/>
+            <rect x="52" y="20.2" width="16" height="3.5" rx="1.5" fill="#38bdf8"/>
+            <line x1="50" y1="18.5" x2="70" y2="20" stroke="#0f172a" stroke-width="1.8"/>
+            <!-- Metall-Schnauze mit blauen Lüftungsschlitzen -->
+            <rect x="51" y="27.5" width="22" height="9.5" rx="4.5" fill="#475569" stroke="#0f172a" stroke-width="1.6"/>
+            <rect x="56" y="30.5" width="3.5" height="3.5" rx="1" fill="#38bdf8"/>
+            <rect x="65" y="30.5" width="3.5" height="3.5" rx="1" fill="#38bdf8"/>
+          </g>
+        </svg>
+      `;
+    }
+
+    if (cowId === "robo_schwer") {
+      // 4. MECHA-MUH (SCHWER): Dunkel gepanzerter Kampf-Bulle mit Düsen-Antrieb, Warnstreifen & glühenden Augen
+      return `
+        <svg viewBox="0 0 84 62" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <!-- Raketen-Düsen-Auspuff hinten mit Flamme -->
+          <polygon points="11,26 2,22 5,29 1,34 11,33" fill="#f97316" stroke="#dc2626" stroke-width="1"/>
+          <rect x="9" y="25" width="5" height="9" rx="1.5" fill="#1e293b" stroke="#0f172a" stroke-width="1.5"/>
+          <!-- Schwere Panzer-Beine -->
+          <rect x="18" y="42" width="6.5" height="14" rx="1.5" fill="#334155" stroke="#0f172a" stroke-width="1.8"/>
+          <rect x="27" y="43" width="6.5" height="13" rx="1.5" fill="#334155" stroke="#0f172a" stroke-width="1.8"/>
+          <rect x="43" y="42" width="6.5" height="14" rx="1.5" fill="#334155" stroke="#0f172a" stroke-width="1.8"/>
+          <rect x="51" y="43" width="6.5" height="13" rx="1.5" fill="#334155" stroke="#0f172a" stroke-width="1.8"/>
+          <!-- Dunkler Panzer-Körper mit Warnstreifen -->
+          <rect x="12" y="19" width="46" height="26" rx="6" fill="#334155" stroke="#0f172a" stroke-width="2.2"/>
+          <polygon points="18,22 26,22 22,32 14,32" fill="#facc15"/>
+          <polygon points="29,22 37,22 33,32 25,32" fill="#facc15"/>
+          <rect x="16" y="36" width="26" height="5" rx="2" fill="#1e293b" stroke="#f97316" stroke-width="1.2"/>
+          <!-- Glühender Orange-Kern am Hals -->
+          <circle cx="54" cy="41" r="4.5" fill="#ea580c" stroke="#0f172a" stroke-width="1.6"/>
+          <circle cx="54" cy="41" r="2" fill="#fef08a"/>
+          <!-- Kopf -->
+          <g>
+            <!-- Scharfe nach vorn gerichtete Stahl-Stierhörner -->
+            <path d="M50 15 L44 5 L55 12 Z" fill="#cbd5e1" stroke="#0f172a" stroke-width="1.6"/>
+            <path d="M64 13 L75 4 L70 15 Z" fill="#cbd5e1" stroke="#0f172a" stroke-width="1.6"/>
+            <!-- Gepanzerter Kopf -->
+            <rect x="46" y="13" width="26" height="23" rx="5" fill="#334155" stroke="#0f172a" stroke-width="2.2"/>
+            <!-- Böse schräg gestellte, orange-rot glühende Augen -->
+            <polygon points="51,18 59,21 59,24.5 51,23" fill="#f97316" stroke="#7c2d12" stroke-width="0.8"/>
+            <polygon points="69,18 61,21 61,24.5 69,23" fill="#f97316" stroke="#7c2d12" stroke-width="0.8"/>
+            <!-- Schwere Eisen-Schnauze mit goldenem Stier-Nasenring -->
+            <rect x="51" y="27" width="22" height="10" rx="3.5" fill="#1e293b" stroke="#0f172a" stroke-width="1.8"/>
+            <circle cx="57" cy="31.5" r="1.8" fill="#f97316"/>
+            <circle cx="67" cy="31.5" r="1.8" fill="#f97316"/>
+            <circle cx="62" cy="37.5" r="3.4" fill="none" stroke="#facc15" stroke-width="2"/>
+          </g>
+        </svg>
+      `;
+    }
+
+    if (cowId === "robo_terminator") {
+      // 5. MUH-MINATOR (TERMINATOR): Chrom-Schwarz-Endoskelett, roter Plasma-Reaktor, Laser-Hörner & rote Todes-Augen
+      return `
+        <svg viewBox="0 0 84 62" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <!-- Doppel-Laser-Flamme & Skorpion-Metallschwanz -->
+          <polygon points="12,24 0,19 5,27 0,34 12,32" fill="#ef4444" stroke="#facc15" stroke-width="0.9"/>
+          <polyline points="13,22 6,14 11,11" fill="none" stroke="#94a3b8" stroke-width="2.2" stroke-linecap="round"/>
+          <circle cx="11" cy="11" r="2.2" fill="#ef4444"/>
+          <!-- Krallen-Cyborg-Beine -->
+          <rect x="18" y="42" width="6" height="14" rx="1" fill="#0f172a" stroke="#94a3b8" stroke-width="1.6"/>
+          <rect x="27" y="43" width="6" height="13" rx="1" fill="#0f172a" stroke="#94a3b8" stroke-width="1.6"/>
+          <rect x="43" y="42" width="6" height="14" rx="1" fill="#0f172a" stroke="#94a3b8" stroke-width="1.6"/>
+          <rect x="51" y="43" width="6" height="13" rx="1" fill="#0f172a" stroke="#94a3b8" stroke-width="1.6"/>
+          <!-- Schwarzes Titan-Chassis mit glühendem rotem Endoskelett-Brustkorb -->
+          <rect x="12" y="19" width="46" height="26" rx="5" fill="#0f172a" stroke="#cbd5e1" stroke-width="2"/>
+          <rect x="18" y="24" width="26" height="16" rx="3" fill="#7f1d1d" stroke="#ef4444" stroke-width="1.5"/>
+          <line x1="23" y1="24" x2="23" y2="40" stroke="#cbd5e1" stroke-width="2.2"/>
+          <line x1="29" y1="24" x2="29" y2="40" stroke="#cbd5e1" stroke-width="2.2"/>
+          <line x1="35" y1="24" x2="35" y2="40" stroke="#cbd5e1" stroke-width="2.2"/>
+          <circle cx="31" cy="32" r="4" fill="#ef4444"/>
+          <circle cx="31" cy="32" r="1.8" fill="#ffffff"/>
+          <!-- Roter Plasma-Kern am Hals -->
+          <polygon points="54,36 59,41 54,46 49,41" fill="#dc2626" stroke="#fecaca" stroke-width="1.3"/>
+          <!-- Kopf (halb Chrom-Schädel, halb schwarzer Kampf-Cyborg) -->
+          <g>
+            <!-- Gezackte rote Laser-Klingen-Hörner -->
+            <polygon points="48,14 42,2 51,7 55,13" fill="#ef4444" stroke="#0f172a" stroke-width="1.5"/>
+            <polygon points="63,13 69,7 78,2 71,14" fill="#ef4444" stroke="#0f172a" stroke-width="1.5"/>
+            <!-- Kopfbasis mit halb freigelegter Chrom-Platte -->
+            <rect x="46" y="13" width="26" height="23" rx="4" fill="#0f172a" stroke="#cbd5e1" stroke-width="2"/>
+            <path d="M59 14 L70 14 Q72 14 72 17 L72 28 L59 28 Z" fill="#94a3b8"/>
+            <!-- Bedrohliche V-Augenbraue & stechend rote Terminator-Laser-Augen -->
+            <polyline points="50,17 60,21.5 70,17" fill="none" stroke="#ef4444" stroke-width="2"/>
+            <circle cx="54.5" cy="22" r="3" fill="#ef4444"/>
+            <circle cx="65.5" cy="22" r="3" fill="#ef4444"/>
+            <circle cx="54.5" cy="22" r="1.3" fill="#ffffff"/>
+            <circle cx="65.5" cy="22" r="1.3" fill="#ffffff"/>
+            <!-- Metallisches Endoskelett-Gebiss an der Schnauze -->
+            <rect x="50" y="27.5" width="23" height="9.5" rx="2.5" fill="#1e293b" stroke="#cbd5e1" stroke-width="1.6"/>
+            <line x1="51" y1="32.2" x2="72" y2="32.2" stroke="#ef4444" stroke-width="1.4"/>
+            <line x1="55" y1="28.5" x2="55" y2="36" stroke="#cbd5e1" stroke-width="1.6"/>
+            <line x1="59.5" y1="28.5" x2="59.5" y2="36" stroke="#cbd5e1" stroke-width="1.6"/>
+            <line x1="64" y1="28.5" x2="64" y2="36" stroke="#cbd5e1" stroke-width="1.6"/>
+            <line x1="68.5" y1="28.5" x2="68.5" y2="36" stroke="#cbd5e1" stroke-width="1.6"/>
+          </g>
+        </svg>
+      `;
+    }
+
+    return "";
+  }
+
   function renderCowSvg(cowId) {
+    if (typeof cowId === "string" && cowId.startsWith("robo_")) {
+      const roboSvg = renderRobotCowSvg(cowId);
+      if (roboSvg) return roboSvg;
+    }
+
     const d = KUH_DESIGNS.find((k) => k.id === cowId) || KUH_DESIGNS[0];
     let extraSvg = "";
 
@@ -372,11 +714,17 @@
     SCHRITT_ZURUECK,
     AUFGABEN_KATALOG,
     KUH_DESIGNS,
+    BOT_STUFEN,
     createSeededRng,
     generiereAufgabeFuerIndex,
     berechneNeuePosition,
     formatiereSchritte,
     berechneRangliste,
+    holeBotStufe,
+    berechneBotAntwortZeitMs,
+    entscheideBotAntwort,
+    erzeugeBotSpieler,
+    aktualisiereBotNamen,
     renderCowSvg
   };
   root.KuhSpielLogik = logicExports;
@@ -401,8 +749,9 @@
   let spielPhase = "home"; // "home" | "lobby" | "join" | "countdown" | "racing" | "ended"
 
   // Spieler-Liste in der Lobby & im Rennen:
-  // [{ id, name, cowId, isHost, position, richtig, fehler }]
+  // [{ id, name, cowId, isHost, isBot, botDifficulty, position, richtig, fehler }]
   let spielerListe = [];
+  let naechsteBotNummer = 1;
 
   // Eigener Renn-Zustand
   let aufgabeIndex = 0;
@@ -411,6 +760,7 @@
   let rennStartZeit = 0;
   let rennUhrInterval = null;
   let countdownTimeouts = [];
+  let botTimeouts = [];
   let aktuellerInviteLink = "";
   let aktuellerOfferCode = "";
 
@@ -513,15 +863,26 @@
       const defaultCow = KUH_DESIGNS[(spielerListe.length) % KUH_DESIGNS.length].id;
       const num = peerId.replace("p", "");
       if (!spielerListe.some((s) => s.id === peerId)) {
+        // Falls alle 4 Plätze durch Computerkühe belegt sind, letzte Computerkuh für den echten Mitspieler freigeben
+        if (spielerListe.length >= 4) {
+          for (let idx = spielerListe.length - 1; idx >= 0; idx--) {
+            if (spielerListe[idx].isBot) {
+              spielerListe.splice(idx, 1);
+              break;
+            }
+          }
+        }
         spielerListe.push({
           id: peerId,
           name: `Spieler ${num}`,
           cowId: defaultCow,
           isHost: false,
+          isBot: false,
           position: 0,
           richtig: 0,
           fehler: 0
         });
+        aktualisiereBotNamen(spielerListe);
       }
       elModalInvite.hidden = true;
       sendeLobbyUpdateAnAlle();
@@ -757,7 +1118,7 @@
   function sendeLobbyUpdateAnAlle() {
     if (netzwerk.role !== "host") return;
     spielerListe.forEach((sp) => {
-      if (!sp.isHost) {
+      if (!sp.isHost && !sp.isBot) {
         netzwerk.sendToPeer(sp.id, {
           type: "LOBBY_STATE",
           yourId: sp.id,
@@ -768,14 +1129,65 @@
     });
   }
 
+  function waehleNaechsteStandardBotStufe() {
+    const vorhandeneStufen = new Set(
+      spielerListe.filter((s) => s.isBot).map((s) => s.botDifficulty)
+    );
+    const reihenfolge = ["baby", "leicht", "mittel", "schwer", "terminator"];
+    for (let i = 0; i < reihenfolge.length; i++) {
+      if (!vorhandeneStufen.has(reihenfolge[i])) {
+        return reihenfolge[i];
+      }
+    }
+    return "leicht";
+  }
+
+  function fuegeBotHinzu(wunschStufeId) {
+    if (netzwerk.role !== "host" || spielerListe.length >= 4) return;
+    const stufeId = wunschStufeId || waehleNaechsteStandardBotStufe();
+    const botId = `bot_${naechsteBotNummer++}`;
+    const neuerBot = erzeugeBotSpieler(botId, stufeId);
+    spielerListe.push(neuerBot);
+    aktualisiereBotNamen(spielerListe);
+
+    window.soundManager.playRobotMoo(neuerBot.botDifficulty);
+    sendeLobbyUpdateAnAlle();
+    aktualisiereLobbyAnsicht();
+  }
+
+  function aendereBotStufe(botId, neueStufeId) {
+    if (netzwerk.role !== "host") return;
+    const sp = spielerListe.find((s) => s.id === botId && s.isBot);
+    if (!sp) return;
+
+    const stufe = holeBotStufe(neueStufeId);
+    sp.botDifficulty = stufe.id;
+    sp.cowId = stufe.cowId;
+    aktualisiereBotNamen(spielerListe);
+
+    window.soundManager.playRobotMoo(stufe.id);
+    sendeLobbyUpdateAnAlle();
+    aktualisiereLobbyAnsicht();
+  }
+
+  function entferneBot(botId) {
+    if (netzwerk.role !== "host") return;
+    window.soundManager.playClick();
+    spielerListe = spielerListe.filter((s) => s.id !== botId);
+    aktualisiereBotNamen(spielerListe);
+    sendeLobbyUpdateAnAlle();
+    aktualisiereLobbyAnsicht();
+  }
+
   function aktualisiereLobbyAnsicht() {
     const istHost = netzwerk.role === "host";
     elLobbyRoleBadge.textContent = istHost ? "👑 Spielleiter" : "🐄 Mitspieler";
     elLobbyPlayerCount.textContent = String(spielerListe.length);
 
-    // Einladen-Button nur für Host und solange < 4 Spieler
+    // Einladen-Button nur für Host und solange < 4 echte Spieler
+    const echteSpielerAnzahl = spielerListe.filter((s) => !s.isBot).length;
     elBtnOpenInvite.hidden = !istHost;
-    elBtnOpenInvite.disabled = spielerListe.length >= 4;
+    elBtnOpenInvite.disabled = echteSpielerAnzahl >= 4;
 
     // 4 Startboxen rendern
     elLobbyPlayersList.innerHTML = "";
@@ -783,7 +1195,47 @@
       const sp = spielerListe[i];
       const slot = document.createElement("div");
 
-      if (sp) {
+      if (sp && sp.isBot) {
+        slot.className = `stall-slot belegt bot-slot bot-slot-${sp.botDifficulty}`;
+        if (istHost) {
+          const stufenButtonsHtml = BOT_STUFEN.map((st) => {
+            const istAktiv = st.id === sp.botDifficulty;
+            return `<button type="button" class="bot-stufe-btn stufe-${st.id} ${istAktiv ? "aktiv" : ""}" data-bot-id="${sp.id}" data-stufe="${st.id}" aria-pressed="${istAktiv}">${st.label}</button>`;
+          }).join("");
+
+          slot.innerHTML = `
+            <div class="bot-slot-kopf">
+              <div class="stall-links">
+                <div class="stall-kuh-icon">${renderCowSvg(sp.cowId)}</div>
+                <span class="stall-name">${escapeHtml(sp.name)}</span>
+              </div>
+              <button type="button" class="btn-bot-entfernen" title="Computerkuh entfernen" aria-label="${escapeHtml(sp.name)} entfernen">✕</button>
+            </div>
+            <div class="bot-stufen-leiste" role="group" aria-label="Schwierigkeit für ${escapeHtml(sp.name)}">
+              ${stufenButtonsHtml}
+            </div>
+          `;
+
+          const removeBtn = slot.querySelector(".btn-bot-entfernen");
+          if (removeBtn) {
+            removeBtn.addEventListener("click", () => entferneBot(sp.id));
+          }
+          slot.querySelectorAll(".bot-stufe-btn").forEach((btn) => {
+            btn.addEventListener("click", () => {
+              const zielStufe = btn.getAttribute("data-stufe");
+              aendereBotStufe(sp.id, zielStufe);
+            });
+          });
+        } else {
+          slot.innerHTML = `
+            <div class="stall-links">
+              <div class="stall-kuh-icon">${renderCowSvg(sp.cowId)}</div>
+              <span class="stall-name">${escapeHtml(sp.name)}</span>
+            </div>
+            <span class="stall-status bot-status-badge">🤖 Roboter</span>
+          `;
+        }
+      } else if (sp) {
         const istIch = sp.id === eigeneSpielerId;
         slot.className = `stall-slot belegt ${istIch ? "eigener" : ""}`;
         slot.innerHTML = `
@@ -794,12 +1246,29 @@
           <span class="stall-status">${sp.isHost ? "👑 Spielleiter" : "✅ Bereit"}</span>
         `;
       } else {
-        slot.className = "stall-slot leer";
-        slot.innerHTML = `
-          <div class="stall-links">
-            <span class="stall-name">Startbox ${i + 1}: Frei</span>
-          </div>
-        `;
+        slot.className = `stall-slot leer ${istHost ? "leer-klickbar" : ""}`;
+        if (istHost) {
+          slot.innerHTML = `
+            <div class="stall-links">
+              <span class="stall-name">Startbox ${i + 1}: Frei</span>
+            </div>
+            <button type="button" class="btn-bot-hinzufuegen">🤖 + Computerkuh</button>
+          `;
+          const addBtn = slot.querySelector(".btn-bot-hinzufuegen");
+          if (addBtn) {
+            addBtn.addEventListener("click", (e) => {
+              e.stopPropagation();
+              fuegeBotHinzu();
+            });
+          }
+          slot.addEventListener("click", () => fuegeBotHinzu());
+        } else {
+          slot.innerHTML = `
+            <div class="stall-links">
+              <span class="stall-name">Startbox ${i + 1}: Frei</span>
+            </div>
+          `;
+        }
       }
       elLobbyPlayersList.appendChild(slot);
     }
@@ -1127,9 +1596,9 @@
     // Zufälligen Seed für diese Runde bestimmen (alle rechnen dieselben Aufgaben!)
     rundenSeed = Math.floor(Math.random() * 2147483647) + 1;
 
-    // An alle Mitspieler senden
+    // An alle echten Mitspieler senden
     spielerListe.forEach((sp) => {
-      if (!sp.isHost) {
+      if (!sp.isHost && !sp.isBot) {
         netzwerk.sendToPeer(sp.id, {
           type: "START_RACE",
           yourId: sp.id,
@@ -1148,6 +1617,52 @@
     rennUhrInterval = null;
     countdownTimeouts.forEach((t) => clearTimeout(t));
     countdownTimeouts = [];
+    botTimeouts.forEach((t) => clearTimeout(t));
+    botTimeouts = [];
+  }
+
+  function starteBotSimulation() {
+    if (netzwerk.role !== "host") return;
+    spielerListe.forEach((sp) => {
+      if (sp.isBot) {
+        planeNaechstenBotSchritt(sp.id);
+      }
+    });
+  }
+
+  function planeNaechstenBotSchritt(botId) {
+    if (spielPhase !== "racing" || netzwerk.role !== "host") return;
+    const sp = spielerListe.find((s) => s.id === botId && s.isBot);
+    if (!sp || sp.position >= ZIEL_SCHRITTE) return;
+
+    const warteZeitMs = berechneBotAntwortZeitMs(sp.botDifficulty, aktiverTypId);
+    const timeoutId = setTimeout(() => {
+      if (spielPhase !== "racing" || netzwerk.role !== "host") return;
+      const aktuelleSp = spielerListe.find((s) => s.id === botId && s.isBot);
+      if (!aktuelleSp || aktuelleSp.position >= ZIEL_SCHRITTE) return;
+
+      const istRichtig = entscheideBotAntwort(aktuelleSp.botDifficulty);
+      aktuelleSp.position = berechneNeuePosition(aktuelleSp.position, istRichtig);
+      const delta = istRichtig ? SCHRITT_VOR : -SCHRITT_ZURUECK;
+
+      if (istRichtig) {
+        aktuelleSp.richtig += 1;
+      } else {
+        aktuelleSp.fehler += 1;
+      }
+
+      zeigeSpurEvent(aktuelleSp.id, delta);
+      aktualisiereRennbahnPositionen();
+      sendeRennUpdateAnAlle({ playerId: aktuelleSp.id, delta });
+
+      if (aktuelleSp.position >= ZIEL_SCHRITTE) {
+        beendeRennenAlsHost(aktuelleSp.id);
+      } else {
+        planeNaechstenBotSchritt(aktuelleSp.id);
+      }
+    }, warteZeitMs);
+
+    botTimeouts.push(timeoutId);
   }
 
   function starteRennAblaufMitCountdown() {
@@ -1198,6 +1713,7 @@
         spielPhase = "racing";
         rennStartZeit = Date.now();
         rennUhrInterval = setInterval(aktualisiereRennUhr, 200);
+        starteBotSimulation();
       }, 3100)
     );
   }
@@ -1404,11 +1920,20 @@
   // =========================================================================
   function zeigeSiegerehrung(winnerId, dauerMs) {
     stoppeLaufendeTimer();
-    window.soundManager.playFanfare();
-    zeigeScreen("end");
-
     const rangliste = berechneRangliste(spielerListe, dauerMs);
     const sieger = rangliste.find((s) => s.id === winnerId) || rangliste[0];
+
+    if (sieger && sieger.isBot && window.soundManager.playRobotFanfare) {
+      window.soundManager.playRobotFanfare(sieger.botDifficulty);
+    } else {
+      window.soundManager.playFanfare();
+    }
+    zeigeScreen("end");
+
+    const kroneEl = document.querySelector(".krone-badge");
+    if (kroneEl) {
+      kroneEl.textContent = sieger && sieger.isBot ? "🤖 Sieger-Roboter 🏆" : "🏆 Sieger-Kuh 🏆";
+    }
 
     elWinnerCowAvatar.innerHTML = renderCowSvg(sieger.cowId);
     elWinnerTitle.textContent = `${sieger.name} gewinnt das Kuhrennen!`;
