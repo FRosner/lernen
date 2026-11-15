@@ -3026,8 +3026,665 @@
     renderCurrentTask();
   }
 
+  // --- Print / PDF Generator ---
+  function renderPrintNumberLineSVG(task) {
+    const W = 780;
+    const H = 135;
+    const padX = 44;
+    const lineY = 38;
+    const lineW = W - padX * 2;
+    const cardY = 92;
+    const valToX = (v) => padX + ((v - task.start) / (task.end - task.start)) * lineW;
+    const cardCenterX = (i) => padX + ((i + 0.5) / task.numbers.length) * lineW;
+
+    let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="125" style="display:block;">`;
+    svg += `<line x1="${padX}" y1="${lineY}" x2="${W - padX}" y2="${lineY}" stroke="#0f172a" stroke-width="2.2"/>`;
+
+    for (let v = task.start; v <= task.end; v += 10) {
+      const x = valToX(v);
+      const is100 = v % 100 === 0;
+      const is50 = v % 100 === 50;
+      const tickH = is100 ? 13 : is50 ? 9 : 5;
+      svg += `<line x1="${x}" y1="${lineY - tickH}" x2="${x}" y2="${lineY + tickH}" stroke="#0f172a" stroke-width="${is100 ? 2.2 : is50 ? 1.5 : 1}"/>`;
+      if (is100) {
+        svg += `<text x="${x}" y="${lineY - 17}" text-anchor="middle" font-size="13" font-weight="800" fill="#0f172a">${v}</text>`;
+      }
+    }
+
+    task.numbers.forEach((num, idx) => {
+      const cx = cardCenterX(idx);
+      const boxW = 76;
+      const boxH = 32;
+      svg += `<rect x="${cx - boxW / 2}" y="${cardY}" width="${boxW}" height="${boxH}" rx="6" fill="#ffffff" stroke="#1e293b" stroke-width="2"/>`;
+      svg += `<text x="${cx}" y="${cardY + 21}" text-anchor="middle" font-size="15" font-weight="900" fill="#0f172a">${num}</text>`;
+    });
+
+    svg += `</svg>`;
+    return svg;
+  }
+
+  function renderPrintRechenstrichSVG(startLabel, endLabel, isBoxes = false) {
+    const W = 760;
+    const H = 68;
+    const padX = 58;
+    const lineY = 26;
+    let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="62" style="display:block;">`;
+    svg += `<line x1="${padX}" y1="${lineY}" x2="${W - padX}" y2="${lineY}" stroke="#0f172a" stroke-width="2.4"/>`;
+    svg += `<line x1="${padX}" y1="${lineY - 11}" x2="${padX}" y2="${lineY + 11}" stroke="#0f172a" stroke-width="2.4"/>`;
+    svg += `<line x1="${W - padX}" y1="${lineY - 11}" x2="${W - padX}" y2="${lineY + 11}" stroke="#0f172a" stroke-width="2.4"/>`;
+
+    if (isBoxes) {
+      svg += `<rect x="${padX - 30}" y="${lineY + 14}" width="60" height="24" rx="4" fill="#ffffff" stroke="#1e293b" stroke-width="1.8"/>`;
+      svg += `<rect x="${W - padX - 30}" y="${lineY + 14}" width="60" height="24" rx="4" fill="#ffffff" stroke="#1e293b" stroke-width="1.8"/>`;
+    } else {
+      svg += `<text x="${padX}" y="${lineY + 29}" text-anchor="middle" font-size="14" font-weight="800" fill="#0f172a">${startLabel}</text>`;
+      svg += `<text x="${W - padX}" y="${lineY + 29}" text-anchor="middle" font-size="14" font-weight="800" fill="#0f172a">${endLabel}</text>`;
+    }
+
+    svg += `</svg>`;
+    return svg;
+  }
+
+  function buildPrintTaskBodyHTML(task) {
+    const wBox = (cls = "") => `<span class="print-write-box ${cls}"></span>`;
+
+    switch (task.type) {
+      case "dienes_read": {
+        return {
+          prompt: "Zähle die Hunderterplatten (H), Zehnerstangen (Z) und Einerwürfel (E). Trage sie in die Stellenwerttafel und als Zahl ein.",
+          body: `<div class="print-grid-2">${task.items
+            .map(
+              (it) => `
+              <div class="print-card" style="text-align:center;">
+                <div style="display:flex;justify-content:center;margin-bottom:4px;">${renderDienesSVG(it.h, it.z, it.e)}</div>
+                <div style="display:flex;align-items:center;justify-content:space-around;gap:8px;">
+                  <table class="stellenwerttafel" style="margin:0;">
+                    <thead><tr><th>H</th><th>Z</th><th>E</th></tr></thead>
+                    <tbody><tr><td>${wBox("sm")}</td><td>${wBox("sm")}</td><td>${wBox("sm")}</td></tr></tbody>
+                  </table>
+                  <div style="font-weight:800;font-size:9.5pt;">Zahl: ${wBox("lg")}</div>
+                </div>
+              </div>`
+            )
+            .join("")}</div>`,
+          solution: task.items
+            .map(
+              (it, i) =>
+                `<strong>Bild ${i + 1}:</strong> ${it.h} H | ${it.z} Z | ${it.e} E &rarr; Zahl: <strong>${it.h * 100 + it.z * 10 + it.e}</strong> (je 2 P.)`
+            )
+            .join("<br>")
+        };
+      }
+
+      case "represent_split": {
+        return {
+          prompt: "Lies das Geheimzeichen-Bild ab (Quadrat = Hunderter, Strich = Zehner, Punkt = Einer). Fülle die Stellenwertkarten und die Zerlegung aus.",
+          body: `<div style="display:flex;flex-direction:column;gap:5px;">${task.items
+            .map(
+              (it) => `
+              <div class="print-card" style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 8px;">
+                <div style="flex:1;max-width:190px;">${renderSketchDienesSVG(it.h, it.z, it.e)}</div>
+                <div style="border:1.5px solid #475569;border-radius:5px;padding:2px 5px;background:#fff;">
+                  ${wBox("sm")}${wBox("sm")}${wBox("sm")}
+                </div>
+                <div style="font-weight:800;font-size:10pt;">
+                  = ${wBox()} + ${wBox()} + ${wBox("sm")}
+                </div>
+              </div>`
+            )
+            .join("")}</div>`,
+          solution: task.items
+            .map(
+              (it) =>
+                `<strong>${it.h} | ${it.z} | ${it.e}</strong> &rarr; <strong>${it.h * 100} + ${it.z * 10} + ${it.e}</strong> (1 P.)`
+            )
+            .join("<br>")
+        };
+      }
+
+      case "dienes_build": {
+        return {
+          prompt: "Zeichne die Zahl als Geheimzeichen: Quadrat (□) = 1 Hunderter, Strich (—) = 1 Zehner, Punkt (•) = 1 Einer.",
+          body: `<div class="print-grid-2">${task.items
+            .map((it) => {
+              const num = it.h * 100 + it.z * 10 + it.e;
+              return `
+                <div class="print-card">
+                  <div style="font-weight:900;font-size:10.5pt;text-align:center;">Zahl: <span style="font-size:12pt;">${num}</span></div>
+                  <div class="print-draw-area">
+                    <span class="print-draw-hint">□ Hunderter &nbsp; — Zehner &nbsp; • Einer</span>
+                  </div>
+                </div>`;
+            })
+            .join("")}</div>`,
+          solution: task.items
+            .map(
+              (it) =>
+                `<strong>${it.h * 100 + it.z * 10 + it.e}:</strong> ${it.h} Quadrate (H), ${it.z} Striche (Z), ${it.e} Punkte (E) (2 P.)`
+            )
+            .join("<br>")
+        };
+      }
+
+      case "bundle_swap": {
+        return {
+          prompt: "Immer 10 Einer werden zu 1 Zehner, und 10 Zehner werden zu 1 Hunderter! Tausche um:",
+          body: `<div class="print-grid-2">
+            <div class="print-card" style="display:flex;flex-direction:column;gap:6px;">
+              ${task.leftItems
+                .map(
+                  (it) => `
+                  <div style="display:flex;justify-content:space-between;align-items:center;font-weight:800;">
+                    <span>${it.givenZ} Z &nbsp; ${it.givenE} E &nbsp;=</span>
+                    <span>${wBox("sm")} Z &nbsp; ${wBox("sm")} E</span>
+                  </div>`
+                )
+                .join("")}
+            </div>
+            <div class="print-card" style="display:flex;flex-direction:column;gap:6px;">
+              ${task.rightItems
+                .map(
+                  (it) => `
+                  <div style="display:flex;justify-content:space-between;align-items:center;font-weight:800;">
+                    <span>${it.givenZ} Z &nbsp; ${it.givenE} E &nbsp;=</span>
+                    <span>${wBox("sm")} H &nbsp; ${wBox("sm")} Z &nbsp; ${wBox("sm")} E</span>
+                  </div>`
+                )
+                .join("")}
+            </div>
+          </div>`,
+          solution:
+            task.leftItems
+              .map((it) => `${it.givenZ} Z ${it.givenE} E = <strong>${it.ansZ} Z ${it.ansE} E</strong>`)
+              .join(" · ") +
+            "<br>" +
+            task.rightItems
+              .map((it) => `${it.givenZ} Z ${it.givenE} E = <strong>${it.ansH} H ${it.ansZ} Z ${it.ansE} E</strong>`)
+              .join(" · ") +
+            " (je 1 P.)"
+        };
+      }
+
+      case "word_htafel": {
+        let cells = "";
+        for (let i = 1; i <= 100; i++) {
+          cells += `<span>${task.hBase + i}</span>`;
+        }
+        return {
+          prompt: `Lies die 3 Zahlwörter, schreibe sie als Zahl auf und kreise die 3 Zahlen rechts in der Hundertertafel (${task.hBase + 1} bis ${task.hBase + 100}) mit dem Stift ein!`,
+          body: `<div class="print-grid-2" style="grid-template-columns: 1.15fr 1fr;">
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              ${task.targets
+                .map(
+                  (t) => `
+                  <div class="print-card" style="display:flex;justify-content:space-between;align-items:center;font-weight:800;">
+                    <span>„${t.word}“</span>
+                    <span>= ${wBox("lg")}</span>
+                  </div>`
+                )
+                .join("")}
+            </div>
+            <div>
+              <div class="print-htafel">${cells}</div>
+            </div>
+          </div>`,
+          solution:
+            task.targets.map((t) => `${t.word} = <strong>${t.num}</strong>`).join("<br>") +
+            "<br><em>(Je 1 P. für die Zahl + je 1 P. fürs Einkreisen in der Tafel)</em>"
+        };
+      }
+
+      case "htafel_puzzle": {
+        return {
+          prompt: "Trage die fehlenden Zahlen in die Ausschnitte der Hundertertafel ein (rechts: +1, links: −1, unten: +10, oben: −10).",
+          body: `<div class="print-grid-3">${task.puzzles
+            .map((p) => {
+              let gridHTML = `<div style="display:grid;grid-template-columns:repeat(${p.cols}, 44px);grid-template-rows:repeat(${p.rows}, 30px);gap:2px;justify-content:center;">`;
+              for (let r = 0; r < p.rows; r++) {
+                for (let c = 0; c < p.cols; c++) {
+                  const found = p.cells.find((item) => item.r === r && item.c === c);
+                  if (!found) {
+                    gridHTML += `<div></div>`;
+                  } else if (found.given) {
+                    gridHTML += `<div style="border:1.5px solid #1e293b;background:#e2e8f0;font-weight:900;display:flex;align-items:center;justify-content:center;border-radius:3px;">${found.val}</div>`;
+                  } else {
+                    gridHTML += `<div style="border:1.5px solid #1e293b;background:#ffffff;border-radius:3px;"></div>`;
+                  }
+                }
+              }
+              gridHTML += `</div>`;
+              return `<div class="print-card" style="text-align:center;">
+                <div style="font-size:8.5pt;font-weight:800;color:#475569;margin-bottom:4px;">${p.name}</div>
+                ${gridHTML}
+              </div>`;
+            })
+            .join("")}</div>`,
+          solution: task.puzzles
+            .map((p) => {
+              const vals = p.cells
+                .slice()
+                .sort((a, b) => a.r - b.r || a.c - b.c)
+                .map((c) => (c.given ? `[${c.val}]` : `<strong>${c.val}</strong>`))
+                .join(", ");
+              return `${p.name}: ${vals} (2 P.)`;
+            })
+            .join("<br>")
+        };
+      }
+
+      case "number_riddles": {
+        return {
+          prompt: "Lies genau, was der Hund und die Schildkröte mit ihren Zahlen machen, und trage die gesuchte Zahl ein.",
+          body: `<div style="display:flex;flex-direction:column;gap:6px;">${task.riddles
+            .map(
+              (r) => `
+              <div class="print-card" style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+                <div style="font-size:9.5pt;"><strong>${r.avatar}</strong> ${r.text}</div>
+                <div style="white-space:nowrap;font-weight:800;font-size:9.5pt;">${r.label} ${wBox("lg")}</div>
+              </div>`
+            )
+            .join("")}</div>`,
+          solution: task.riddles
+            .map((r, i) => `Rätsel ${i + 1}: <strong>${r.answer}</strong> (${r.explain}) (2 P.)`)
+            .join("<br>")
+        };
+      }
+
+      case "number_line_connect": {
+        return {
+          prompt: "Verbinde jedes Zahlenkärtchen mit einem Strich (Stift und Lineal) mit der genau passenden Stelle am Zahlenstrahl!",
+          body: `<div class="print-card" style="padding:6px;">${renderPrintNumberLineSVG(task)}</div>`,
+          solution: `Zahlen am Zahlenstrahl (${task.start} bis ${task.end}): <strong>${task.numbers.join(", ")}</strong> (je 1 P.)`
+        };
+      }
+
+      case "neighbor_tens":
+      case "neighbor_hundreds": {
+        const isTens = task.type === "neighbor_tens";
+        const colLabel = isTens ? "NZ (Nachbarzehner)" : "NH (Nachbarhunderter)";
+        const unitWord = isTens ? "Zehner" : "Hunderter";
+        return {
+          prompt: `Trage den kleineren und den größeren ${colLabel} ein. Kreise außerdem den ${unitWord} ein, der näher an der Zahl liegt!`,
+          body: `<table class="nz-table" style="font-size:9.5pt;">
+            <thead>
+              <tr>
+                <th>Kleinerer ${isTens ? "NZ" : "NH"}</th>
+                <th>Zahl (Z)</th>
+                <th>Größerer ${isTens ? "NZ" : "NH"}</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${task.items
+                .map(
+                  (it) => `
+                  <tr>
+                    <td>${wBox("lg")}</td>
+                    <td style="font-weight:900;font-size:10.5pt;background:#f8fafc;">${it.z}</td>
+                    <td>${wBox("lg")}</td>
+                  </tr>`
+                )
+                .join("")}
+            </tbody>
+          </table>`,
+          solution: task.items
+            .map((it) => {
+              const lowStr = it.closer === "low" ? `<u><strong>${it.low}</strong> (näher)</u>` : `${it.low}`;
+              const highStr = it.closer === "high" ? `<u><strong>${it.high}</strong> (näher)</u>` : `${it.high}`;
+              return `${it.z}: ${lowStr} und ${highStr} (1 P.)`;
+            })
+            .join("<br>")
+        };
+      }
+
+      case "compare_numbers": {
+        return {
+          prompt: "Vergleiche die Zahlen und trage das passende Zeichen (<, > oder =) in das Kästchen ein!",
+          body: `<div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;">
+            ${task.pairs
+              .map(
+                (p) => `
+                <div class="print-card" style="display:flex;align-items:center;justify-content:center;gap:6px;font-weight:900;font-size:10.5pt;">
+                  <span>${p.a}</span> ${wBox("sm")} <span>${p.b}</span>
+                </div>`
+              )
+              .join("")}
+          </div>`,
+          solution: task.pairs.map((p) => `<strong>${p.a} ${p.ans} ${p.b}</strong>`).join(" &nbsp;·&nbsp; ") + " (je 1 P.)"
+        };
+      }
+
+      case "rechenstrich_approx": {
+        return {
+          prompt: "Wo liegen die 4 Zahlen ungefähr? Zeichne für jede Zahl einen Strich auf dem Rechenstrich ein und schreibe die Zahl daran!",
+          body: `<div style="display:flex;flex-direction:column;gap:8px;">
+            ${task.lines
+              .map(
+                (ln) => `
+                <div class="print-card">
+                  <div style="font-weight:800;font-size:9.5pt;margin-bottom:4px;">
+                    ${ln.label} &nbsp; Trage ein: <strong>${ln.numbers.join(" · ")}</strong>
+                  </div>
+                  ${renderPrintRechenstrichSVG(ln.start, ln.end, false)}
+                </div>`
+              )
+              .join("")}
+          </div>`,
+          solution: task.lines
+            .map(
+              (ln, i) =>
+                `Strich ${i + 1} (${ln.start}–${ln.end}, Mitte ${ln.start + (ln.end - ln.start) / 2}): <strong>${ln.numbers.join(", ")}</strong> (je 1 P.)`
+            )
+            .join("<br>")
+        };
+      }
+
+      case "rechenstrich_custom": {
+        return {
+          prompt: `Schau dir die 4 Zahlen an: ${task.numbers.join(", ")}. Trage zuerst links und rechts den passenden Start- und Endhunderter in die Kästchen ein und ordne dann die 4 Zahlen auf dem Rechenstrich ein!`,
+          body: `<div class="print-card">
+            <div style="font-weight:800;font-size:9.5pt;margin-bottom:4px;">
+              Zahlen zum Eintragen: <strong>${task.numbers.join(" · ")}</strong>
+            </div>
+            ${renderPrintRechenstrichSVG("", "", true)}
+          </div>`,
+          solution: `Start-Hunderter: <strong>${task.expectedStart}</strong>, End-Hunderter: <strong>${task.expectedEnd}</strong> (1 P.) + 4 Zahlen passend eingezeichnet: <strong>${task.numbers.join(", ")}</strong> (4 P.)`
+        };
+      }
+
+      case "decompositions": {
+        const eqs = task.items.slice(0, 4);
+        const houses = task.items.slice(4, 6);
+        return {
+          prompt: "Zerlege die Zahlen, ergänze zum nächsten Hunderter / bis 1000 und vervollständige die Zahlhäuser!",
+          body: `<div class="print-grid-2">
+            <div class="print-card" style="display:flex;flex-direction:column;gap:6px;font-weight:800;">
+              ${eqs
+                .map(
+                  (it) => `<div>${it.label} ${wBox()} ${it.after || ""}</div>`
+                )
+                .join("")}
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              ${houses
+                .map(
+                  (it) => `
+                  <div style="border:1.5px solid #1e293b;border-radius:6px;overflow:hidden;text-align:center;background:#fff;">
+                    <div style="background:#e2e8f0;font-weight:900;padding:3px;border-bottom:1.5px solid #1e293b;">🏠 ${it.roof}</div>
+                    <div style="padding:8px 4px;font-weight:800;font-size:9.5pt;">${it.givenText} ${wBox()}</div>
+                  </div>`
+                )
+                .join("")}
+            </div>
+          </div>`,
+          solution: task.items
+            .map((it, idx) =>
+              idx < 4
+                ? `${it.label} <strong>${it.ans}</strong> ${it.after || ""}`
+                : `🏠 ${it.roof}: ${it.givenText} <strong>${it.ans}</strong>`
+            )
+            .join(" &nbsp;·&nbsp; ") + " (je 1 P.)"
+        };
+      }
+
+      case "number_sequences": {
+        return {
+          prompt: "Setze jede Zahlenfolge um 2 Zahlen fort und schreibe rechts die passende Regel auf (z. B. „+20“ oder „−50“)!",
+          body: `<div style="display:flex;flex-direction:column;gap:6px;">
+            ${task.sequences
+              .map(
+                (seq) => `
+                <div class="print-card" style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+                  <div style="font-weight:800;font-size:10pt;">
+                    ${seq.given.join(" &rarr; ")} &rarr; ${wBox()} &rarr; ${wBox()}
+                  </div>
+                  <div style="font-weight:800;font-size:9.5pt;">
+                    Regel: <span class="print-write-line" style="min-width:125px;"></span>
+                  </div>
+                </div>`
+              )
+              .join("")}
+          </div>`,
+          solution: task.sequences
+            .map(
+              (seq, i) =>
+                `Folge ${i + 1}: <strong>${seq.ans1}, ${seq.ans2}</strong> (1 P.) · Regel: <strong>${seq.correctRule}</strong> (1 P.)`
+            )
+            .join("<br>")
+        };
+      }
+
+      case "mult_div_basic": {
+        return {
+          prompt: "Rechne die Mal- und Geteiltaufgaben im Kopf aus:",
+          body: `<div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;">
+            ${task.items
+              .map(
+                (it) => `
+                <div class="print-card" style="display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:10.5pt;">
+                  <span>${it.a} ${it.op} ${it.b} =</span> ${wBox()}
+                </div>`
+              )
+              .join("")}
+          </div>`,
+          solution: task.items.map((it) => `${it.a} ${it.op} ${it.b} = <strong>${it.ans}</strong>`).join(" &nbsp;·&nbsp; ") + " (je 1 P.)"
+        };
+      }
+
+      case "mult_div_missing": {
+        return {
+          prompt: "Welche Zahl fehlt in der Lücke? Nutze die Umkehraufgabe als Hilfe!",
+          body: `<div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;">
+            ${task.items
+              .map((it) => {
+                const eq =
+                  it.mode === "missingA"
+                    ? `${wBox()} ${it.op} ${it.b} = ${it.c}`
+                    : `${it.a} ${it.op} ${wBox()} = ${it.c}`;
+                return `<div class="print-card" style="text-align:center;font-weight:800;font-size:10.5pt;">${eq}</div>`;
+              })
+              .join("")}
+          </div>`,
+          solution: task.items
+            .map((it) =>
+              it.mode === "missingA"
+                ? `<strong>${it.ans}</strong> ${it.op} ${it.b} = ${it.c}`
+                : `${it.a} ${it.op} <strong>${it.ans}</strong> = ${it.c}`
+            )
+            .join(" &nbsp;·&nbsp; ") + " (je 1 P.)"
+        };
+      }
+
+      case "fact_family": {
+        return {
+          prompt: `Bilde aus den drei Zahlen ${task.a}, ${task.b} und ${task.p} zwei verschiedene Malaufgaben und zwei verschiedene Geteiltaufgaben!`,
+          body: `<div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:10px;align-items:center;">
+            <div class="print-card" style="text-align:center;padding:8px 12px;">
+              <div style="font-size:8.5pt;font-weight:800;color:#475569;margin-bottom:4px;">Familien-Zahlen</div>
+              <div style="font-size:12pt;font-weight:900;letter-spacing:2px;">${task.a} &nbsp;·&nbsp; ${task.p} &nbsp;·&nbsp; ${task.b}</div>
+            </div>
+            <div class="print-card" style="display:flex;flex-direction:column;gap:5px;font-weight:800;text-align:center;">
+              <div style="font-size:9pt;color:#475569;">2 Malaufgaben (·)</div>
+              <div>${wBox("sm")} · ${wBox("sm")} = ${wBox()}</div>
+              <div>${wBox("sm")} · ${wBox("sm")} = ${wBox()}</div>
+            </div>
+            <div class="print-card" style="display:flex;flex-direction:column;gap:5px;font-weight:800;text-align:center;">
+              <div style="font-size:9pt;color:#475569;">2 Geteiltaufgaben (:)</div>
+              <div>${wBox()} : ${wBox("sm")} = ${wBox("sm")}</div>
+              <div>${wBox()} : ${wBox("sm")} = ${wBox("sm")}</div>
+            </div>
+          </div>`,
+          solution: `<strong>${task.a} · ${task.b} = ${task.p}</strong>, <strong>${task.b} · ${task.a} = ${task.p}</strong>, <strong>${task.p} : ${task.a} = ${task.b}</strong>, <strong>${task.p} : ${task.b} = ${task.a}</strong> (je 1 P.)`
+        };
+      }
+
+      case "word_problem": {
+        const d = task.data;
+        return {
+          prompt: "Lies die Sachaufgabe genau durch. Schreibe die passende Rechnung mit Ergebnis und einen vollständigen Antwortsatz auf!",
+          body: `<div style="display:flex;flex-direction:column;gap:6px;">
+            <div class="print-card" style="background:#f8fafc;font-size:9.8pt;">📖 ${d.story}</div>
+            <div style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:9.8pt;margin-top:2px;">
+              <span>Rechnung:</span>
+              <span class="print-write-line" style="flex:1;"></span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:9.8pt;">
+              <span>Antwort:</span>
+              <span class="print-write-line" style="flex:1;"></span>
+            </div>
+          </div>`,
+          solution: `Rechnung: <strong>${d.a} ${d.op} ${d.b} = ${d.ans}</strong> (2 P.: 1 P. Rechnung + 1 P. Ergebnis)<br>Antwortsatz: <em>„${d.correctSentence}“</em> (1 P.)`
+        };
+      }
+
+      default:
+        return { prompt: task.prompt, body: "", solution: task.explanation || "" };
+    }
+  }
+
+  function printExamPDF() {
+    const printTasks = generateExamTasks();
+    const maxPoints = printTasks.reduce((sum, t) => sum + t.points, 0);
+    const container = document.getElementById("printContainer");
+    const rendered = printTasks.map((t) => ({
+      task: t,
+      ...buildPrintTaskBodyHTML(t)
+    }));
+
+    // Berechne die dynamische Notentabelle anhand des Standard-Notenschlüssels:
+    // Note 1: ab 95%, Note 2: ab 81%, Note 3: ab 66%, Note 4: ab 51%, Note 5: ab 26%, Note 6: unter 26%
+    const gradeThresholds = [
+      { grade: 1, word: "Sehr gut", minPct: 95 },
+      { grade: 2, word: "Gut", minPct: 81 },
+      { grade: 3, word: "Befriedigend", minPct: 66 },
+      { grade: 4, word: "Ausreichend", minPct: 51 },
+      { grade: 5, word: "Mangelhaft", minPct: 26 },
+      { grade: 6, word: "Ungenügend", minPct: 0 }
+    ];
+
+    const gradeRows = gradeThresholds.map((g, idx) => {
+      const minPts = g.minPct === 0 ? 0 : Math.ceil((g.minPct / 100) * maxPoints);
+      const prevMinPts =
+        idx === 0 ? maxPoints + 1 : Math.ceil((gradeThresholds[idx - 1].minPct / 100) * maxPoints);
+      const maxPts = prevMinPts - 1;
+      const pctText = g.minPct === 0 ? "unter 26 %" : `ab ${g.minPct} %`;
+      const ptsText = minPts === maxPts ? `${minPts} P.` : `${maxPts} – ${minPts} P.`;
+      return {
+        grade: g.grade,
+        word: g.word,
+        pctText,
+        ptsText
+      };
+    });
+
+    const gradeTableHTML = `
+      <table class="print-grade-table">
+        <thead>
+          <tr>
+            <th>Schulnote</th>
+            <th>Bewertung</th>
+            <th>Benötigte Punktzahl (von ${maxPoints} P.)</th>
+            <th>Prozentanteil (Notenschlüssel)</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${gradeRows
+            .map(
+              (r) => `
+              <tr>
+                <td><strong>Note ${r.grade}</strong></td>
+                <td>${r.word}</td>
+                <td><strong>${r.ptsText}</strong></td>
+                <td>${r.pctText}</td>
+              </tr>`
+            )
+            .join("")}
+        </tbody>
+      </table>
+    `;
+
+    let html = `
+      <!-- Kopfbogen der Klausur -->
+      <div class="print-sheet-header">
+        <div class="print-sheet-title-row">
+          <h1 class="print-sheet-title">📐 Mathe-Probeklausur – Klasse 3</h1>
+          <span class="print-sheet-sub">Zahlen bis 1000 &amp; Kleines 1×1 · ${printTasks.length} Aufgaben · ${maxPoints} Punkte</span>
+        </div>
+        <div class="print-meta-grid">
+          <div class="print-meta-field"><span>Name:</span><span class="print-meta-line"></span></div>
+          <div class="print-meta-field"><span>Datum:</span><span class="print-meta-line"></span></div>
+          <div class="print-meta-field"><span>Klasse:</span><span class="print-meta-line"></span></div>
+          <div class="print-meta-field"><span>Punkte:</span><span class="print-meta-line"></span><span>/ ${maxPoints}</span></div>
+        </div>
+      </div>
+    `;
+
+    // Alle 20 Aufgaben
+    rendered.forEach(({ task, prompt, body }) => {
+      html += `
+        <section class="print-task">
+          <div class="print-task-head">
+            <h2 class="print-task-title">
+              <span class="print-task-num">Aufgabe ${task.id}</span>
+              ${task.title}
+            </h2>
+            <span class="print-points-box">____ / ${task.points} P.</span>
+          </div>
+          <p class="print-prompt">${prompt}</p>
+          <div>${body}</div>
+        </section>
+      `;
+    });
+
+    // Auswertungs- & Notenschlüssel-Kasten am Ende der Klausur
+    html += `
+      <div class="print-Grading-box">
+        <div style="display:flex;justify-content:space-between;align-items:center;font-weight:900;font-size:11pt;margin-bottom:6px;">
+          <span>🎓 Gesamtauswertung &amp; Notentabelle</span>
+          <span>Erreichte Punkte: _______ / ${maxPoints} Punkte &nbsp;&nbsp;|&nbsp;&nbsp; Schulnote: _______</span>
+        </div>
+        ${gradeTableHTML}
+      </div>
+    `;
+
+    // Lösungsbogen auf neuer Seite am Ende
+    html += `
+      <div class="print-page-break">
+        <div class="print-sheet-header" style="margin-bottom:10px;">
+          <div class="print-sheet-title-row" style="border:none;margin:0;padding:0;">
+            <h2 class="print-sheet-title" style="font-size:13.5pt;">✅ Lösungsbogen &amp; Punkteverteilung (zur Kontrolle)</h2>
+            <span class="print-sheet-sub">Mathe-Probeklausur Klasse 3 · Gesamt: ${maxPoints} Punkte</span>
+          </div>
+        </div>
+        <div class="print-solutions-grid">
+          ${rendered
+            .map(
+              ({ task, solution }) => `
+              <div class="print-sol-item">
+                <div class="print-sol-head">
+                  <span>Aufgabe ${task.id}: ${task.title}</span>
+                  <span>${task.points} P.</span>
+                </div>
+                <div>${solution}</div>
+              </div>`
+            )
+            .join("")}
+        </div>
+        <div class="print-Grading-box" style="margin-top:10px;">
+          <div style="font-weight:900;font-size:10.5pt;margin-bottom:4px;">
+            📊 Notentabelle zur Punkte-Umrechnung (maximal ${maxPoints} Punkte)
+          </div>
+          ${gradeTableHTML}
+        </div>
+      </div>
+    `;
+
+    container.innerHTML = html;
+    window.print();
+  }
+
   // --- Event Listeners ---
   document.getElementById("btnStartExam").addEventListener("click", startNewExam);
+  document.getElementById("btnPrintExam").addEventListener("click", printExamPDF);
   document.getElementById("btnRestart").addEventListener("click", startNewExam);
   document.getElementById("btnReviewSolutions").addEventListener("click", () => showReviewAtTask(0));
 

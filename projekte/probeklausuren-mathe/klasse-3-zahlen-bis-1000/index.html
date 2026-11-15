@@ -83,9 +83,12 @@
             </div>
           </div>
 
-          <div style="margin-top: 0.25rem;">
-            <button type="button" class="btn btn-primary" id="btnStartExam" style="font-size: 1.18rem; width: 100%; min-height: 52px;">
+          <div class="start-actions">
+            <button type="button" class="btn btn-primary" id="btnStartExam" style="font-size: 1.15rem; flex: 1; min-height: 52px;">
               🎲 Neue Probeklausur auswürfeln &amp; starten 🚀
+            </button>
+            <button type="button" class="btn btn-secondary" id="btnPrintExam" style="font-size: 1.05rem; min-height: 52px; border-width: 2px;">
+              🖨️ Klausur drucken (PDF)
             </button>
           </div>
         </div>
@@ -187,6 +190,9 @@
       </div>
     </div>
   </div>
+
+  <!-- Printable Exam Container (Only visible during print / PDF export) -->
+  <div id="printContainer" aria-hidden="true"></div>
 
   <script src="game.js"></script>
 </body>

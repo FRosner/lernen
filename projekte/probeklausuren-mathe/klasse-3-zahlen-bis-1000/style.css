@@ -326,6 +326,22 @@ main {
   color: var(--ink);
 }
 
+.start-actions {
+  margin-top: 0.25rem;
+  display: flex;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .start-actions {
+    flex-direction: column;
+  }
+  .start-actions .btn {
+    width: 100%;
+  }
+}
+
 /* Task Header */
 .task-header {
   border-bottom: 2px solid #f1f5f9;
@@ -1407,4 +1423,301 @@ footer {
   gap: 0.6rem;
   justify-content: center;
   flex-wrap: wrap;
+}
+
+/* ==========================================================================
+   Print / PDF Stylesheet
+   ========================================================================== */
+#printContainer {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm 14mm;
+  }
+
+  html,
+  body {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    user-select: auto !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .app-shell,
+  .modal-backdrop {
+    display: none !important;
+  }
+
+  #printContainer {
+    display: block !important;
+    width: 100%;
+    font-size: 10.5pt;
+    line-height: 1.35;
+    color: #0f172a;
+  }
+
+  .print-sheet-header {
+    border: 2px solid #1e293b;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    background: #f8fafc;
+  }
+
+  .print-sheet-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 1.5px solid #cbd5e1;
+    padding-bottom: 6px;
+    margin-bottom: 10px;
+  }
+
+  .print-sheet-title {
+    font-size: 15pt;
+    font-weight: 900;
+    color: #1e293b;
+    margin: 0;
+  }
+
+  .print-sheet-sub {
+    font-size: 10pt;
+    font-weight: 700;
+    color: #475569;
+  }
+
+  .print-meta-grid {
+    display: grid;
+    grid-template-columns: 1.8fr 1fr 0.9fr 1.2fr;
+    gap: 12px;
+    font-size: 10pt;
+    font-weight: 700;
+  }
+
+  .print-meta-field {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  .print-meta-line {
+    flex: 1;
+    border-bottom: 1.5px solid #334155;
+    height: 18px;
+  }
+
+  .print-task {
+    border: 1.5px solid #94a3b8;
+    border-radius: 7px;
+    padding: 8px 11px;
+    margin-bottom: 10px;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    background: #ffffff;
+  }
+
+  .print-task-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 4px;
+    margin-bottom: 5px;
+  }
+
+  .print-task-title {
+    font-size: 10.5pt;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+  }
+
+  .print-task-num {
+    display: inline-block;
+    background: #1e293b;
+    color: #ffffff;
+    font-weight: 900;
+    font-size: 9.5pt;
+    padding: 1px 7px;
+    border-radius: 4px;
+    margin-right: 6px;
+  }
+
+  .print-points-box {
+    border: 1.5px solid #334155;
+    border-radius: 4px;
+    padding: 1px 8px;
+    font-size: 9.5pt;
+    font-weight: 800;
+    white-space: nowrap;
+    background: #f8fafc;
+  }
+
+  .print-prompt {
+    margin: 0 0 7px 0;
+    font-size: 9.5pt;
+    font-weight: 600;
+    color: #334155;
+  }
+
+  .print-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .print-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    align-items: start;
+  }
+
+  .print-card {
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 6px 8px;
+    background: #fcfcfd;
+  }
+
+  .print-write-box {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    height: 26px;
+    border: 1.5px solid #334155;
+    border-radius: 4px;
+    background: #ffffff;
+    vertical-align: middle;
+    margin: 0 2px;
+  }
+
+  .print-write-box.sm {
+    min-width: 28px;
+    height: 24px;
+  }
+
+  .print-write-box.lg {
+    min-width: 62px;
+    height: 27px;
+  }
+
+  .print-write-line {
+    display: inline-block;
+    border-bottom: 1.5px solid #334155;
+    min-width: 140px;
+    height: 18px;
+    vertical-align: baseline;
+  }
+
+  .print-write-line.full {
+    display: block;
+    width: 100%;
+    height: 22px;
+    margin-top: 4px;
+  }
+
+  .print-draw-area {
+    border: 1.5px dashed #64748b;
+    border-radius: 6px;
+    height: 78px;
+    background: #ffffff;
+    margin-top: 5px;
+    position: relative;
+  }
+
+  .print-draw-hint {
+    position: absolute;
+    bottom: 3px;
+    right: 6px;
+    font-size: 7.5pt;
+    color: #64748b;
+  }
+
+  .print-htafel {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    border: 1.5px solid #1e293b;
+    max-width: 290px;
+    margin: 0 auto;
+  }
+
+  .print-htafel span {
+    border: 0.5px solid #94a3b8;
+    font-size: 7.8pt;
+    font-weight: 700;
+    text-align: center;
+    padding: 2px 0;
+  }
+
+  .print-Grading-box {
+    border: 2px solid #1e293b;
+    border-radius: 8px;
+    padding: 9px 12px;
+    margin-top: 12px;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    background: #f8fafc;
+  }
+
+  .print-grade-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 6px;
+    font-size: 9pt;
+    background: #ffffff;
+  }
+
+  .print-grade-table th,
+  .print-grade-table td {
+    border: 1px solid #475569;
+    padding: 4px 6px;
+    text-align: center;
+  }
+
+  .print-grade-table th {
+    background: #e2e8f0;
+    font-weight: 800;
+  }
+
+  .print-page-break {
+    break-before: page;
+    page-break-before: always;
+  }
+
+  .print-solutions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .print-sol-item {
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 6px 9px;
+    font-size: 9pt;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    background: #ffffff;
+  }
+
+  .print-sol-head {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 800;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 2px;
+    margin-bottom: 4px;
+    color: #1e293b;
+  }
 }
