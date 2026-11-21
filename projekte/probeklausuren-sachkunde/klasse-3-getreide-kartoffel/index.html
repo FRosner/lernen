@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Probeklausuren Sachkunde – 3 / Getreide &amp; Die Reise der Kartoffel</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Kopfzeile -->
+    <header>
+      <div class="header-info">
+        <div class="header-title">
+          <span aria-hidden="true">🌾</span>
+          <span>Sachkunde-Probeklausur · Klasse 3</span>
+        </div>
+        <div class="header-sub" id="headerSub">Getreide &amp; Die Reise der Kartoffel · 15 Aufgaben</div>
+      </div>
+
+      <div class="header-right">
+        <div class="timer-badge" id="timerBadge" aria-live="off" title="Verbleibende Zeit (45 Minuten)">
+          <span aria-hidden="true">⏳</span>
+          <span id="timerText">45:00</span>
+        </div>
+        <button type="button" class="btn btn-secondary btn-compact" id="btnBackToResults" hidden>
+          📊 Auswertung
+        </button>
+        <button type="button" class="btn btn-success btn-compact" id="btnHeaderSubmit" hidden>
+          📝 Abgeben
+        </button>
+      </div>
+    </header>
+
+    <!-- 15-Aufgaben-Navigation -->
+    <nav class="task-nav" id="taskNav" aria-label="Aufgaben-Navigation" hidden>
+      <div class="task-tabs" id="taskTabs" role="tablist"></div>
+    </nav>
+
+    <!-- Hauptbereich -->
+    <main>
+      <!-- 1. Startbildschirm -->
+      <section class="screen screen-start" id="startScreen" aria-labelledby="startHeading">
+        <div class="start-card">
+          <div class="start-hero-row">
+            <div class="hero-badge">🌾 Sachkunde · 3. Klasse · Klassenarbeit</div>
+            <h1 class="start-title" id="startHeading">Getreide &amp; Die Reise der Kartoffel</h1>
+            <p class="start-desc">
+              Bearbeite alle 15 Aufgaben in deiner eigenen Reihenfolge. Du kannst jederzeit zwischen den Aufgaben hin- und herspringen und deine Antworten bis zur Abgabe ändern.
+            </p>
+          </div>
+
+          <div class="info-grid">
+            <div class="info-box">
+              <div class="info-box-icon" aria-hidden="true">📋</div>
+              <div class="info-box-val">15 Aufgaben</div>
+              <div class="info-box-label">8 Getreide · 7 Kartoffel</div>
+            </div>
+            <div class="info-box">
+              <div class="info-box-icon" aria-hidden="true">💯</div>
+              <div class="info-box-val">100 Punkte</div>
+              <div class="info-box-label">50 + 50 Punkte</div>
+            </div>
+            <div class="info-box">
+              <div class="info-box-icon" aria-hidden="true">⏳</div>
+              <div class="info-box-val">45 Minuten</div>
+              <div class="info-box-label">Klassenarbeits-Zeit</div>
+            </div>
+            <div class="info-box">
+              <div class="info-box-icon" aria-hidden="true">🎓</div>
+              <div class="info-box-val">Mit Note</div>
+              <div class="info-box-label">Sofortige Auswertung</div>
+            </div>
+          </div>
+
+          <div class="topics-block">
+            <div class="topics-heading">Das kommt in der Arbeit dran:</div>
+            <div class="topic-pills">
+              <span class="topic-pill pill-grain">🌾 Aufbau der Getreidepflanze</span>
+              <span class="topic-pill pill-grain">🌽 Weizen, Roggen, Gerste, Hafer &amp; Mais</span>
+              <span class="topic-pill pill-grain">🍞 Vom Korn zum Brot &amp; früher vs. heute</span>
+              <span class="topic-pill pill-potato">🗺️ Landkarte: Reise der Kartoffel</span>
+              <span class="topic-pill pill-potato">🥔 Aufbau der Kartoffelpflanze &amp; Giftiges</span>
+              <span class="topic-pill pill-potato">👑 Inkas, Seefahrer &amp; „Alter Fritz“</span>
+            </div>
+          </div>
+
+          <div class="start-actions">
+            <button type="button" class="btn btn-primary btn-start" id="btnStartExam">
+              🚀 Probeklausur jetzt starten (45 Min.)
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Aufgaben- und Korrektur-Bildschirm -->
+      <section class="screen screen-exam" id="examScreen" hidden>
+        <div class="task-header">
+          <div class="task-title-wrap">
+            <span class="task-num-badge" id="taskNumBadge">Aufgabe 1</span>
+            <h2 class="task-title" id="taskTitle">Aufgabentitel</h2>
+            <span class="task-topic-tag" id="taskTopicTag">Getreide</span>
+            <span class="task-type-tag" id="taskTypeTag">Bild beschriften</span>
+          </div>
+          <span class="task-points" id="taskPoints">6 Punkte</span>
+        </div>
+
+        <p class="task-prompt" id="taskPrompt"></p>
+
+        <div class="review-banner" id="reviewBanner" hidden></div>
+
+        <div class="task-body" id="taskBody"></div>
+      </section>
+
+      <!-- 3. Ergebnis-Bildschirm -->
+      <section class="screen screen-results" id="resultsScreen" hidden aria-labelledby="resultsHeading">
+        <div class="results-container">
+          <div class="results-top">
+            <div>
+              <div class="hero-badge" id="resultBadge">Klausur ausgewertet</div>
+              <h2 class="results-heading" id="resultsHeading">Tolle Leistung!</h2>
+              <p class="results-sub" id="resultsSub"></p>
+            </div>
+            <div class="grade-medallion" id="gradeMedallion">
+              <div class="grade-label">Schulnote</div>
+              <div class="grade-number" id="gradeNumber">1</div>
+              <div class="grade-word" id="gradeWord">Sehr gut</div>
+            </div>
+          </div>
+
+          <div class="results-stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">Punkte gesamt</div>
+              <div class="stat-value" id="statPoints">0 / 100</div>
+              <div class="stat-sub" id="statPercent">0 %</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Benötigte Zeit</div>
+              <div class="stat-value" id="statTime">00:00</div>
+              <div class="stat-sub">von 45:00 Min.</div>
+            </div>
+            <div class="stat-card stat-topic">
+              <div class="stat-label">🌾 Getreide</div>
+              <div class="stat-value" id="statGrain">0 / 50</div>
+              <div class="progress-track"><div class="progress-fill fill-grain" id="barGrain"></div></div>
+            </div>
+            <div class="stat-card stat-topic">
+              <div class="stat-label">🥔 Kartoffel</div>
+              <div class="stat-value" id="statPotato">0 / 50</div>
+              <div class="progress-track"><div class="progress-fill fill-potato" id="barPotato"></div></div>
+            </div>
+          </div>
+
+          <div class="results-tasks-section">
+            <div class="results-section-head">
+              <h3>Übersicht aller 15 Aufgaben</h3>
+              <span class="hint-small">Tippe auf eine Aufgabe, um deine Lösung anzusehen</span>
+            </div>
+            <div class="results-task-grid" id="resultsTaskGrid"></div>
+          </div>
+
+          <div class="grade-key-box">
+            <span class="grade-key-title">Notenschlüssel:</span>
+            <span><b>1</b> ab 95 %</span>
+            <span><b>2</b> ab 81 %</span>
+            <span><b>3</b> ab 66 %</span>
+            <span><b>4</b> ab 51 %</span>
+            <span><b>5</b> ab 26 %</span>
+            <span><b>6</b> unter 26 %</span>
+          </div>
+
+          <div class="results-actions">
+            <button type="button" class="btn btn-primary" id="btnReviewFirst">
+              🔍 Lösungen ansehen
+            </button>
+            <button type="button" class="btn btn-secondary" id="btnRestart">
+              🔄 Neu starten
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Fußzeile für Aufgaben-Navigation -->
+    <footer class="exam-footer" id="examFooter" hidden>
+      <button type="button" class="btn btn-secondary" id="btnPrevTask">
+        ← Zurück
+      </button>
+      <div class="footer-progress" id="footerProgress">Aufgabe 1 von 15</div>
+      <div class="footer-right">
+        <button type="button" class="btn btn-primary" id="btnNextTask">
+          Weiter →
+        </button>
+        <button type="button" class="btn btn-success" id="btnFooterSubmit" hidden>
+          📝 Jetzt abgeben
+        </button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Bestätigungs-Dialog vor der Abgabe -->
+  <dialog class="modal-dialog" id="submitDialog" aria-labelledby="submitDialogTitle">
+    <div class="modal-content">
+      <h3 class="modal-title" id="submitDialogTitle">Probeklausur abgeben?</h3>
+      <p class="modal-text" id="submitDialogText"></p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" id="btnCancelSubmit">
+          Noch weiterarbeiten
+        </button>
+        <button type="button" class="btn btn-success" id="btnConfirmSubmit">
+          ✅ Ja, jetzt auswerten
+        </button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Hinweis-Dialog wenn Zeit abgelaufen -->
+  <dialog class="modal-dialog" id="timeoutDialog" aria-labelledby="timeoutDialogTitle">
+    <div class="modal-content">
+      <h3 class="modal-title" id="timeoutDialogTitle">⏰ Die Zeit ist um!</h3>
+      <p class="modal-text">
+        Die 45 Minuten sind abgelaufen. Deine bisherigen Antworten wurden gespeichert und sofort ausgewertet.
+      </p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-primary" id="btnCloseTimeout">
+          📊 Zur Auswertung
+        </button>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="illustrations.js"></script>
+  <script src="exam.js"></script>
+</body>
+</html>
